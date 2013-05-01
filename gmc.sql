@@ -288,8 +288,8 @@ CREATE TABLE inventory (
 	-- Form Examples: "Core Chips", "Core Center", "Cuttings", "Cutting Auger"
 	inventory_form_id BIGINT REFERENCES inventory_form(inventory_form_id) NOT NULL,
 	inventory_purpose_id BIGINT REFERENCES inventory_purpose(inventory_purpose_id) NULL,
-	sample_number VARCHAR(25) NOT NULL, -- NEED SIZE / NULLABLE?
-	sample_number_prefix VARCHAR(25) NULL, -- NULLABLE?
+	sample_number VARCHAR(25) NULL, -- NEED SIZE
+	sample_number_prefix VARCHAR(25) NULL,
 	alt_sample_number VARCHAR(25) NULL, -- NEED SIZE
 	published_sample_number VARCHAR(25) NULL, -- NEED SIZE
 	published_number_has_suffix BOOLEAN NOT NULL DEFAULT false,
