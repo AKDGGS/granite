@@ -1,41 +1,11 @@
-DROP TABLE IF EXISTS file_type CASCADE;
-DROP TABLE IF EXISTS file CASCADE;
-DROP TABLE IF EXISTS unit CASCADE;
-DROP TABLE IF EXISTS person CASCADE;
-DROP TABLE IF EXISTS organization_type CASCADE;
-DROP TABLE IF EXISTS organization CASCADE;
-DROP TABLE IF EXISTS citation CASCADE;
-DROP TABLE IF EXISTS citation_person CASCADE;
-DROP TABLE IF EXISTS citation_organization CASCADE;
-DROP TABLE IF EXISTS core_diameter_alias CASCADE;
-DROP TABLE IF EXISTS link CASCADE;
-DROP TABLE IF EXISTS collection CASCADE;
-DROP TABLE IF EXISTS project CASCADE;
-DROP TABLE IF EXISTS header_type CASCADE;
-DROP TABLE IF EXISTS header_status CASCADE;
-DROP TABLE IF EXISTS header CASCADE;
-DROP TABLE IF EXISTS header_note CASCADE;
-DROP TABLE IF EXISTS header_organization CASCADE;
-DROP TABLE IF EXISTS header_link CASCADE;
-DROP TABLE IF EXISTS container_type_material CASCADE;
-DROP TABLE IF EXISTS container_type CASCADE;
-DROP TABLE IF EXISTS container CASCADE;
-DROP TABLE IF EXISTS container_file CASCADE;
-DROP TABLE IF EXISTS inventory_form CASCADE;
-DROP TABLE IF EXISTS inventory_source CASCADE;
-DROP TABLE IF EXISTS inventory_purpose CASCADE;
-DROP TABLE IF EXISTS inventory CASCADE;
-DROP TABLE IF EXISTS inventory_citation CASCADE;
-DROP TABLE IF EXISTS inventory_file CASCADE;
-DROP TABLE IF EXISTS inventory_note CASCADE;
-DROP TABLE IF EXISTS inventory_header CASCADE;
-DROP TABLE IF EXISTS inventory_quality CASCADE;
-
+DROP SCHEMA public CASCADE;
+CREATE SCHEMA public AUTHORIZATION gmc;
 
 CREATE TABLE file_type (
 	file_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) -- NEED SIZE
 );
+ALTER TABLE file_type OWNER TO gmc;
 
 
 CREATE TABLE file (
@@ -47,6 +17,7 @@ CREATE TABLE file (
 	filename VARCHAR(255) NOT NULL,
 	md5 CHAR(16) NOT NULL
 );
+ALTER TABLE file OWNER TO gmc;
 
 
 CREATE TABLE unit (
@@ -54,6 +25,7 @@ CREATE TABLE unit (
 	name VARCHAR(100) NOT NULL,
 	description VARCHAR(255) NULL
 );
+ALTER TABLE unit OWNER TO gmc;
 
 
 CREATE TABLE person (
@@ -64,12 +36,14 @@ CREATE TABLE person (
 	suffix VARCHAR(50) NULL,
 	preferred_id BIGINT REFERENCES person(person_id) NULL
 );
+ALTER TABLE person OWNER TO gmc;
 
 
 CREATE TABLE organization_type (
 	organization_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL -- NEED SIZE
 );
+ALTER TABLE organization_type OWNER TO gmc;
 
 
 CREATE TABLE organization (
@@ -77,6 +51,7 @@ CREATE TABLE organization (
 	name VARCHAR(255) NOT NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL
 );
+ALTER TABLE organization OWNER TO gmc;
 
 
 CREATE TABLE citation (
@@ -86,7 +61,8 @@ CREATE TABLE citation (
 	publication_number VARCHAR(50) NULL, -- NULLABLE?
 	publication_series VARCHAR(50) NULL, -- NULLABLE?
 	publication_year DATE NULL -- NULLABLE?
-);
+); 
+ALTER TABLE citation OWNER TO gmc;
 
 
 CREATE TABLE citation_person (
@@ -94,6 +70,7 @@ CREATE TABLE citation_person (
 	person_id BIGINT REFERENCES person(person_id),
 	PRIMARY KEY(citation_id, person_id)
 );
+ALTER TABLE citation_person OWNER TO gmc;
 
 
 CREATE TABLE citation_organization (
@@ -101,6 +78,7 @@ CREATE TABLE citation_organization (
 	organization_id BIGINT REFERENCES organization(organization_id),
 	PRIMARY KEY(citation_id, organization_id)
 );
+ALTER TABLE citation_organization OWNER TO gmc;
 
 
 CREATE TABLE core_diameter_alias (
@@ -108,6 +86,7 @@ CREATE TABLE core_diameter_alias (
 	core_diameter NUMERIC(10,2) NOT NULL,
 	name VARCHAR(100)
 );
+ALTER TABLE core_diameter_alias OWNER TO gmc;
 
 
 CREATE TABLE link (
@@ -115,12 +94,14 @@ CREATE TABLE link (
 	type VARCHAR(25) NULL,
 	url TEXT NOT NULL
 );
+ALTER TABLE link OWNER TO gmc;
 
 
 CREATE TABLE collection (
 	collection_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL
 );
+ALTER TABLE collection OWNER TO gmc;
 
 
 CREATE TABLE project (
@@ -130,18 +111,21 @@ CREATE TABLE project (
 	start_date DATE NULL,
 	end_date DATE NULL
 );
+ALTER TABLE project OWNER TO gmc;
 
 
 CREATE TABLE header_type (
 	header_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NULL
 );
+ALTER TABLE header_type OWNER TO gmc;
 
 
 CREATE TABLE header_status (
 	header_status_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
+ALTER TABLE header_status OWNER TO gmc;
 
 
 -- Merges tables: aogcc_well_header, tbl_hardrock_prospects,
@@ -192,6 +176,7 @@ CREATE TABLE header (
 	can_publish BOOLEAN NOT NULL DEFAULT false, -- NEED DEFAULT
 	source VARCHAR(255) NULL -- NEED SIZE
 );
+ALTER TABLE header OWNER TO gmc;
 
 
 CREATE TABLE header_note (
@@ -201,6 +186,7 @@ CREATE TABLE header_note (
 	note_date DATE NOT NULL DEFAULT NOW(),
 	username VARCHAR(25) NOT NULL
 );
+ALTER TABLE header_note OWNER TO gmc;
 
 
 CREATE TABLE header_organization (
@@ -209,6 +195,7 @@ CREATE TABLE header_organization (
 	type VARCHAR(100) NULL, -- NEED SIZE / NULLABLE? / WHAT IS THIS?
 	PRIMARY KEY(header_id, organization_id)
 );
+ALTER TABLE header_organization OWNER TO gmc;
 
 
 CREATE TABLE header_link (
@@ -216,12 +203,14 @@ CREATE TABLE header_link (
 	link_id BIGINT REFERENCES link(link_id),
 	PRIMARY KEY(header_id, link_id)
 );
+ALTER TABLE header_link OWNER TO gmc;
 
 
 CREATE TABLE container_type_material (
 	container_type_material_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
+ALTER TABLE container_type_material OWNER TO gmc;
 
 
 CREATE TABLE container_type (
@@ -235,6 +224,7 @@ CREATE TABLE container_type (
 	columns INT NULL,
 	remarks TEXT NULL
 );
+ALTER TABLE container_type OWNER TO gmc;
 
 
 CREATE TABLE container (
@@ -245,6 +235,7 @@ CREATE TABLE container (
 	name VARCHAR(50) NOT NULL, -- NEED SIZE
 	description TEXT NULL
 );
+ALTER TABLE container OWNER TO gmc;
 
 
 CREATE TABLE container_file (
@@ -252,6 +243,7 @@ CREATE TABLE container_file (
 	file_id BIGINT REFERENCES file(file_id),
 	PRIMARY KEY(container_id, file_id)
 );
+ALTER TABLE container_file OWNER TO gmc;
 
 
 CREATE TABLE inventory_form (
@@ -261,18 +253,21 @@ CREATE TABLE inventory_form (
 	material VARCHAR(100) NULL,
 	abbreviation VARCHAR(12) NULL
 );
+ALTER TABLE inventory_Form OWNER TO gmc;
 
 
 CREATE TABLE inventory_source (
 	inventory_source_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
 );
+ALTER TABLE inventory_source OWNER TO gmc;
 
 
 CREATE TABLE inventory_purpose (
 	inventory_purpose_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
 );
+ALTER TABLE inventory_purpose OWNER TO gmc;
 
 
 CREATE TABLE inventory (
@@ -326,6 +321,7 @@ CREATE TABLE inventory (
 	weight NUMERIC(10, 2) NULL, -- NEED SIZE
 	weight_unit_id INT REFERENCES unit(unit_id) NULL
 );
+ALTER TABLE inventory OWNER TO gmc;
 
 
 CREATE TABLE inventory_citation (
@@ -333,6 +329,7 @@ CREATE TABLE inventory_citation (
 	citation_id BIGINT REFERENCES citation(citation_id),
 	PRIMARY KEY(inventory_id, citation_id)
 );
+ALTER TABLE inventory_citation OWNER TO gmc;
 
 
 CREATE TABLE inventory_file (
@@ -340,6 +337,7 @@ CREATE TABLE inventory_file (
 	file_id BIGINT REFERENCES file(file_id),
 	PRIMARY KEY(inventory_id, file_id)
 );
+ALTER TABLE inventory_file OWNER TO gmc;
 
 
 CREATE TABLE inventory_note (
@@ -349,6 +347,7 @@ CREATE TABLE inventory_note (
 	note_date DATE NOT NULL DEFAULT NOW(),
 	username VARCHAR(25) NOT NULL
 );
+ALTER TABLE inventory_note OWNER TO gmc;
 
 
 CREATE TABLE inventory_header (
@@ -356,6 +355,7 @@ CREATE TABLE inventory_header (
 	header_id BIGINT REFERENCES header(header_id),
 	PRIMARY KEY(inventory_id, header_id)
 );
+ALTER TABLE inventory_header OWNER TO gmc;
 
 
 CREATE TABLE inventory_quality (
@@ -371,6 +371,7 @@ CREATE TABLE inventory_quality (
 	label_obscured BOOLEAN NOT NULL DEFAULT false,
 	username VARCHAR(25) NOT NULL
 );
+ALTER TABLE inventory_quality OWNER TO gmc;
 
 
 /*

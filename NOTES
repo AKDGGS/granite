@@ -1,10 +1,6 @@
 Seismology data stored in inventory table
 
-Sample number should be nullable
-
 Fields/Table for original JSON data
-
-Roles with inheritence so that database additions don't mean everything breaks
 
 Quadrangle data from DGGS populated into GMC
 
