@@ -281,9 +281,9 @@ CREATE TABLE inventory (
 	-- STILL NEEDS SAMPLE AGREEMENT
 	inventory_id BIGSERIAL PRIMARY KEY,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
-	collector_id BIGINT REFERENCES person(person_id) NULL, -- NULLABLE?
-	container_id BIGINT REFERENCES container(container_id) NULL, -- NULLABLE?
-	collection_id BIGINT REFERENCES collection(collection_id), -- Support multiple? / NULLABLE?
+	collector_id BIGINT REFERENCES person(person_id) NULL,
+	container_id BIGINT REFERENCES container(container_id) NULL,
+	collection_id BIGINT REFERENCES collection(collection_id) NULL,
 	inventory_source_id BIGINT REFERENCES inventory_source(inventory_source_id) NULL,
 	-- Form Examples: "Core Chips", "Core Center", "Cuttings", "Cutting Auger"
 	inventory_form_id BIGINT REFERENCES inventory_form(inventory_form_id) NOT NULL,
@@ -296,6 +296,8 @@ CREATE TABLE inventory (
 	published_description TEXT NULL, -- NEED SIZE
 	barcode INT NULL,
 	other_barcode INT NULL,
+	shotline VARCHAR(50) NULL, -- NEED SIZE
+	shothole VARCHAR(50) NULL, -- NEED SIZE
 	state_number VARCHAR(50) NULL, -- NEED SIZE
 	box_number VARCHAR(50) NULL, -- NEED SIZE
 	set_number VARCHAR(50) NULL, -- NEED SIZE
@@ -403,11 +405,4 @@ Sampled - who sampled it, when it was sampled, sample agreement,
 Visits: organziation, person, when
 
 	- barcode examined, date
-
-
-Break out the barcodes into a seperate table, so that there's a unified query
-method for barcodes and what they belong to
-
-
-** PROCESSED tables next
 */

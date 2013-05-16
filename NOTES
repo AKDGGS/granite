@@ -1,0 +1,13 @@
+Seismology data stored in inventory table
+
+Sample number should be nullable
+
+Fields/Table for original JSON data
+
+Roles with inheritence so that database additions don't mean everything breaks
+
+Quadrangle data from DGGS populated into GMC
+
+Place data from USGS populated into GMC
+
+Barcodes are numeric? Are all barcodes stored numerically?
