@@ -154,13 +154,20 @@ CREATE TABLE metadata (
 	metadata_id BIGSERIAL PRIMARY KEY,
 	metadata_type_id INT REFERENCES metadata_type(metadata_type_id) NOT NULL,
 	metadata_status_id INT REFERENCES metadata_status(metadata_status_id) NOT NULL,
+
 	-- Begin Spatial Data
 	region_id INT REFERENCES region(region_id) NULL,
 	-- End Spatial Start
+
+	-- Begin Identifying Fields
+	identity_name VARCHAR(255) NOT NULL,
+	identity_number VARCHAR(50) NULL,
+	identity_station VARCHAR(50) NULL,
+	identity_year DATE NULL,
+	-- End Identifying Fields
+
 	api_number INT NULL,
-	other_number INT NULL,
 	ardf_number VARCHAR(6) NULL, -- NEED SIZE
-	name VARCHAR(255) NOT NULL,
 	previous_names VARCHAR(255) NULL,
 	alias VARCHAR(255) NULL,
 	completion_date DATE NULL,
@@ -173,7 +180,6 @@ CREATE TABLE metadata (
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	field_date DATE NULL,
 	elevation NUMERIC(10, 2) NULL,  -- NEED PRECISION
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
 	drill_method VARCHAR(255) NULL, -- NEED SIZE
@@ -281,7 +287,7 @@ CREATE TABLE inventory (
 	-- STILL NEEDS DESCRIPTION OF SAMPLE /w DIMENSIONS
 	-- STILL NEEDS SAMPLE AGREEMENT
 	inventory_id BIGSERIAL PRIMARY KEY,
-	metadata BIGINT REFERENCES metadata(hedaer_id) NULL,
+	metadata BIGINT REFERENCES metadata(metadata_id) NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
 	container_id BIGINT REFERENCES container(container_id) NULL,
@@ -299,8 +305,6 @@ CREATE TABLE inventory (
 	published_description TEXT NULL, -- NEED SIZE
 	barcode INT NULL,
 	other_barcode INT NULL,
-	shotline VARCHAR(50) NULL, -- NEED SIZE
-	shothole VARCHAR(50) NULL, -- NEED SIZE
 	state_number VARCHAR(50) NULL, -- NEED SIZE
 	box_number VARCHAR(50) NULL, -- NEED SIZE
 	set_number VARCHAR(50) NULL, -- NEED SIZE
