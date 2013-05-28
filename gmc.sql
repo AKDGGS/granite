@@ -285,6 +285,7 @@ ALTER TABLE inventory_purpose OWNER TO gmc;
 CREATE TABLE inventory (
 	-- STILL NEEDS DESCRIPTION OF SAMPLE /w DIMENSIONS
 	-- STILL NEEDS SAMPLE AGREEMENT
+	-- STILL NEEDS SPATIAL DATA (See: metadata table)
 	inventory_id BIGSERIAL PRIMARY KEY,
 	metadata_id BIGINT REFERENCES metadata(metadata_id) NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
