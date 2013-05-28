@@ -286,7 +286,7 @@ CREATE TABLE inventory (
 	-- STILL NEEDS DESCRIPTION OF SAMPLE /w DIMENSIONS
 	-- STILL NEEDS SAMPLE AGREEMENT
 	inventory_id BIGSERIAL PRIMARY KEY,
-	metadata BIGINT REFERENCES metadata(metadata_id) NULL,
+	metadata_id BIGINT REFERENCES metadata(metadata_id) NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
 	container_id BIGINT REFERENCES container(container_id) NULL,
