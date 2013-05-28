@@ -56,6 +56,7 @@ ALTER TABLE organization_type OWNER TO gmc;
 CREATE TABLE organization (
 	organization_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
+	abbreviation VARCHAR(25) NOT NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL
 );
 ALTER TABLE organization OWNER TO gmc;
