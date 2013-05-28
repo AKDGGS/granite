@@ -168,8 +168,7 @@ CREATE TABLE metadata (
 
 	api_number INT NULL,
 	ardf_number VARCHAR(6) NULL, -- NEED SIZE
-	previous_names VARCHAR(255) NULL,
-	alias VARCHAR(255) NULL,
+	alternate_names VARCHAR(1024) NULL,
 	completion_date DATE NULL,
 	completion_class VARCHAR(255) NULL, -- NEED SIZE
 	completion_status VARCHAR(25) NULL, -- NEED SIZE
