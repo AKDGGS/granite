@@ -28,6 +28,13 @@ CREATE TABLE unit (
 ALTER TABLE unit OWNER TO gmc;
 
 
+CREATE TABLE region (
+	region_id SERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL
+);
+ALTER TABLE region OWNER TO gmc;
+
+
 CREATE TABLE person (
 	person_id BIGSERIAL PRIMARY KEY,
 	first VARCHAR(100) NULL,
@@ -114,26 +121,24 @@ CREATE TABLE project (
 ALTER TABLE project OWNER TO gmc;
 
 
-CREATE TABLE header_type (
-	header_type_id SERIAL PRIMARY KEY,
+CREATE TABLE metadata_type (
+	metadata_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NULL
 );
-ALTER TABLE header_type OWNER TO gmc;
+ALTER TABLE metadata_type OWNER TO gmc;
 
 
-CREATE TABLE header_status (
-	header_status_id SERIAL PRIMARY KEY,
+CREATE TABLE metadata_status (
+	metadata_status_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
-ALTER TABLE header_status OWNER TO gmc;
-
+ALTER TABLE metadata_status OWNER TO gmc;
 
 -- Merges tables: aogcc_well_header, tbl_hardrock_prospects,
 -- tbl_hardrock_borehole, gmc_field_station
-CREATE TABLE header (
+CREATE TABLE metadata (
 	-- STILL NEEDS LOCATION DATA:
-	-- Lat/Lon/Datum - Multiple - Description of point (Centroid, etc)
-	-- Area/Region
+	-- Lat/Lon/Datum - Description of point (Centroid, etc)
 	-- Meridian/Township/Range/Section/Quarter Section
 	-- Field/Pool
 	-- Quadrangle/Quad 64
@@ -146,10 +151,12 @@ CREATE TABLE header (
 	-- Location Remarks
 	-- Source
 	-- BLM Map Number
-	header_id BIGSERIAL PRIMARY KEY,
-	project_id BIGINT REFERENCES project(project_id) NULL,
-	header_type_id INT REFERENCES header_type(header_type_id) NOT NULL,
-	header_status_id INT REFERENCES header_status(header_status_id) NOT NULL,
+	metadata_id BIGSERIAL PRIMARY KEY,
+	metadata_type_id INT REFERENCES metadata_type(metadata_type_id) NOT NULL,
+	metadata_status_id INT REFERENCES metadata_status(metadata_status_id) NOT NULL,
+	-- Begin Spatial Data
+	region_id INT REFERENCES region(region_id) NULL,
+	-- End Spatial Start
 	api_number INT NULL,
 	other_number INT NULL,
 	ardf_number VARCHAR(6) NULL, -- NEED SIZE
@@ -176,34 +183,34 @@ CREATE TABLE header (
 	can_publish BOOLEAN NOT NULL DEFAULT false, -- NEED DEFAULT
 	source VARCHAR(255) NULL -- NEED SIZE
 );
-ALTER TABLE header OWNER TO gmc;
+ALTER TABLE metadata OWNER TO gmc;
 
 
-CREATE TABLE header_note (
-	header_note_id BIGSERIAL PRIMARY KEY,
-	header_id BIGINT REFERENCES header(header_id) NOT NULL,
+CREATE TABLE metadata_note (
+	metadata_note_id BIGSERIAL PRIMARY KEY,
+	metadata_id BIGINT REFERENCES metadata(metadata_id) NOT NULL,
 	note TEXT NOT NULL,
 	note_date DATE NOT NULL DEFAULT NOW(),
 	username VARCHAR(25) NOT NULL
 );
-ALTER TABLE header_note OWNER TO gmc;
+ALTER TABLE metadata_note OWNER TO gmc;
 
 
-CREATE TABLE header_organization (
-	header_id BIGINT REFERENCES header(header_id),
+CREATE TABLE metadata_organization (
+	metadata_id BIGINT REFERENCES metadata(metadata_id),
 	organization_id BIGINT REFERENCES organization(organization_id),
 	type VARCHAR(100) NULL, -- NEED SIZE / NULLABLE? / WHAT IS THIS?
-	PRIMARY KEY(header_id, organization_id)
+	PRIMARY KEY(metadata_id, organization_id)
 );
-ALTER TABLE header_organization OWNER TO gmc;
+ALTER TABLE metadata_organization OWNER TO gmc;
 
 
-CREATE TABLE header_link (
-	header_id BIGINT REFERENCES header(header_id),
+CREATE TABLE metadata_link (
+	metadata_id BIGINT REFERENCES metadata(metadata_id),
 	link_id BIGINT REFERENCES link(link_id),
-	PRIMARY KEY(header_id, link_id)
+	PRIMARY KEY(metadata_id, link_id)
 );
-ALTER TABLE header_link OWNER TO gmc;
+ALTER TABLE metadata_link OWNER TO gmc;
 
 
 CREATE TABLE container_type_material (
@@ -271,14 +278,15 @@ ALTER TABLE inventory_purpose OWNER TO gmc;
 
 
 CREATE TABLE inventory (
-	-- STILL NEEDS LOCATION DATA: See header
 	-- STILL NEEDS DESCRIPTION OF SAMPLE /w DIMENSIONS
 	-- STILL NEEDS SAMPLE AGREEMENT
 	inventory_id BIGSERIAL PRIMARY KEY,
+	metadata BIGINT REFERENCES metadata(hedaer_id) NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
 	container_id BIGINT REFERENCES container(container_id) NULL,
 	collection_id BIGINT REFERENCES collection(collection_id) NULL,
+	project_id BIGINT REFERENCES project(project_id) NULL,
 	inventory_source_id BIGINT REFERENCES inventory_source(inventory_source_id) NULL,
 	-- Form Examples: "Core Chips", "Core Center", "Cuttings", "Cutting Auger"
 	inventory_form_id BIGINT REFERENCES inventory_form(inventory_form_id) NOT NULL,
@@ -350,12 +358,12 @@ CREATE TABLE inventory_note (
 ALTER TABLE inventory_note OWNER TO gmc;
 
 
-CREATE TABLE inventory_header (
+CREATE TABLE inventory_metadata (
 	inventory_id BIGINT REFERENCES inventory(inventory_id),
-	header_id BIGINT REFERENCES header(header_id),
-	PRIMARY KEY(inventory_id, header_id)
+	metadata_id BIGINT REFERENCES metadata(metadata_id),
+	PRIMARY KEY(inventory_id, metadata_id)
 );
-ALTER TABLE inventory_header OWNER TO gmc;
+ALTER TABLE inventory_metadata OWNER TO gmc;
 
 
 CREATE TABLE inventory_quality (
