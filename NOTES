@@ -1,9 +1,17 @@
-Seismology data stored in inventory table
+Seismology data stored in inventory table?
 
-Fields/Table for original JSON data
-
-Quadrangle data from DGGS populated into GMC
-
-Place data from USGS populated into GMC
+Fields/Table for original JSON data - which tables need this?
 
 Barcodes are numeric? Are all barcodes stored numerically?
+
+List of all your sample types, for DGGS
+
+Publications referencing inventory -
+	- Publication Number
+	- Title
+	- Year
+
+original_id to all the major tables
+
+Try importing tbl_map_gmc into container
+- Also take a look at tbl_map_drawer
