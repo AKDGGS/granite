@@ -1,0 +1,192 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE etl SYSTEM "http://scriptella.javaforge.com/dtd/etl.dtd">
+<etl>
+	<!-- Load username and password from properties file -->
+	<properties><include href="${user.home}/gmc.properties"/></properties>
+
+	<connection id="log" driver="text"/>
+	<connection id="jexl" driver="jexl" />
+
+	<connection id="src" driver="org.postgresql.Driver"
+		user="${username}" password="${password}"
+		url="jdbc:postgresql://146.63.145.66/mdb">
+		characterEncoding=utf-8
+		autocommit=false
+	</connection>
+
+	<connection id="dst" driver="org.postgresql.Driver"
+		user="${username}" password="${password}"
+		url="jdbc:postgresql://146.63.145.66/gmc">
+		characterEncoding=utf-8
+		autocommit=false
+	</connection>
+
+	<query connection-id="src">
+		SELECT DISTINCT
+			CASE building_type
+				WHEN 'Connex' THEN 'Connex'
+				ELSE 'Building'
+			END AS type,
+			CASE
+				WHEN POSITION('Green' IN room_connex) > 0 THEN 'Green' 
+				WHEN POSITION('Shell' IN room_connex) > 0 THEN 'Shell'
+				WHEN POSITION('White' IN room_connex) > 0 THEN 'White'
+				WHEN POSITION('Main' IN room_connex) > 0 THEN 'Main Warehouse'
+				ELSE room_connex
+			END AS building,
+			CASE
+				WHEN POSITION('Green' IN room_connex) > 0 THEN
+					REPLACE(room_connex, 'Green ', '')
+				WHEN POSITION('Shell' IN room_connex) > 0 THEN
+					REPLACE(room_connex, 'Shell ', '')
+				WHEN POSITION('White' IN room_connex) > 0 THEN
+					REPLACE(room_connex, 'White-', '')
+				WHEN POSITION('Main' IN room_connex) > 0 THEN
+					REPLACE(room_connex, 'Main ', '')
+				ELSE NULL
+			END AS room,
+			columnx,
+			shelf,
+			shelf_width,
+			shelf_depth,
+			shelf_height,
+			shelf_idx
+		FROM tbl_map_gmc
+		WHERE room_connex IS NOT NULL
+		ORDER BY building, room, columnx, shelf
+
+		<!-- Insert buildings -->
+		<query connection-id="dst">
+			SELECT COUNT(*) AS containerCount
+			FROM container
+			WHERE name = ?{building}
+				AND parent_container_id IS NULL
+
+			<query if="containerCount gt 0">
+				SELECT container_id
+				FROM container
+				WHERE name = ?{building}
+					AND parent_container_id IS NULL
+
+				<script connection-id="jexl">
+					etl.globals['parent_id'] = container_id;
+				</script>
+			</query>
+
+			<script if="containerCount eq 0">
+				INSERT INTO container (name, container_type_id)
+				VALUES (?{building}, (
+					SELECT container_type_id
+					FROM container_type
+					WHERE name = ?{type}
+				));
+			</script>
+			<query if="containerCount eq 0">
+				SELECT currval('container_container_id_seq') AS container_id
+				<script connection-id="jexl">
+					etl.globals['parent_id'] = container_id;
+				</script>
+			</query>
+		</query>
+
+
+		<!-- Insert rooms -->
+		<query connection-id="dst" if="not empty(room)">
+			SELECT COUNT(*) AS containerCount
+			FROM container
+			WHERE name = ?{room}
+				AND parent_container_id = ?{etl.globals['parent_id']}
+
+			<query if="containerCount gt 0">
+				SELECT container_id
+				FROM container
+				WHERE name = ?{room}
+					AND parent_container_id = ?{etl.globals['parent_id']}
+
+				<script connection-id="jexl">
+					etl.globals['parent_id'] = container_id;
+				</script>
+			</query>
+
+			<script if="containerCount eq 0">
+				INSERT INTO container (
+					name, parent_container_id, container_type_id
+				) VALUES (?{room}, ?{etl.globals['parent_id']}, (
+					SELECT container_type_id
+					FROM container_type
+					WHERE name = 'Room'
+				));
+			</script>
+			<query if="containerCount eq 0">
+				SELECT currval('container_container_id_seq') AS container_id
+				<script connection-id="jexl">
+					etl.globals['parent_id'] = container_id;
+				</script>
+			</query>
+		</query>
+
+
+		<!--Insert Columsn -->
+		<query connection-id="dst" if="not empty(columnx)">
+			SELECT COUNT(*) AS containerCount
+			FROM container
+			WHERE name = ?{columnx}
+				AND parent_container_id = ?{etl.globals['parent_id']}
+
+			<query if="containerCount gt 0">
+				SELECT container_id
+				FROM container
+				WHERE name = ?{columnx}
+					AND parent_container_id = ?{etl.globals['parent_id']}
+
+				<script connection-id="jexl">
+					etl.globals['parent_id'] = container_id;
+				</script>
+			</query>
+
+			<script if="containerCount eq 0">
+				INSERT INTO container (
+					name, parent_container_id, container_type_id
+				) VALUES (?{columnx}, ?{etl.globals['parent_id']}, (
+					SELECT container_type_id
+					FROM container_type
+					WHERE name = 'Column'
+				));
+			</script>
+			<query if="containerCount eq 0">
+				SELECT currval('container_container_id_seq') AS container_id
+				<script connection-id="jexl">
+					etl.globals['parent_id'] = container_id;
+				</script>
+			</query>
+		</query>
+
+
+		<!--Insert Shelf -->
+		<query connection-id="dst" if="not empty(shelf)">
+			SELECT COUNT(*) AS containerCount
+			FROM container
+			WHERE name = ?{shelf}
+				AND parent_container_id = ?{etl.globals['parent_id']}
+
+			<script if="containerCount eq 0">
+				INSERT INTO container (
+					name, parent_container_id,
+					height, width, depth,
+					temp_shelf_idx,
+					container_type_id
+				) VALUES (
+					?{shelf}, ?{etl.globals['parent_id']},
+					?{shelf_height}, ?{shelf_width}, ?{shelf_depth},
+					?{shelf_idx},
+					(
+						SELECT container_type_id
+						FROM container_type
+						WHERE name = 'Shelf'
+					)
+				);
+			</script>
+		</query>
+
+	</query>
+</etl>

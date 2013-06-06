@@ -240,23 +240,16 @@ CREATE TABLE location_metadata_link (
 ALTER TABLE location_metadata_link OWNER TO gmc;
 
 
-CREATE TABLE container_type_material (
-	container_type_material_id SERIAL PRIMARY KEY,
+CREATE TABLE container_material (
+	container_material_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
-ALTER TABLE container_type_material OWNER TO gmc;
+ALTER TABLE container_material OWNER TO gmc;
 
 
 CREATE TABLE container_type (
 	container_type_id SERIAL PRIMARY KEY,
-	container_type_material_id INT REFERENCES container_type_material(container_type_material_id) NULL,
-	name VARCHAR(50) NOT NULL,
-	width NUMERIC(10,2) NOT NULL,
-	length NUMERIC(10,2) NOT NULL,
-	height NUMERIC(10,2) NOT NULL,
-	unit_id INT REFERENCES unit(unit_id) NOT NULL,
-	columns INT NULL,
-	remarks TEXT NULL
+	name VARCHAR(100) NOT NULL
 );
 ALTER TABLE container_type OWNER TO gmc;
 
@@ -266,10 +259,19 @@ CREATE TABLE container (
 	container_id BIGSERIAL PRIMARY KEY,
 	parent_container_id BIGINT REFERENCES container(container_id) NULL,
 	container_type_id INT REFERENCES container_type(container_type_id) NULL,
-	barcode INT NULL,
+	container_material_id INT REFERENCES container_material(container_material_id) NULL,
+
 	name VARCHAR(50) NOT NULL,
 	description TEXT NULL,
-	temp_shelf_idx VARCHAR(20) NULL
+
+	-- Optional container dimensions
+	height NUMERIC(10,2) NULL,
+	width NUMERIC(10,2) NULL,
+	depth NUMERIC(10,2) NULL,
+	unit_id INT REFERENCES unit(unit_id) NULL,
+
+	barcode INT NULL,
+	temp_shelf_idx VARCHAR(35) NULL
 );
 ALTER TABLE container OWNER TO gmc;
 
