@@ -1,5 +1,16 @@
 DROP SCHEMA public CASCADE;
 CREATE SCHEMA public AUTHORIZATION gmc;
+CREATE EXTENSION postgis;
+CREATE EXTENSION postgis_topology;
+
+
+CREATE TABLE place (
+	place_id BIGSERIAL PRIMARY KEY,
+	name VARCHAR(150) NOT NULL,
+	type VARCHAR(20) NOT NULL,
+	spatial geometry NULL
+);
+ALTER TABLE place OWNER TO gmc;
 
 
 CREATE TABLE file_type (
@@ -12,7 +23,7 @@ ALTER TABLE file_type OWNER TO gmc;
 CREATE TABLE file (
 	file_id BIGSERIAL PRIMARY KEY,
 	file_type_id INT REFERENCES file_type(file_type_id) NULL,
-	description VARCHAR(255) NULL,
+	description VARCHAR(100) NULL,
 	mimetype VARCHAR(255) NOT NULL DEFAULT 'application/octet-stream',
 	size BIGINT NOT NULL,
 	filename VARCHAR(255) NOT NULL,
@@ -25,7 +36,7 @@ CREATE TABLE unit (
 	unit_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL,
 	abbreviation VARCHAR(5) NULL,
-	description VARCHAR(255) NULL
+	description VARCHAR(100) NULL
 );
 ALTER TABLE unit OWNER TO gmc;
 
@@ -49,7 +60,9 @@ CREATE TABLE organization (
 	name VARCHAR(255) NOT NULL,
 	abbreviation VARCHAR(25) NOT NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
-	remarks TEXT NULL
+	remarks TEXT NULL,
+	temp_original_id INT NULL
+
 );
 ALTER TABLE organization OWNER TO gmc;
 
@@ -61,11 +74,11 @@ CREATE TABLE person (
 	last VARCHAR(100) NOT NULL,
 	suffix VARCHAR(50) NULL,
 
-	-- Used for referencing the user in the short-term during the import
-	temp_fullname VARCHAR(150) NULL,
-
 	organization_id BIGINT REFERENCES organization(organization_id) NULL,
-	preferred_id BIGINT REFERENCES person(person_id) NULL
+	preferred_id BIGINT REFERENCES person(person_id) NULL,
+
+	-- Used for referencing the user in the short-term during the import
+	temp_fullname VARCHAR(150) NULL
 );
 ALTER TABLE person OWNER TO gmc;
 
@@ -76,7 +89,8 @@ CREATE TABLE publication (
 	url VARCHAR(1024) NULL,
 	year INT NULL,
 	publication_number VARCHAR(50) NULL,
-	publication_series VARCHAR(50) NULL
+	publication_series VARCHAR(50) NULL,
+	temp_original_id INT NULL
 ); 
 ALTER TABLE publication OWNER TO gmc;
 
@@ -97,13 +111,13 @@ CREATE TABLE publication_organization (
 ALTER TABLE publication_organization OWNER TO gmc;
 
 
-CREATE TABLE core_diameter_alias (
-	core_diameter_alias_id SERIAL PRIMARY KEY,
+CREATE TABLE core_diameter (
+	core_diameter_id SERIAL PRIMARY KEY,
 	core_diameter NUMERIC(10,2) NOT NULL,
-	unit_id INT REFERENCES unit(unit_id) NULL,
-	name VARCHAR(100)
+	name VARCHAR(100) NULL,
+	unit_id INT REFERENCES unit(unit_id) NULL
 );
-ALTER TABLE core_diameter_alias OWNER TO gmc;
+ALTER TABLE core_diameter OWNER TO gmc;
 
 
 CREATE TABLE link (
@@ -127,7 +141,9 @@ CREATE TABLE project (
 	organization_id BIGINT REFERENCES organization(organization_id) NULL,
 	name VARCHAR(100) NOT NULL,
 	start_date DATE NULL,
-	end_date DATE NULL
+	end_date DATE NULL,
+
+	temp_original_id INT NULL
 );
 ALTER TABLE project OWNER TO gmc;
 
@@ -146,6 +162,7 @@ CREATE TABLE location_metadata_status (
 ALTER TABLE location_metadata_status OWNER TO gmc;
 
 
+-- Add JSON metadata table for location_metadata
 -- Merges tables: aogcc_well_header, tbl_hardrock_prospects,
 -- tbl_hardrock_borehole, gmc_field_station
 CREATE TABLE location_metadata (
@@ -163,7 +180,6 @@ CREATE TABLE location_metadata (
 	-- -- Keep separate, they claim DGGS has descrete polys for these
 	-- Energy District -- SR66 Energy District Jean started using this, likes it
 	-- UTM -- UTM Easting, UTM Northing, UTM Zone, Units, srid
-	-- Place Name - Inherit from DGGS
 	-- Property Name - BLM Property names and ARDF records
 	-- Prospect Name - Inherit from DGGS
 	-- Location Remarks
@@ -179,6 +195,7 @@ CREATE TABLE location_metadata (
 
 	-- Begin Spatial Data
 	region_id INT REFERENCES region(region_id) NULL,
+	place_id BIGINT REFERENCES place(place_id) NULL, -- Should this be many-to-many?
 	-- End Spatial Start
 
 	-- Begin Identifying Fields
@@ -208,7 +225,10 @@ CREATE TABLE location_metadata (
 	current_class VARCHAR(255) NULL, -- NEED SIZE
 	spud_date DATE NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false, -- NEED DEFAULT
-	source VARCHAR(255) NULL -- NEED SIZE
+	source VARCHAR(255) NULL, -- NEED SIZE
+	stash JSON NULL,
+
+	temp_original_id INT NULL
 );
 ALTER TABLE location_metadata OWNER TO gmc;
 
@@ -262,7 +282,7 @@ CREATE TABLE container (
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
 	name VARCHAR(50) NOT NULL,
-	description TEXT NULL,
+	description VARCHAR(100) NULL,
 
 	-- Optional container dimensions
 	height NUMERIC(10,2) NULL,
@@ -270,7 +290,7 @@ CREATE TABLE container (
 	depth NUMERIC(10,2) NULL,
 	unit_id INT REFERENCES unit(unit_id) NULL,
 
-	barcode INT NULL,
+	barcode VARCHAR(25) NULL,
 	temp_shelf_idx VARCHAR(35) NULL
 );
 ALTER TABLE container OWNER TO gmc;
@@ -287,7 +307,7 @@ ALTER TABLE container_file OWNER TO gmc;
 CREATE TABLE inventory_form (
 	-- Form Examples: "Core Chips", "Core Center", "Cuttings", "Cutting Auger"
 	inventory_form_id SERIAL PRIMARY KEY,
-	description VARCHAR(200) NOT NULL, -- NEED SIZE
+	description VARCHAR(100) NOT NULL, -- NEED SIZE
 	material VARCHAR(100) NULL,
 	abbreviation VARCHAR(8) NULL
 	-- Tags for better searching
@@ -299,32 +319,23 @@ CREATE TABLE inventory_source (
 	-- Where the inventory was original acquired from
 	-- Example: Needs review
 	inventory_source_id SERIAL PRIMARY KEY,
-	name VARCHAR(50) NOT NULL
+	name VARCHAR(50) NOT NULL,
+	preferred_id INT REFERENCES inventory_source(inventory_source_id) NULL
 );
 ALTER TABLE inventory_source OWNER TO gmc;
 
 
-CREATE TABLE inventory_purpose (
-	-- Example: Engineering, Minerals, Geothermal
-	inventory_purpose_id SERIAL PRIMARY KEY,
-	name VARCHAR(50) NOT NULL
-);
-ALTER TABLE inventory_purpose OWNER TO gmc;
-
-
 CREATE TABLE inventory_branch (
-	-- Branch of geology
-	-- "Seismic", "Oil and Gas", "Processed", 
+	-- Branch of geology e.g. ""Seismic", "Oil and Gas", "Processed", 
 	inventory_branch_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
-	abbreviation VARCHAR(2) UNIQUE NOT NULL
+	description VARCHAR(100) NULL
 );
 ALTER TABLE inventory_branch OWNER TO gmc;
 
 
+-- Add JSON metadata table for inventory
 CREATE TABLE inventory (
-	-- STILL NEEDS DESCRIPTION OF SAMPLE /w DIMENSIONS
-	-- STILL NEEDS SAMPLE AGREEMENT
 	-- STILL NEEDS SPATIAL DATA (See: location_metadata table)
 	inventory_id BIGSERIAL PRIMARY KEY,
 	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id) NULL,
@@ -335,15 +346,14 @@ CREATE TABLE inventory (
 	project_id BIGINT REFERENCES project(project_id) NULL,
 	inventory_source_id BIGINT REFERENCES inventory_source(inventory_source_id) NULL,
 	inventory_form_id BIGINT REFERENCES inventory_form(inventory_form_id) NOT NULL,
-	inventory_purpose_id BIGINT REFERENCES inventory_purpose(inventory_purpose_id) NULL,
 	sample_number VARCHAR(25) NULL, -- NEED SIZE
 	sample_number_prefix VARCHAR(25) NULL,
 	alt_sample_number VARCHAR(25) NULL, -- NEED SIZE
 	published_sample_number VARCHAR(25) NULL, -- NEED SIZE
 	published_number_has_suffix BOOLEAN NOT NULL DEFAULT false,
 	published_description TEXT NULL, -- NEED SIZE
-	barcode INT NULL,
-	other_barcode INT NULL,
+	barcode VARCHAR(25) NULL,
+	other_barcode VARCHAR(25) NULL,
 	state_number VARCHAR(50) NULL, -- NEED SIZE
 	box_number VARCHAR(50) NULL, -- NEED SIZE
 	set_number VARCHAR(50) NULL, -- NEED SIZE
@@ -362,18 +372,37 @@ CREATE TABLE inventory (
 	study_area VARCHAR(2) NULL,
 	line_number VARCHAR(15) NULL, -- NEED SIZE
 	core_number VARCHAR(15) NULL, -- NEED SIZE
-	core_diameter NUMERIC(10,2) NULL,
-	core_diameter_unit_id INT REFERENCES unit(unit_id) NULL,
+	core_diameter_id INT REFERENCES core_diameter(core_diameter_id) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	skeleton BOOLEAN NOT NULL DEFAULT false,
 	radiation_cps NUMERIC(10, 2) NULL, -- NEED SIZE
 	received_date DATE NULL,
 	entered_date DATE NULL,
 	modified_date DATE NULL,
+
+	-- Dimension data
+	height NUMERIC(10,2) NULL,
+	width NUMERIC(10,2) NULL,
+	depth NUMERIC(10,2) NULL,
+	dimension_unit_id INT REFERENCES unit(unit_id) NULL,
+
 	weight NUMERIC(10, 2) NULL, -- NEED SIZE
-	weight_unit_id INT REFERENCES unit(unit_id) NULL
+	weight_unit_id INT REFERENCES unit(unit_id) NULL,
+
+	stash JSON NULL,
+
+	temp_original_id INT NULL
 );
 ALTER TABLE inventory OWNER TO gmc;
+
+
+CREATE TABLE inventory_container (
+	inventory_container_id BIGSERIAL PRIMARY KEY,
+	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
+	container_id BIGINT REFERENCES container(container_id) NOT NULL,
+	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+);
+ALTER TABLE inventory_container OWNER TO gmc;
 
 
 CREATE TABLE inventory_publication (
@@ -428,18 +457,6 @@ ALTER TABLE inventory_quality OWNER TO gmc;
 
 
 /*
-Inventory is checked out, if anything is returned, those items 
-are added into inventory, individualy, but sharing a barcode.
-
-Checkouts may be "relocated", "on loan", "sampled"
-
-Relocated and on loan are "exclusive" in that no additional changes may be
-made until they are "complete". "Sampled" is non-exclusive and may be 
-applied many times to the same inventory without being completed.
-
-Relocated - Who did it, when it was pulled and when it was returned,
-where it was returned to
-
 On loan - Who it was loaned to, when it was loaned out, expected return date,
 	the actual return date, who authorized the loan
 
