@@ -1,23 +1,46 @@
-DROP SCHEMA public CASCADE;
-CREATE SCHEMA public AUTHORIZATION gmc;
-CREATE EXTENSION postgis;
-CREATE EXTENSION postgis_topology;
+SET ROLE 'gmc';
+
+DROP TABLE IF EXISTS 
+	inventory_quality, inventory_location_metadata, inventory_note,
+	inventory_file, inventory_publication, inventory_container, 
+	inventory, inventory_branch, inventory_source, inventory_form,
+	container_file, container, container_type, container_material,
+	location_metadata_organization, location_metadata_note,
+	location_metadata, location_metadata_status, location_metadata_type,
+	project, collection, core_diameter, publication_note, 
+	publication_organization, publication_person, publication,
+	person, organization, organization_type, region, unit, file,
+	file_type, place, note, note_type
+CASCADE;
+
+
+CREATE TABLE note_type (
+	note_type_id SERIAL PRIMARY KEY,
+	name VARCHAR(50)
+);
+
+
+CREATE TABLE note (
+	note_id BIGSERIAL PRIMARY KEY,
+	note_type_id INT REFERENCES note_type(note_type_id) NOT NULL,
+	note TEXT NOT NULL,
+	note_date DATE NOT NULL DEFAULT NOW(),
+	username VARCHAR(25) NOT NULL
+);
 
 
 CREATE TABLE place (
 	place_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(150) NOT NULL,
 	type VARCHAR(20) NOT NULL,
-	spatial geometry NULL
+	geom GEOMETRY(Point, 0) NULL
 );
-ALTER TABLE place OWNER TO gmc;
 
 
 CREATE TABLE file_type (
 	file_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) -- NEED SIZE
 );
-ALTER TABLE file_type OWNER TO gmc;
 
 
 CREATE TABLE file (
@@ -29,7 +52,6 @@ CREATE TABLE file (
 	filename VARCHAR(255) NOT NULL,
 	md5 CHAR(16) NOT NULL
 );
-ALTER TABLE file OWNER TO gmc;
 
 
 CREATE TABLE unit (
@@ -38,21 +60,18 @@ CREATE TABLE unit (
 	abbreviation VARCHAR(5) NULL,
 	description VARCHAR(100) NULL
 );
-ALTER TABLE unit OWNER TO gmc;
 
 
 CREATE TABLE region (
 	region_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
 );
-ALTER TABLE region OWNER TO gmc;
 
 
 CREATE TABLE organization_type (
 	organization_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
 );
-ALTER TABLE organization_type OWNER TO gmc;
 
 
 CREATE TABLE organization (
@@ -64,7 +83,6 @@ CREATE TABLE organization (
 	temp_original_id INT NULL
 
 );
-ALTER TABLE organization OWNER TO gmc;
 
 
 CREATE TABLE person (
@@ -80,11 +98,11 @@ CREATE TABLE person (
 	-- Used for referencing the user in the short-term during the import
 	temp_fullname VARCHAR(150) NULL
 );
-ALTER TABLE person OWNER TO gmc;
 
 
 CREATE TABLE publication (
 	publication_id BIGSERIAL PRIMARY KEY,
+	citation_id BIGINT NULL,
 	title VARCHAR(250) NOT NULL,
 	url VARCHAR(1024) NULL,
 	year INT NULL,
@@ -92,7 +110,6 @@ CREATE TABLE publication (
 	publication_series VARCHAR(50) NULL,
 	temp_original_id INT NULL
 ); 
-ALTER TABLE publication OWNER TO gmc;
 
 
 CREATE TABLE publication_person (
@@ -100,7 +117,6 @@ CREATE TABLE publication_person (
 	person_id BIGINT REFERENCES person(person_id),
 	PRIMARY KEY(publication_id, person_id)
 );
-ALTER TABLE publication_person OWNER TO gmc;
 
 
 CREATE TABLE publication_organization (
@@ -108,7 +124,13 @@ CREATE TABLE publication_organization (
 	organization_id BIGINT REFERENCES organization(organization_id),
 	PRIMARY KEY(publication_id, organization_id)
 );
-ALTER TABLE publication_organization OWNER TO gmc;
+
+
+CREATE TABLE publication_note (
+	publication_id BIGINT REFERENCES publication(publication_id) NOT NULL,
+	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	PRIMARY KEY(publication_id, note_id)
+);
 
 
 CREATE TABLE core_diameter (
@@ -117,15 +139,6 @@ CREATE TABLE core_diameter (
 	name VARCHAR(100) NULL,
 	unit_id INT REFERENCES unit(unit_id) NULL
 );
-ALTER TABLE core_diameter OWNER TO gmc;
-
-
-CREATE TABLE link (
-	link_id BIGSERIAL PRIMARY KEY,
-	type VARCHAR(25) NULL,
-	url TEXT NOT NULL
-);
-ALTER TABLE link OWNER TO gmc;
 
 
 CREATE TABLE collection (
@@ -133,7 +146,6 @@ CREATE TABLE collection (
 	name VARCHAR(50) NOT NULL,
 	organization_id BIGINT REFERENCES organization(organization_id) NULL
 );
-ALTER TABLE collection OWNER TO gmc;
 
 
 CREATE TABLE project (
@@ -145,24 +157,81 @@ CREATE TABLE project (
 
 	temp_original_id INT NULL
 );
-ALTER TABLE project OWNER TO gmc;
 
 
 CREATE TABLE location_metadata_type (
 	location_metadata_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NULL
 );
-ALTER TABLE location_metadata_type OWNER TO gmc;
 
 
 CREATE TABLE location_metadata_status (
 	location_metadata_status_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
-ALTER TABLE location_metadata_status OWNER TO gmc;
 
+-- Well:
+-- * well_name
+-- * api_number
+-- * well_number
+-- * alternate_names
+-- * lease_number
+-- * spud_date
+-- * completion_date
+-- * measured_depth
+-- * vertical_depth
+-- * elevation
+-- * permit status
+-- * completion_status
+-- * stash
+-- * geo_aqusition_source
+-- * geo_aqusition_type
+-- * notes
+-- * Spatial: Only one of each
+-- * * lat/lon surface
+-- * * field/pool/basin
+-- * * section/township/range
 
--- Add JSON metadata table for location_metadata
+-- Field Station/Outcrop
+-- * name
+-- * number TEXT NULLABLE
+-- * year
+-- * stash
+-- * geo_aqusition_source
+-- * geo_aqusition_type
+-- * notes
+-- * Spatial: Only one of each
+-- * * lon/lat
+-- * * section/township/range
+-- * * UTM
+-- * * region
+-- * * place
+-- * * property
+-- * * quadrangle
+-- * * mining district
+
+-- Borehole:
+-- * prospect_name
+-- * borehole_number (TEXT)
+-- * alternate_names
+-- * completion_date
+-- * measured_depth
+-- * stash
+-- * geo_aqusition_source
+-- * geo_aqusition_type
+-- * notes
+-- * Spatial: Only one of each
+-- * * lat/lon
+-- * * UTM
+
+--CREATE TABLE plss (
+--	plss_id SERIAL PRIMARY KEY,
+--	meridian VARCHAR(100) NULL,
+--	township VARCHAR(4) NULL,
+--	range VARCHAR(4) NULL,
+--	section INT,
+--);
+
 -- Merges tables: aogcc_well_header, tbl_hardrock_prospects,
 -- tbl_hardrock_borehole, gmc_field_station
 CREATE TABLE location_metadata (
@@ -205,7 +274,7 @@ CREATE TABLE location_metadata (
 	identity_year DATE NULL,
 	-- End Identifying Fields
 
-	api_number INT NULL,
+	api_number VARCHAR(14) NULL,
 	ardf_number VARCHAR(6) NULL, -- NEED SIZE
 	alternate_names VARCHAR(1024) NULL,
 	completion_date DATE NULL,
@@ -227,20 +296,17 @@ CREATE TABLE location_metadata (
 	can_publish BOOLEAN NOT NULL DEFAULT false, -- NEED DEFAULT
 	source VARCHAR(255) NULL, -- NEED SIZE
 	stash JSON NULL,
+	url TEXT NOT NULL,
 
 	temp_original_id INT NULL
 );
-ALTER TABLE location_metadata OWNER TO gmc;
 
 
 CREATE TABLE location_metadata_note (
-	location_metadata_note_id BIGSERIAL PRIMARY KEY,
 	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id) NOT NULL,
-	note TEXT NOT NULL,
-	note_date DATE NOT NULL DEFAULT NOW(),
-	username VARCHAR(25) NOT NULL
+	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	PRIMARY KEY(location_metadata_id, note_id)
 );
-ALTER TABLE location_metadata_note OWNER TO gmc;
 
 
 CREATE TABLE location_metadata_organization (
@@ -249,29 +315,18 @@ CREATE TABLE location_metadata_organization (
 	type VARCHAR(100) NULL, -- NEED SIZE / NULLABLE? / WHAT IS THIS?
 	PRIMARY KEY(location_metadata_id, organization_id)
 );
-ALTER TABLE location_metadata_organization OWNER TO gmc;
-
-
-CREATE TABLE location_metadata_link (
-	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id),
-	link_id BIGINT REFERENCES link(link_id),
-	PRIMARY KEY(location_metadata_id, link_id)
-);
-ALTER TABLE location_metadata_link OWNER TO gmc;
 
 
 CREATE TABLE container_material (
 	container_material_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
-ALTER TABLE container_material OWNER TO gmc;
 
 
 CREATE TABLE container_type (
 	container_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
-ALTER TABLE container_type OWNER TO gmc;
 
 
 CREATE TABLE container (
@@ -293,7 +348,6 @@ CREATE TABLE container (
 	barcode VARCHAR(25) NULL,
 	temp_shelf_idx VARCHAR(35) NULL
 );
-ALTER TABLE container OWNER TO gmc;
 
 
 CREATE TABLE container_file (
@@ -301,7 +355,6 @@ CREATE TABLE container_file (
 	file_id BIGINT REFERENCES file(file_id),
 	PRIMARY KEY(container_id, file_id)
 );
-ALTER TABLE container_file OWNER TO gmc;
 
 
 CREATE TABLE inventory_form (
@@ -312,7 +365,6 @@ CREATE TABLE inventory_form (
 	abbreviation VARCHAR(8) NULL
 	-- Tags for better searching
 );
-ALTER TABLE inventory_form OWNER TO gmc;
 
 
 CREATE TABLE inventory_source (
@@ -322,7 +374,6 @@ CREATE TABLE inventory_source (
 	name VARCHAR(50) NOT NULL,
 	preferred_id INT REFERENCES inventory_source(inventory_source_id) NULL
 );
-ALTER TABLE inventory_source OWNER TO gmc;
 
 
 CREATE TABLE inventory_branch (
@@ -331,10 +382,8 @@ CREATE TABLE inventory_branch (
 	name VARCHAR(50) NOT NULL,
 	description VARCHAR(100) NULL
 );
-ALTER TABLE inventory_branch OWNER TO gmc;
 
 
--- Add JSON metadata table for inventory
 CREATE TABLE inventory (
 	-- STILL NEEDS SPATIAL DATA (See: location_metadata table)
 	inventory_id BIGSERIAL PRIMARY KEY,
@@ -393,7 +442,6 @@ CREATE TABLE inventory (
 
 	temp_original_id INT NULL
 );
-ALTER TABLE inventory OWNER TO gmc;
 
 
 CREATE TABLE inventory_container (
@@ -402,7 +450,6 @@ CREATE TABLE inventory_container (
 	container_id BIGINT REFERENCES container(container_id) NOT NULL,
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
-ALTER TABLE inventory_container OWNER TO gmc;
 
 
 CREATE TABLE inventory_publication (
@@ -410,7 +457,6 @@ CREATE TABLE inventory_publication (
 	publication_id BIGINT REFERENCES publication(publication_id),
 	PRIMARY KEY(inventory_id, publication_id)
 );
-ALTER TABLE inventory_publication OWNER TO gmc;
 
 
 CREATE TABLE inventory_file (
@@ -418,17 +464,13 @@ CREATE TABLE inventory_file (
 	file_id BIGINT REFERENCES file(file_id),
 	PRIMARY KEY(inventory_id, file_id)
 );
-ALTER TABLE inventory_file OWNER TO gmc;
 
 
 CREATE TABLE inventory_note (
-	inventory_note_id BIGSERIAL PRIMARY KEY,
 	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
-	note TEXT NOT NULL,
-	note_date DATE NOT NULL DEFAULT NOW(),
-	username VARCHAR(25) NOT NULL
+	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	PRIMARY KEY(inventory_id, note_id)
 );
-ALTER TABLE inventory_note OWNER TO gmc;
 
 
 CREATE TABLE inventory_location_metadata (
@@ -436,7 +478,6 @@ CREATE TABLE inventory_location_metadata (
 	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id),
 	PRIMARY KEY(inventory_id, location_metadata_id)
 );
-ALTER TABLE inventory_location_metadata OWNER TO gmc;
 
 
 CREATE TABLE inventory_quality (
@@ -452,14 +493,10 @@ CREATE TABLE inventory_quality (
 	label_obscured BOOLEAN NOT NULL DEFAULT false,
 	username VARCHAR(25) NOT NULL
 );
-ALTER TABLE inventory_quality OWNER TO gmc;
 
 
 
 /*
-On loan - Who it was loaned to, when it was loaned out, expected return date,
-	the actual return date, who authorized the loan
-
 Sampled - who sampled it, when it was sampled, sample agreement,
 	due date, completion date, status (complete, pending, open),
   sample agreement id
