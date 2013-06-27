@@ -1,5 +1,6 @@
 SET ROLE 'gmc';
 
+
 DROP TABLE IF EXISTS 
 	inventory_quality, inventory_location_metadata, inventory_note,
 	inventory_file, inventory_publication, inventory_container, 
@@ -9,8 +10,8 @@ DROP TABLE IF EXISTS
 	location_metadata, location_metadata_status, location_metadata_type,
 	project, collection, core_diameter, publication_note, 
 	publication_organization, publication_person, publication,
-	person, organization, organization_type, region, unit, file,
-	file_type, place, note, note_type
+	person, organization, organization_type, region, mining_district, 
+	unit, file, file_type, place, note, note_type
 CASCADE;
 
 
@@ -62,6 +63,14 @@ CREATE TABLE unit (
 );
 
 
+CREATE TABLE mining_district (
+	mining_district_id SERIAL PRIMARY KEY,
+	name VARCHAR(35) NULL,
+	region VARCHAR(30) NULL,
+	geom GEOMETRY(MultiPolygon, 0) NULL
+);
+
+
 CREATE TABLE region (
 	region_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
@@ -81,7 +90,6 @@ CREATE TABLE organization (
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
 	remarks TEXT NULL,
 	temp_original_id INT NULL
-
 );
 
 
