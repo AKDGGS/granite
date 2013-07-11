@@ -1,18 +1,55 @@
 SET ROLE 'gmc';
+SET CLIENT_MIN_MESSAGES TO WARNING;
 
+BEGIN;
 
 DROP TABLE IF EXISTS 
-	inventory_quality, inventory_location_metadata, inventory_note,
-	inventory_file, inventory_publication, inventory_container, 
-	inventory, inventory_branch, inventory_source, inventory_form,
-	container_file, container, container_type, container_material,
-	location_metadata_organization, location_metadata_note,
+	dimension,
+	person_organization,
+	inventory_quality,
+	inventory_location_metadata,
+	inventory_note,
+	inventory_file,
+	inventory_publication,
+	inventory_container, 
+	inventory,
+	inventory_branch,
+	inventory_source,
+	inventory_form,
+	container_file,
+	container,
+	container_type,
+	container_material,
+	location_metadata_organization,
+	location_metadata_note,
+	location_metadata,
+	location_metadata_status,
+	location_metadata_type,
+	location_metadata_source,
+	sample,
+	sample_file,
+	process,
+	sample_process_inventory,
 	meridian,
-	location_metadata, location_metadata_status, location_metadata_type,
-	project, collection, core_diameter, publication_note, 
-	publication_organization, publication_person, publication,
-	person, organization, organization_type, region, mining_district, 
-	unit, file, file_type, place, note, note_type
+	project,
+	collection,
+	core_diameter,
+	publication_note,
+	publication_organization,
+	publication_person,
+	publication,
+	person,
+	organization,
+	organization_type,
+	region,
+	mining_district, 
+	unit,
+	file,
+	file_type,
+	place,
+	note,
+	note_type,
+	visitor
 CASCADE;
 
 
@@ -61,6 +98,15 @@ CREATE TABLE unit (
 	name VARCHAR(100) NULL,
 	abbreviation VARCHAR(5) NULL,
 	description VARCHAR(100) NULL
+);
+
+
+CREATE TABLE dimension (
+	dimension_id SERIAL PRIMARY KEY,
+	unit_id INT REFERENCES unit(unit_id) NOT NULL,
+	height NUMERIC(10,2) NOT NULL,
+	width NUMERIC(10,2) NOT NULL,
+	depth NUMERIC(10,2) NOT NULL
 );
 
 
@@ -369,11 +415,7 @@ CREATE TABLE container (
 	name VARCHAR(50) NOT NULL,
 	description VARCHAR(100) NULL,
 
-	-- Optional container dimensions
-	height NUMERIC(10,2) NULL,
-	width NUMERIC(10,2) NULL,
-	depth NUMERIC(10,2) NULL,
-	unit_id INT REFERENCES unit(unit_id) NULL,
+	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 
 	barcode VARCHAR(25) NULL,
 	temp_shelf_idx VARCHAR(35) NULL
@@ -457,11 +499,7 @@ CREATE TABLE inventory (
 	entered_date DATE NULL,
 	modified_date DATE NULL,
 
-	-- Dimension data - Break into seperate table?
-	height NUMERIC(10,2) NULL,
-	width NUMERIC(10,2) NULL,
-	depth NUMERIC(10,2) NULL,
-	dimension_unit_id INT REFERENCES unit(unit_id) NULL,
+	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 
 	weight NUMERIC(10, 2) NULL, -- NEED SIZE
 	weight_unit_id INT REFERENCES unit(unit_id) NULL,
@@ -565,3 +603,5 @@ CREATE TABLE visitor (
 	person_id BIGINT REFERENCES person(person_id) NOT NULL,
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
+
+COMMIT;
