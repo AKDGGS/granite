@@ -1,3 +1,8 @@
 Seismology data stored in inventory table?
 
 List of all your sample types, for DGGS
+
+Does a composite key work with ibatis? Does
+	modern hibernate support composite keys any better?
+
+Link table, multiple links for each inventory?

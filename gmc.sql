@@ -7,6 +7,7 @@ DROP TABLE IF EXISTS
 	inventory, inventory_branch, inventory_source, inventory_form,
 	container_file, container, container_type, container_material,
 	location_metadata_organization, location_metadata_note,
+	meridian,
 	location_metadata, location_metadata_status, location_metadata_type,
 	project, collection, core_diameter, publication_note, 
 	publication_organization, publication_person, publication,
@@ -57,7 +58,7 @@ CREATE TABLE file (
 
 CREATE TABLE unit (
 	unit_id SERIAL PRIMARY KEY,
-	name VARCHAR(100) NOT NULL,
+	name VARCHAR(100) NULL,
 	abbreviation VARCHAR(5) NULL,
 	description VARCHAR(100) NULL
 );
@@ -73,7 +74,7 @@ CREATE TABLE mining_district (
 
 CREATE TABLE region (
 	region_id SERIAL PRIMARY KEY,
-	name VARCHAR(50) NOT NULL
+	name VARCHAR(100) NOT NULL
 );
 
 
@@ -86,7 +87,7 @@ CREATE TABLE organization_type (
 CREATE TABLE organization (
 	organization_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
-	abbreviation VARCHAR(25) NOT NULL,
+	abbreviation VARCHAR(25) NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
 	remarks TEXT NULL,
 	temp_original_id INT NULL
@@ -100,7 +101,9 @@ CREATE TABLE person (
 	last VARCHAR(100) NOT NULL,
 	suffix VARCHAR(50) NULL,
 
-	organization_id BIGINT REFERENCES organization(organization_id) NULL,
+	phone VARCHAR(25) NULL,
+	email VARCHAR(255) NULL,
+
 	preferred_id BIGINT REFERENCES person(person_id) NULL,
 
 	-- Used for referencing the user in the short-term during the import
@@ -108,14 +111,23 @@ CREATE TABLE person (
 );
 
 
+CREATE TABLE person_organization (
+	person_id BIGINT REFERENCES person(person_id), 
+	organization_id BIGINT REFERENCES organization(organization_id),
+	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
+	PRIMARY KEY(person_id, organization_id, log_date)
+);
+
+
 CREATE TABLE publication (
 	publication_id BIGSERIAL PRIMARY KEY,
 	citation_id BIGINT NULL,
-	title VARCHAR(250) NOT NULL,
-	url VARCHAR(1024) NULL,
+	title TEXT NOT NULL,
+	url TEXT NULL,
 	year INT NULL,
 	publication_number VARCHAR(50) NULL,
 	publication_series VARCHAR(50) NULL,
+	can_publish BOOLEAN NOT NULL DEFAULT false,
 	temp_original_id INT NULL
 ); 
 
@@ -157,7 +169,7 @@ CREATE TABLE collection (
 
 
 CREATE TABLE project (
-	project_id BIGSERIAL PRIMARY KEY,
+	project_id SERIAL PRIMARY KEY,
 	organization_id BIGINT REFERENCES organization(organization_id) NULL,
 	name VARCHAR(100) NOT NULL,
 	start_date DATE NULL,
@@ -173,8 +185,8 @@ CREATE TABLE location_metadata_type (
 );
 
 
-CREATE TABLE location_metadata_status (
-	location_metadata_status_id SERIAL PRIMARY KEY,
+CREATE TABLE location_metadata_source (
+	location_metadata_source_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
 );
 
@@ -183,7 +195,6 @@ CREATE TABLE location_metadata_status (
 -- * api_number
 -- * well_number
 -- * alternate_names
--- * lease_number
 -- * spud_date
 -- * completion_date
 -- * measured_depth
@@ -194,7 +205,10 @@ CREATE TABLE location_metadata_status (
 -- * stash
 -- * geo_aqusition_source
 -- * geo_aqusition_type
+-- * operator
+-- * previous_operators
 -- * notes
+-- * organization(s)
 -- * Spatial: Only one of each
 -- * * lat/lon surface
 -- * * field/pool/basin
@@ -208,6 +222,7 @@ CREATE TABLE location_metadata_status (
 -- * geo_aqusition_source
 -- * geo_aqusition_type
 -- * notes
+-- * organization(s)
 -- * Spatial: Only one of each
 -- * * lon/lat
 -- * * section/township/range
@@ -228,6 +243,7 @@ CREATE TABLE location_metadata_status (
 -- * geo_aqusition_source
 -- * geo_aqusition_type
 -- * notes
+-- * organization(s)
 -- * Spatial: Only one of each
 -- * * lat/lon
 -- * * UTM
@@ -240,11 +256,21 @@ CREATE TABLE location_metadata_status (
 --	section INT,
 --);
 
+
+CREATE TABLE meridian (
+	meridian_id SERIAL PRIMARY KEY,
+	abbreviation VARCHAR(4) NULL,
+	name VARCHAR(50) NOT NULL,
+	geom GEOMETRY(MultiPolygon, 0) NOT NULL
+);
+
+
 -- Merges tables: aogcc_well_header, tbl_hardrock_prospects,
 -- tbl_hardrock_borehole, gmc_field_station
 CREATE TABLE location_metadata (
 	-- STILL NEEDS LOCATION DATA:
-	-- Lat/Lon/Datum - Description of point (Centroid, etc)
+	-- Geometry/Datum - Description of object, source of object, type
+	-- Lat/Lon/Datum - Description of point (Centroid, etc), Source of point
 	-- Meridian/Township/Range/Section/Quarter Section
 	-- -- Meridian VARCHAR(100)
 	-- -- Township VARCHAR(4)
@@ -268,7 +294,7 @@ CREATE TABLE location_metadata (
 	-- -- Needs support for points and polys
 	location_metadata_id BIGSERIAL PRIMARY KEY,
 	location_metadata_type_id INT REFERENCES location_metadata_type(location_metadata_type_id) NOT NULL,
-	location_metadata_status_id INT REFERENCES location_metadata_status(location_metadata_status_id) NOT NULL,
+	location_metadata_source_id INT REFERENCES location_metadata_source(location_metadata_source_id) NOT NULL,
 
 	-- Begin Spatial Data
 	region_id INT REFERENCES region(region_id) NULL,
@@ -281,32 +307,28 @@ CREATE TABLE location_metadata (
 	identity_station VARCHAR(50) NULL,
 	identity_year DATE NULL,
 	-- End Identifying Fields
-
+	
 	api_number VARCHAR(14) NULL,
 	ardf_number VARCHAR(6) NULL, -- NEED SIZE
 	alternate_names VARCHAR(1024) NULL,
 	completion_date DATE NULL,
-	completion_class VARCHAR(255) NULL, -- NEED SIZE
 	completion_status VARCHAR(25) NULL, -- NEED SIZE
 	permit_number INT NULL,
-	permit_class VARCHAR(255) NULL, -- NEED SIZE
-	permit_date DATE NULL,
+	initial_purpose VARCHAR(25) NULL,
+	study_area VARCHAR(2) NULL,
 	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	elevation NUMERIC(10, 2) NULL,  -- NEED PRECISION
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
-	drill_method VARCHAR(255) NULL, -- NEED SIZE
-	lease_number VARCHAR(100) NULL, -- NEED SIZE
-	current_class VARCHAR(255) NULL, -- NEED SIZE
 	spud_date DATE NULL,
-	can_publish BOOLEAN NOT NULL DEFAULT false, -- NEED DEFAULT
-	source VARCHAR(255) NULL, -- NEED SIZE
 	stash JSON NULL,
 	url TEXT NOT NULL,
 
-	temp_original_id INT NULL
+	temp_source VARCHAR(25) NULL,
+	temp_original_id INT NULL,
+	temp_link VARCHAR(255) NULL
 );
 
 
@@ -399,8 +421,8 @@ CREATE TABLE inventory (
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
 	container_id BIGINT REFERENCES container(container_id) NULL,
-	collection_id BIGINT REFERENCES collection(collection_id) NULL,
-	project_id BIGINT REFERENCES project(project_id) NULL,
+	collection_id INT REFERENCES collection(collection_id) NULL,
+	project_id INT REFERENCES project(project_id) NULL,
 	inventory_source_id BIGINT REFERENCES inventory_source(inventory_source_id) NULL,
 	inventory_form_id BIGINT REFERENCES inventory_form(inventory_form_id) NOT NULL,
 	sample_number VARCHAR(25) NULL, -- NEED SIZE
@@ -423,12 +445,10 @@ CREATE TABLE inventory (
 	remarks TEXT NULL,
 	interval_top INT NULL,
 	interval_bottom INT NULL,
-	interval INT NULL,
 	interval_unit_id INT REFERENCES unit(unit_id) NULL,
-	recovery VARCHAR(255) NULL, -- NEED SIZE
-	study_area VARCHAR(2) NULL,
-	line_number VARCHAR(15) NULL, -- NEED SIZE
-	core_number VARCHAR(15) NULL, -- NEED SIZE
+	sample_frequency VARCHAR(25) NULL,
+	recovery VARCHAR(25) NULL,
+	core_number VARCHAR(25) NULL,
 	core_diameter_id INT REFERENCES core_diameter(core_diameter_id) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	skeleton BOOLEAN NOT NULL DEFAULT false,
@@ -437,7 +457,7 @@ CREATE TABLE inventory (
 	entered_date DATE NULL,
 	modified_date DATE NULL,
 
-	-- Dimension data
+	-- Dimension data - Break into seperate table?
 	height NUMERIC(10,2) NULL,
 	width NUMERIC(10,2) NULL,
 	depth NUMERIC(10,2) NULL,
@@ -448,7 +468,8 @@ CREATE TABLE inventory (
 
 	stash JSON NULL,
 
-	temp_original_id INT NULL
+	temp_original_id INT NULL,
+	temp_shelf_idx VARCHAR(25) NULL
 );
 
 
@@ -503,22 +524,44 @@ CREATE TABLE inventory_quality (
 );
 
 
-
-/*
-Sampled - who sampled it, when it was sampled, sample agreement,
-	due date, completion date, status (complete, pending, open),
-  sample agreement id
-
-	- multiple pieces of inventory, allowing the same inventory multiple
-	  times - each inventory has it's own comments and wellhole_name,
-		material type, analysis type, top depth and bottom depth
-
-	- Link file to sampled so you can attach a scanned signature
+CREATE TABLE process (
+	process_id SERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	description VARCHAR(250) NULL
+);
 
 
-* Add sampled source to inventory for inventory that's a product of a checkout
+CREATE TABLE sample (
+	sample_id BIGSERIAL PRIMARY KEY,
+	sample_agreement_id INT NULL,
+	sample_date DATE NOT NULL,
+	due_date DATE NOT NULL
+);
 
-Visits: organziation, person, when
 
-	- barcode examined, date
-*/
+CREATE TABLE sample_file (
+	sample_id BIGINT REFERENCES sample(sample_id),
+	file_id BIGINT REFERENCES file(file_id),
+	PRIMARY KEY(sample_id, file_id)
+);
+
+
+CREATE TABLE sample_process_inventory (
+	sample_id BIGINT REFERENCES sample(sample_id),
+	inventory_id BIGINT REFERENCES inventory(inventory_id),
+	process_id INT REFERENCES process(process_id),
+
+	completion_date DATE NULL,
+	purpose VARCHAR(500) NULL,
+	comments TEXT NULL,
+
+	publication_id BIGINT REFERENCES publication(publication_id) NULL,
+	PRIMARY KEY(sample_id, inventory_id, process_id)
+);
+
+
+CREATE TABLE visitor (
+	visitor_id BIGSERIAL PRIMARY KEY,
+	person_id BIGINT REFERENCES person(person_id) NOT NULL,
+	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+);
