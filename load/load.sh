@@ -1,4 +1,4 @@
 #!/bin/sh
-/usr/bin/psql -d gmc -c "\\copy place (name,type,geom) FROM 'places.csv' WITH DELIMITER '|';"
-/usr/bin/psql -d gmc -c "\\copy mining_district (name,region,geom) FROM 'mining_districts.csv' WITH DELIMITER '|';"
-/usr/bin/psql -d gmc -f meridian.sql
+/bin/gzip -d -c places.csv.gz | /usr/bin/psql -d gmc -c "\\copy palce (name,type,geom) FROM STDIN WITH DELIMITER '|';"
+/bin/gzip -d -c mining_districts.csv.gz | /usr/bin/psql -d gmc -c "\\copy mining_district (name,region,geom) FROM STDIN WITH DELIMITER '|';"
+/bin/gzip -d -c meridian.csv.gz | /usr/bin/psql -d gmc -c "\\copy meridian (abbreviation,name,geom) FROM STDIN WITH DELIMITER '|';"

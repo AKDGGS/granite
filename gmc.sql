@@ -1,55 +1,64 @@
 SET ROLE 'gmc';
+SET SCHEMA 'public';
 SET CLIENT_MIN_MESSAGES TO WARNING;
 
 BEGIN;
 
-DROP TABLE IF EXISTS 
-	dimension,
-	person_organization,
-	inventory_quality,
-	inventory_location_metadata,
-	inventory_note,
-	inventory_file,
-	inventory_publication,
-	inventory_container, 
-	inventory,
-	inventory_branch,
-	inventory_source,
-	inventory_form,
-	container_file,
-	container,
-	container_type,
-	container_material,
-	location_metadata_organization,
-	location_metadata_note,
-	location_metadata,
-	location_metadata_status,
-	location_metadata_type,
-	location_metadata_source,
-	sample,
-	sample_file,
-	process,
-	sample_process_inventory,
-	meridian,
-	project,
+
+DROP TABLE IF EXISTS
+	borehole,
+	borehole_note,
+	borehole_organization,
 	collection,
+	container,
+	container_file,
+	container_material,
+	container_type,
 	core_diameter,
+	dimension,
+	file,
+	file_type,
+	inventory,
+	inventory_borehole,
+	inventory_branch,
+	inventory_container,
+	inventory_file,
+	inventory_form,
+	inventory_note,
+	inventory_outcrop,
+	inventory_publication,
+	inventory_quality,
+	inventory_source,
+	inventory_well,
+	meridian,
+	mining_district,
+	note,
+	note_type,
+	organization,
+	organization_type,
+	outcrop,
+	outcrop_mining_district,
+	outcrop_note,
+	outcrop_organization,
+	outcrop_place,
+	outcrop_region,
+	person,
+	person_organization,
+	place,
+	process,
+	project,
+	publication,
 	publication_note,
 	publication_organization,
 	publication_person,
-	publication,
-	person,
-	organization,
-	organization_type,
 	region,
-	mining_district, 
+	sample,
+	sample_file,
+	sample_process_inventory,
 	unit,
-	file,
-	file_type,
-	place,
-	note,
-	note_type,
-	visitor
+	visitor,
+	well,
+	well_note
 CASCADE;
 
 
@@ -115,6 +124,14 @@ CREATE TABLE mining_district (
 	name VARCHAR(35) NULL,
 	region VARCHAR(30) NULL,
 	geom GEOMETRY(MultiPolygon, 0) NULL
+);
+
+
+CREATE TABLE meridian (
+	meridian_id SERIAL PRIMARY KEY,
+	abbreviation VARCHAR(4) NULL,
+	name VARCHAR(50) NOT NULL,
+	geom GEOMETRY(MultiPolygon, 0) NOT NULL
 );
 
 
@@ -225,171 +242,140 @@ CREATE TABLE project (
 );
 
 
-CREATE TABLE location_metadata_type (
-	location_metadata_type_id SERIAL PRIMARY KEY,
-	name VARCHAR(100) NULL
-);
-
-
-CREATE TABLE location_metadata_source (
-	location_metadata_source_id SERIAL PRIMARY KEY,
-	name VARCHAR(100) NOT NULL
-);
-
--- Well:
--- * well_name
--- * api_number
--- * well_number
--- * alternate_names
--- * spud_date
--- * completion_date
--- * measured_depth
--- * vertical_depth
--- * elevation
--- * permit status
--- * completion_status
--- * stash
--- * geo_aqusition_source
--- * geo_aqusition_type
--- * operator
--- * previous_operators
--- * notes
--- * organization(s)
--- * Spatial: Only one of each
--- * * lat/lon surface
--- * * field/pool/basin
--- * * section/township/range
-
--- Field Station/Outcrop
--- * name
--- * number TEXT NULLABLE
--- * year
--- * stash
--- * geo_aqusition_source
--- * geo_aqusition_type
--- * notes
--- * organization(s)
--- * Spatial: Only one of each
--- * * lon/lat
--- * * section/township/range
--- * * UTM
--- * * region
--- * * place
--- * * property
--- * * quadrangle
--- * * mining district
-
--- Borehole:
--- * prospect_name
--- * borehole_number (TEXT)
--- * alternate_names
--- * completion_date
--- * measured_depth
--- * stash
--- * geo_aqusition_source
--- * geo_aqusition_type
--- * notes
--- * organization(s)
--- * Spatial: Only one of each
--- * * lat/lon
--- * * UTM
-
---CREATE TABLE plss (
---	plss_id SERIAL PRIMARY KEY,
---	meridian VARCHAR(100) NULL,
---	township VARCHAR(4) NULL,
---	range VARCHAR(4) NULL,
---	section INT,
---);
-
-
-CREATE TABLE meridian (
-	meridian_id SERIAL PRIMARY KEY,
-	abbreviation VARCHAR(4) NULL,
-	name VARCHAR(50) NOT NULL,
-	geom GEOMETRY(MultiPolygon, 0) NOT NULL
-);
-
-
--- Merges tables: aogcc_well_header, tbl_hardrock_prospects,
--- tbl_hardrock_borehole, gmc_field_station
-CREATE TABLE location_metadata (
-	-- STILL NEEDS LOCATION DATA:
-	-- Geometry/Datum - Description of object, source of object, type
-	-- Lat/Lon/Datum - Description of point (Centroid, etc), Source of point
-	-- Meridian/Township/Range/Section/Quarter Section
-	-- -- Meridian VARCHAR(100)
-	-- -- Township VARCHAR(4)
-	-- -- Range VARCHAR(4)
-	-- -- Section INT
-	-- -- QuarterQuarterSection VARCHAR(4)
-	-- Field/Pool -- Wells Publc Header Data - AreaOrBasin, FieldOrUnit, FieldPoolName
-	-- Quadrangle/Quad 64 -- Inherit from DGGS
-	-- Mining District -- Inherit from DGGS -- How precise is your mining district? 
-	-- -- Keep separate, they claim DGGS has descrete polys for these
-	-- Energy District -- SR66 Energy District Jean started using this, likes it
-	-- UTM -- UTM Easting, UTM Northing, UTM Zone, Units, srid
-	-- Property Name - BLM Property names and ARDF records
-	-- Prospect Name - Inherit from DGGS
-	-- Location Remarks
-	-- Location Type (id, name, description) specifies the kind of geospatial data 
-	-- -- (drill collar, field station, map estimate, property centroid)
-	-- Location Source (id, name), specifies the original source of the spatial data
-	-- -- (blm spreadsheet, published reports, DGGS map scans, AOGCC, ardf)
-	-- Geological Formation - Use PaleoDB like Formations
-	-- -- Needs support for points and polys
-	location_metadata_id BIGSERIAL PRIMARY KEY,
-	location_metadata_type_id INT REFERENCES location_metadata_type(location_metadata_type_id) NOT NULL,
-	location_metadata_source_id INT REFERENCES location_metadata_source(location_metadata_source_id) NOT NULL,
-
-	-- Begin Spatial Data
-	region_id INT REFERENCES region(region_id) NULL,
-	place_id BIGINT REFERENCES place(place_id) NULL, -- Should this be many-to-many?
-	-- End Spatial Start
-
-	-- Begin Identifying Fields
-	identity_name VARCHAR(255) NOT NULL,
-	identity_number VARCHAR(50) NULL,
-	identity_station VARCHAR(50) NULL,
-	identity_year DATE NULL,
-	-- End Identifying Fields
-	
+CREATE TABLE well (
+	well_id BIGSERIAL PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
+	well_number VARCHAR(50) NULL,
 	api_number VARCHAR(14) NULL,
-	ardf_number VARCHAR(6) NULL, -- NEED SIZE
 	alternate_names VARCHAR(1024) NULL,
+	spud_date DATE NULL,
 	completion_date DATE NULL,
-	completion_status VARCHAR(25) NULL, -- NEED SIZE
-	permit_number INT NULL,
-	initial_purpose VARCHAR(25) NULL,
-	study_area VARCHAR(2) NULL,
 	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	elevation NUMERIC(10, 2) NULL,  -- NEED PRECISION
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
-	spud_date DATE NULL,
 	stash JSON NULL,
-	url TEXT NOT NULL,
 
 	temp_source VARCHAR(25) NULL,
 	temp_original_id INT NULL,
 	temp_link VARCHAR(255) NULL
+
+	-- Missing fields:
+	-- * permit status (datatype?)
+	-- * completion_status (datatype?)
+	-- * geo_aqusition_source
+	-- * geo_aqusition_type
+	-- * operator
+	-- * previous_operators
+	-- * organization(s) (same as operators?)
+	-- * Spatial: Only one of each
+	-- * * lat/lon surface
+	-- * * field/pool/basin
+	-- * * section/township/range
 );
 
 
-CREATE TABLE location_metadata_note (
-	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id) NOT NULL,
+CREATE TABLE well_note (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
 	note_id BIGINT REFERENCES note(note_id) NOT NULL,
-	PRIMARY KEY(location_metadata_id, note_id)
+	PRIMARY KEY(well_id, note_id)
 );
 
 
-CREATE TABLE location_metadata_organization (
-	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id),
-	organization_id BIGINT REFERENCES organization(organization_id),
-	type VARCHAR(100) NULL, -- NEED SIZE / NULLABLE? / WHAT IS THIS?
-	PRIMARY KEY(location_metadata_id, organization_id)
+CREATE TABLE outcrop (
+	outcrop_id BIGSERIAL PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
+	outcrop_number VARCHAR(50) NULL, -- datatype?
+	year SMALLINT NULL,
+	stash JSON NULL,
+
+	temp_source VARCHAR(25) NULL,
+	temp_original_id INT NULL,
+	temp_link VARCHAR(255) NULL
+
+	-- Missing fields:
+	-- * geo_aqusition_source
+	-- * geo_aqusition_type
+	-- * Spatial: Only one of each
+	-- * * lon/lat
+	-- * * section/township/range
+	-- * * UTM
+	-- * * property
+	-- * * quadrangle
+);
+
+
+CREATE TABLE outcrop_note (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, note_id)
+);
+
+
+CREATE TABLE outcrop_organization (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	organization_id BIGINT REFERENCES organization(organization_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, organization_id)
+);
+
+
+CREATE TABLE outcrop_place (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	place_id BIGINT REFERENCES place(place_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, place_id)
+);
+
+
+CREATE TABLE outcrop_mining_district (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	mining_district_id BIGINT REFERENCES mining_district(mining_district_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, mining_district_id)
+);
+
+
+CREATE TABLE outcrop_region (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	region_id INT REFERENCES region(region_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, region_id)
+);
+
+
+CREATE TABLE borehole (
+	borehole_id BIGSERIAL PRIMARY KEY,
+	prospect_name VARCHAR(255) NOT NULL,
+	borehole_number VARCHAR(50) NULL, -- datatype? nullable?
+	alternate_names VARCHAR(1024) NULL,
+	completion_date DATE NULL,
+	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
+	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	stash JSON NULL,
+
+	temp_source VARCHAR(25) NULL,
+	temp_original_id INT NULL,
+	temp_link VARCHAR(255) NULL
+
+	-- Missing fields:
+	-- * geo_aqusition_source
+	-- * geo_aqusition_type
+	-- * Spatial: Only one of each
+	-- * * lat/lon
+	-- * * UTM
+);
+
+
+CREATE TABLE borehole_note (
+	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
+	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	PRIMARY KEY(borehole_id, note_id)
+);
+
+
+CREATE TABLE borehole_organization (
+	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
+	organization_id BIGINT REFERENCES organization(organization_id) NOT NULL,
+	PRIMARY KEY(borehole_id, organization_id)
 );
 
 
@@ -457,9 +443,7 @@ CREATE TABLE inventory_branch (
 
 
 CREATE TABLE inventory (
-	-- STILL NEEDS SPATIAL DATA (See: location_metadata table)
 	inventory_id BIGSERIAL PRIMARY KEY,
-	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id) NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
 	container_id BIGINT REFERENCES container(container_id) NULL,
@@ -540,10 +524,24 @@ CREATE TABLE inventory_note (
 );
 
 
-CREATE TABLE inventory_location_metadata (
+CREATE TABLE inventory_borehole (
 	inventory_id BIGINT REFERENCES inventory(inventory_id),
-	location_metadata_id BIGINT REFERENCES location_metadata(location_metadata_id),
-	PRIMARY KEY(inventory_id, location_metadata_id)
+	borehole_id BIGINT REFERENCES borehole(borehole_id),
+	PRIMARY KEY(inventory_id, borehole_id)
+);
+
+
+CREATE TABLE inventory_well (
+	inventory_id BIGINT REFERENCES inventory(inventory_id),
+	well_id BIGINT REFERENCES well(well_id),
+	PRIMARY KEY(inventory_id, well_id)
+);
+
+
+CREATE TABLE inventory_outcrop (
+	inventory_id BIGINT REFERENCES inventory(inventory_id),
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id),
+	PRIMARY KEY(inventory_id, outcrop_id)
 );
 
 

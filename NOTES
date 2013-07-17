@@ -1,8 +1,26 @@
-Seismology data stored in inventory table?
+Link table, multiple links for each inventory? Which tables require links?
 
-List of all your sample types, for DGGS
+Do geo_aquisition_source and geo_aquisition_type belong in the 
+	spatial linking table, or in the origin table or the reference table?
+	What are the data types for these tables?
 
-Does a composite key work with ibatis? Does
-	modern hibernate support composite keys any better?
+On storing a point: Just lon/lat and SRID? Description? Anything else?
 
-Link table, multiple links for each inventory?
+On storing UTM: Just Easting, Northing, Zone, Units and SRID? What are
+	the data types for these fields?
+
+Do you ever store non-point raw spatial data?
+
+Do field station and outcrop need to be delineated for display purposes?
+
+Does a piece of inventory have it's own spatial data, or is it always
+associated with a borehole, outcrop or well? If it does, what kinds
+of spatial data?
+
+sample_type, sample_source, sample_material, sample_form, sample_suffix -
+	Explain the relationship between these "levels". Would it make
+	more sense to flatten this relationship? Which of these are mutually
+	exclusive?
+
+What is the state of your PLSS data? To what level is it at?
+	At least to section?
