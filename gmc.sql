@@ -23,13 +23,13 @@ DROP TABLE IF EXISTS
 	inventory_branch,
 	inventory_container,
 	inventory_file,
-	inventory_form,
+	inventory_keyword,
 	inventory_note,
 	inventory_outcrop,
 	inventory_publication,
 	inventory_quality,
-	inventory_source,
 	inventory_well,
+	keyword,
 	mining_district,
 	note,
 	note_type,
@@ -262,6 +262,8 @@ CREATE TABLE well (
 	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	elevation NUMERIC(10, 2) NULL,  -- NEED PRECISION
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
+	permit_status VARCHAR(6) NULL,
+	completion_status VARCHAR(6) NULL,
 	stash JSON NULL,
 
 	temp_source VARCHAR(25) NULL,
@@ -269,16 +271,19 @@ CREATE TABLE well (
 	temp_link VARCHAR(255) NULL
 
 	-- Missing fields:
-	-- * permit status (datatype?)
-	-- * completion_status (datatype?)
 	-- * geo_aqusition_source
 	-- * geo_aqusition_type
-	-- * operator
-	-- * previous_operators
-	-- * organization(s) (same as operators?)
 	-- * Spatial: Only one of each
 	-- * * lat/lon surface
 	-- * * field/pool/basin
+);
+
+
+CREATE TABLE well_operator (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	organization_id BIGINT REFERENCES organization(organization_id) NOT NULL,
+	is_current BOOLEAN NOT NULL DEFAULT true,
+	PRIMARY KEY(well_id, organization_id)
 );
 
 
@@ -310,7 +315,6 @@ CREATE TABLE outcrop (
 	-- Missing fields:
 	-- * geo_aqusition_source
 	-- * geo_aqusition_type
-	-- * Spatial: Only one of each
 	-- * * lon/lat
 	-- * * UTM
 	-- * * property
@@ -368,6 +372,8 @@ CREATE TABLE borehole (
 	completion_date DATE NULL,
 	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	elevation NUMERIC(10, 2) NULL,  -- NEED PRECISION
+	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
 	stash JSON NULL,
 
 	temp_source VARCHAR(25) NULL,
@@ -380,6 +386,13 @@ CREATE TABLE borehole (
 	-- * Spatial: Only one of each
 	-- * * lat/lon
 	-- * * UTM
+);
+
+
+CREATE TABLE borehole_mining_district (
+	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
+	mining_district_id BIGINT REFERENCES mining_district(mining_district_id) NOT NULL,
+	PRIMARY KEY(borehole_id, mining_district_id)
 );
 
 
@@ -433,22 +446,10 @@ CREATE TABLE container_file (
 );
 
 
-CREATE TABLE inventory_form (
-	-- Form Examples: "Core Chips", "Core Center", "Cuttings", "Cutting Auger"
-	inventory_form_id SERIAL PRIMARY KEY,
-	description VARCHAR(100) NOT NULL, -- NEED SIZE
-	material VARCHAR(100) NULL,
-	abbreviation VARCHAR(8) NULL
-	-- Tags for better searching
-);
-
-
-CREATE TABLE inventory_source (
-	-- Where the inventory was original acquired from
-	-- Example: Needs review
-	inventory_source_id SERIAL PRIMARY KEY,
+CREATE TABLE keyword (
+	keyword_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
-	preferred_id INT REFERENCES inventory_source(inventory_source_id) NULL
+	code VARCHAR(8) NULL
 );
 
 
@@ -462,13 +463,14 @@ CREATE TABLE inventory_branch (
 
 CREATE TABLE inventory (
 	inventory_id BIGSERIAL PRIMARY KEY,
+	inventory_branch_id INT REFERENCES inventory_branch(inventory_branch_id) NOT NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
 	container_id BIGINT REFERENCES container(container_id) NULL,
 	collection_id INT REFERENCES collection(collection_id) NULL,
 	project_id INT REFERENCES project(project_id) NULL,
-	inventory_source_id BIGINT REFERENCES inventory_source(inventory_source_id) NULL,
-	inventory_form_id BIGINT REFERENCES inventory_form(inventory_form_id) NOT NULL,
+	dimension_id INT REFERENCES dimension(dimension_id) NULL,
+
 	sample_number VARCHAR(25) NULL, -- NEED SIZE
 	sample_number_prefix VARCHAR(25) NULL,
 	alt_sample_number VARCHAR(25) NULL, -- NEED SIZE
@@ -487,13 +489,19 @@ CREATE TABLE inventory (
 	map_number VARCHAR(25), -- Stores BLM map number
 	-- Into remarks: Screen size
 	remarks TEXT NULL,
+
 	interval_top INT NULL,
 	interval_bottom INT NULL,
 	interval_unit_id INT REFERENCES unit(unit_id) NULL,
-	sample_frequency VARCHAR(25) NULL,
-	recovery VARCHAR(25) NULL,
+
 	core_number VARCHAR(25) NULL,
 	core_diameter_id INT REFERENCES core_diameter(core_diameter_id) NULL,
+
+	weight NUMERIC(10, 2) NULL, -- NEED SIZE
+	weight_unit_id INT REFERENCES unit(unit_id) NULL,
+
+	sample_frequency VARCHAR(25) NULL,
+	recovery VARCHAR(25) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	skeleton BOOLEAN NOT NULL DEFAULT false,
 	radiation_cps NUMERIC(10, 2) NULL, -- NEED SIZE
@@ -501,15 +509,17 @@ CREATE TABLE inventory (
 	entered_date DATE NULL,
 	modified_date DATE NULL,
 
-	dimension_id INT REFERENCES dimension(dimension_id) NULL,
-
-	weight NUMERIC(10, 2) NULL, -- NEED SIZE
-	weight_unit_id INT REFERENCES unit(unit_id) NULL,
-
 	stash JSON NULL,
 
 	temp_original_id INT NULL,
 	temp_shelf_idx VARCHAR(25) NULL
+);
+
+
+CREATE TABLE inventory_keyword (
+	inventory_id BIGINT REFERENCES inventory(inventory_id),
+	keyword_id INT REFERENCES keyword(keyword_id),
+	PRIMARY KEY(inventory_id, keyword_id)
 );
 
 
