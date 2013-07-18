@@ -40,6 +40,7 @@ DROP TABLE IF EXISTS
 	outcrop_note,
 	outcrop_organization,
 	outcrop_place,
+	outcrop_plss,
 	outcrop_region,
 	person,
 	person_organization,
@@ -58,7 +59,8 @@ DROP TABLE IF EXISTS
 	unit,
 	visitor,
 	well,
-	well_note
+	well_note,
+	well_plss
 CASCADE;
 
 
@@ -277,7 +279,6 @@ CREATE TABLE well (
 	-- * Spatial: Only one of each
 	-- * * lat/lon surface
 	-- * * field/pool/basin
-	-- * * section/township/range
 );
 
 
@@ -285,6 +286,13 @@ CREATE TABLE well_note (
 	well_id BIGINT REFERENCES well(well_id) NOT NULL,
 	note_id BIGINT REFERENCES note(note_id) NOT NULL,
 	PRIMARY KEY(well_id, note_id)
+);
+
+
+CREATE TABLE well_plss (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	plss_id BIGINT REFERENCES plss(plss_id) NOT NULL,
+	PRIMARY KEY(well_id, plss_id)
 );
 
 
@@ -304,7 +312,6 @@ CREATE TABLE outcrop (
 	-- * geo_aqusition_type
 	-- * Spatial: Only one of each
 	-- * * lon/lat
-	-- * * section/township/range
 	-- * * UTM
 	-- * * property
 	-- * * quadrangle
@@ -329,6 +336,13 @@ CREATE TABLE outcrop_place (
 	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
 	place_id BIGINT REFERENCES place(place_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, place_id)
+);
+
+
+CREATE TABLE outcrop_plss (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	plss_id BIGINT REFERENCES plss(plss_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, plss_id)
 );
 
 
