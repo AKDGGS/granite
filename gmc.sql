@@ -30,7 +30,6 @@ DROP TABLE IF EXISTS
 	inventory_quality,
 	inventory_source,
 	inventory_well,
-	meridian,
 	mining_district,
 	note,
 	note_type,
@@ -45,6 +44,7 @@ DROP TABLE IF EXISTS
 	person,
 	person_organization,
 	place,
+	plss,
 	process,
 	project,
 	publication,
@@ -127,10 +127,14 @@ CREATE TABLE mining_district (
 );
 
 
-CREATE TABLE meridian (
-	meridian_id SERIAL PRIMARY KEY,
-	abbreviation VARCHAR(4) NULL,
-	name VARCHAR(50) NOT NULL,
+CREATE TABLE plss (
+	plss_id SERIAL PRIMARY KEY,
+	meridian VARCHAR(4) NOT NULL,
+	township INT NULL,
+	township_dir VARCHAR(2) NULL,
+	range INT NULL,
+	range_dir VARCHAR(2) NULL,
+	section INT NULL,
 	geom GEOMETRY(MultiPolygon, 0) NOT NULL
 );
 

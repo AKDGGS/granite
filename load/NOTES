@@ -1,0 +1,21 @@
+-- PLSS generation
+SELECT meridian, null, null, null, null, null::int, geom
+FROM meridian
+
+UNION ALL
+
+SELECT meridian, township, twp_dir, range, range_dir, null::int, geom
+FROM township
+
+UNION ALL
+
+SELECT t.meridian, t.township, t.twp_dir, t.range, t.range_dir,
+	s.sec_no, s.geom
+FROM section AS s
+INNER JOIN township AS t ON s.twp_tin_no = t.twp_tin_no
+
+-- Mining District generation
+SELECT district_n, region_nam, ST_Multi(ST_Union(geom)) AS geom
+FROM mining_district
+GROUP BY district_n, region_nam
+HAVING district_n IS NOT NULL OR region_nam IS NOT NULL
