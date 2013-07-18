@@ -274,9 +274,7 @@ CREATE TABLE well (
 	-- Missing fields:
 	-- * geo_aqusition_source
 	-- * geo_aqusition_type
-	-- * Spatial: Only one of each
 	-- * * lat/lon surface
-	-- * * field/pool/basin
 );
 
 
@@ -318,7 +316,6 @@ CREATE TABLE outcrop (
 	-- * geo_aqusition_type
 	-- * * lon/lat
 	-- * * UTM
-	-- * * property
 	-- * * quadrangle
 );
 
@@ -384,7 +381,6 @@ CREATE TABLE borehole (
 	-- Missing fields:
 	-- * geo_aqusition_source
 	-- * geo_aqusition_type
-	-- * Spatial: Only one of each
 	-- * * lat/lon
 	-- * * UTM
 );
@@ -436,6 +432,8 @@ CREATE TABLE container (
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 
 	barcode VARCHAR(25) NULL,
+
+	active BOOLEAN NOT NULL DEFAULT true,
 	temp_shelf_idx VARCHAR(35) NULL
 );
 
@@ -491,6 +489,8 @@ CREATE TABLE inventory (
 	-- Into remarks: Screen size
 	remarks TEXT NULL,
 
+	spacer SMALLINT NULL DEFAULT 1,
+
 	interval_top INT NULL,
 	interval_bottom INT NULL,
 	interval_unit_id INT REFERENCES unit(unit_id) NULL,
@@ -511,6 +511,7 @@ CREATE TABLE inventory (
 	modified_date DATE NULL,
 
 	stash JSON NULL,
+	active BOOLEAN NOT NULL DEFAULT true,
 
 	temp_original_id INT NULL,
 	temp_shelf_idx VARCHAR(25) NULL
