@@ -137,7 +137,8 @@ CREATE TABLE plss (
 	range INT NULL,
 	range_dir VARCHAR(2) NULL,
 	section INT NULL,
-	geom GEOMETRY(MultiPolygon, 0) NOT NULL
+	quadrant VARCHAR(6) NULL,
+	geom GEOMETRY(MultiPolygon, 0) NULL
 );
 
 
