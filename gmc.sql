@@ -7,8 +7,12 @@ BEGIN;
 
 DROP TABLE IF EXISTS
 	borehole,
+	borehole_mining_district,
 	borehole_note,
 	borehole_organization,
+	borehole_point,
+	borehole_url,
+	borehole_utm,
 	collection,
 	container,
 	container_file,
@@ -28,6 +32,7 @@ DROP TABLE IF EXISTS
 	inventory_outcrop,
 	inventory_publication,
 	inventory_quality,
+	inventory_url,
 	inventory_well,
 	keyword,
 	mining_district,
@@ -41,26 +46,38 @@ DROP TABLE IF EXISTS
 	outcrop_organization,
 	outcrop_place,
 	outcrop_plss,
+	outcrop_point,
+	outcrop_quadrangle,
 	outcrop_region,
+	outcrop_utm,
 	person,
 	person_organization,
 	place,
 	plss,
+	point,
 	process,
 	project,
 	publication,
 	publication_note,
 	publication_organization,
 	publication_person,
+	publication_url,
+	quadrangle,
 	region,
 	sample,
 	sample_file,
 	sample_process_inventory,
 	unit,
+	url,
+	url_type,
+	utm,
 	visitor,
 	well,
 	well_note,
-	well_plss
+	well_operator,
+	well_plss,
+	well_point,
+	well_url
 CASCADE;
 
 
@@ -79,6 +96,15 @@ CREATE TABLE note (
 );
 
 
+CREATE TABLE quadrangle (
+	quadrangle_id BIGSERIAL PRIMARY KEY,
+	name VARCHAR(30) NOT NULL,
+	abbr VARCHAR(5) NULL,
+	scale INT NOT NULL,
+	geom GEOMETRY(MultiPolygon, 0) NULL
+);
+
+
 CREATE TABLE place (
 	place_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(150) NOT NULL,
@@ -87,9 +113,23 @@ CREATE TABLE place (
 );
 
 
+CREATE TABLE url_type (
+	url_type_id SERIAL PRIMARY KEY,
+	name VARCHAR(50)
+);
+
+
+CREATE TABLE url (
+	url_id BIGSERIAL PRIMARY KEY,
+	url_type_id INT REFERENCES url_type(url_type_id) NULL,
+	description VARCHAR(100) NULL,
+	url TEXT
+);
+
+
 CREATE TABLE file_type (
 	file_type_id SERIAL PRIMARY KEY,
-	name VARCHAR(255) -- NEED SIZE
+	name VARCHAR(50)
 );
 
 
@@ -100,14 +140,15 @@ CREATE TABLE file (
 	mimetype VARCHAR(255) NOT NULL DEFAULT 'application/octet-stream',
 	size BIGINT NOT NULL,
 	filename VARCHAR(255) NOT NULL,
-	md5 CHAR(16) NOT NULL
+	md5 CHAR(16) NOT NULL,
+	content BYTEA NOT NULL
 );
 
 
 CREATE TABLE unit (
 	unit_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NULL,
-	abbreviation VARCHAR(5) NULL,
+	abbr VARCHAR(5) NULL,
 	description VARCHAR(100) NULL
 );
 
@@ -118,6 +159,16 @@ CREATE TABLE dimension (
 	height NUMERIC(10,2) NOT NULL,
 	width NUMERIC(10,2) NOT NULL,
 	depth NUMERIC(10,2) NOT NULL
+);
+
+
+CREATE TABLE utm (
+	utm_id BIGSERIAL PRIMARY KEY,
+	unit_id INT REFERENCES unit(unit_id) NOT NULL,
+	zone VARCHAR(3) NULL,
+	easting INT NULL,
+	northing INT NULL,
+	srid INT NULL
 );
 
 
@@ -142,6 +193,12 @@ CREATE TABLE plss (
 );
 
 
+CREATE TABLE point (
+	point_id BIGSERIAL PRIMARY KEY,
+	geom GEOMETRY(Point, 0) NULL
+);
+
+
 CREATE TABLE region (
 	region_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL
@@ -157,7 +214,7 @@ CREATE TABLE organization_type (
 CREATE TABLE organization (
 	organization_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
-	abbreviation VARCHAR(25) NULL,
+	abbr VARCHAR(25) NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
 	remarks TEXT NULL,
 	temp_original_id INT NULL
@@ -193,13 +250,19 @@ CREATE TABLE publication (
 	publication_id BIGSERIAL PRIMARY KEY,
 	citation_id BIGINT NULL,
 	title TEXT NOT NULL,
-	url TEXT NULL,
 	year INT NULL,
 	publication_number VARCHAR(50) NULL,
 	publication_series VARCHAR(50) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	temp_original_id INT NULL
 ); 
+
+
+CREATE TABLE publication_url (
+	publication_id BIGINT REFERENCES publication(publication_id) NOT NULL,
+	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	PRIMARY KEY(publication_id, url_id)
+);
 
 
 CREATE TABLE publication_person (
@@ -270,11 +333,13 @@ CREATE TABLE well (
 	temp_source VARCHAR(25) NULL,
 	temp_original_id INT NULL,
 	temp_link VARCHAR(255) NULL
+);
 
-	-- Missing fields:
-	-- * geo_aqusition_source
-	-- * geo_aqusition_type
-	-- * * lat/lon surface
+
+CREATE TABLE well_point (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	point_id BIGINT REFERENCES point(point_id) NOT NULL,
+	PRIMARY KEY(well_id, point_id)
 );
 
 
@@ -283,6 +348,13 @@ CREATE TABLE well_operator (
 	organization_id BIGINT REFERENCES organization(organization_id) NOT NULL,
 	is_current BOOLEAN NOT NULL DEFAULT true,
 	PRIMARY KEY(well_id, organization_id)
+);
+
+
+CREATE TABLE well_url (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	PRIMARY KEY(well_id, url_id)
 );
 
 
@@ -310,13 +382,27 @@ CREATE TABLE outcrop (
 	temp_source VARCHAR(25) NULL,
 	temp_original_id INT NULL,
 	temp_link VARCHAR(255) NULL
+);
 
-	-- Missing fields:
-	-- * geo_aqusition_source
-	-- * geo_aqusition_type
-	-- * * lon/lat
-	-- * * UTM
-	-- * * quadrangle
+
+CREATE TABLE outcrop_quadrangle (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	quadrangle_id BIGINT REFERENCES quadrangle(quadrangle_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, quadrangle_id)
+);
+
+
+CREATE TABLE outcrop_point (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	point_id BIGINT REFERENCES point(point_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, point_id)
+);
+
+
+CREATE TABLE outcrop_utm (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	utm_id BIGINT REFERENCES utm(utm_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, utm_id)
 );
 
 
@@ -377,12 +463,27 @@ CREATE TABLE borehole (
 	temp_source VARCHAR(25) NULL,
 	temp_original_id INT NULL,
 	temp_link VARCHAR(255) NULL
+);
 
-	-- Missing fields:
-	-- * geo_aqusition_source
-	-- * geo_aqusition_type
-	-- * * lat/lon
-	-- * * UTM
+
+CREATE TABLE borehole_point (
+	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
+	point_id BIGINT REFERENCES point(point_id) NOT NULL,
+	PRIMARY KEY(borehole_id, point_id)
+);
+
+
+CREATE TABLE borehole_utm (
+	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
+	utm_id BIGINT REFERENCES utm(utm_id) NOT NULL,
+	PRIMARY KEY(borehole_id, utm_id)
+);
+
+
+CREATE TABLE borehole_url (
+	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
+	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	PRIMARY KEY(borehole_id, url_id)
 );
 
 
@@ -515,6 +616,13 @@ CREATE TABLE inventory (
 
 	temp_original_id INT NULL,
 	temp_shelf_idx VARCHAR(25) NULL
+);
+
+
+CREATE TABLE inventory_url (
+	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
+	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	PRIMARY KEY(inventory_id, url_id)
 );
 
 
