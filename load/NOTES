@@ -14,8 +14,21 @@ SELECT t.meridian, t.township, t.twp_dir, t.range, t.range_dir,
 FROM section AS s
 INNER JOIN township AS t ON s.twp_tin_no = t.twp_tin_no
 
+
 -- Mining District generation
 SELECT district_n, region_nam, ST_Multi(ST_Union(geom)) AS geom
 FROM mining_district
 GROUP BY district_n, region_nam
 HAVING district_n IS NOT NULL OR region_nam IS NOT NULL
+
+
+-- Quadrangle generation
+SELECT mi_label, tile_name, 63360, geom FROM quad_63
+
+UNION ALL
+
+SELECT name, shortname, 250000, geom FROM quad_250
+
+
+-- UTM generation
+SELECT utmzone, geom FROM utm

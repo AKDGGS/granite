@@ -164,11 +164,12 @@ CREATE TABLE dimension (
 
 CREATE TABLE utm (
 	utm_id BIGSERIAL PRIMARY KEY,
-	unit_id INT REFERENCES unit(unit_id) NOT NULL,
+	unit_id INT REFERENCES unit(unit_id) NULL,
 	zone VARCHAR(3) NULL,
 	easting INT NULL,
 	northing INT NULL,
-	srid INT NULL
+	srid INT NULL,
+	geom GEOMETRY(MultiPolygon, 0) NULL
 );
 
 
