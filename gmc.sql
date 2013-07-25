@@ -48,13 +48,13 @@ DROP TABLE IF EXISTS
 	outcrop_plss,
 	outcrop_point,
 	outcrop_quadrangle,
-	outcrop_region,
 	outcrop_utm,
 	person,
 	person_organization,
 	place,
 	plss,
 	point,
+	point_type,
 	process,
 	project,
 	publication,
@@ -63,7 +63,6 @@ DROP TABLE IF EXISTS
 	publication_person,
 	publication_url,
 	quadrangle,
-	region,
 	sample,
 	sample_file,
 	sample_process_inventory,
@@ -92,6 +91,7 @@ CREATE TABLE note (
 	note_type_id INT REFERENCES note_type(note_type_id) NOT NULL,
 	note TEXT NOT NULL,
 	note_date DATE NOT NULL DEFAULT NOW(),
+	is_public BOOLEAN NOT NULL DEFAULT true,
 	username VARCHAR(25) NOT NULL
 );
 
@@ -194,15 +194,17 @@ CREATE TABLE plss (
 );
 
 
-CREATE TABLE point (
-	point_id BIGSERIAL PRIMARY KEY,
-	geom GEOMETRY(Point, 0) NULL
+CREATE TABLE point_type (
+	point_type_id SERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL
 );
 
 
-CREATE TABLE region (
-	region_id SERIAL PRIMARY KEY,
-	name VARCHAR(100) NOT NULL
+CREATE TABLE point (
+	point_id BIGSERIAL PRIMARY KEY,
+	point_type_id INT REFERENCES point_type(point_type_id) NOT NULL,
+	description VARCHAR(150) NULL,
+	geom GEOMETRY(Point, 0) NOT NULL
 );
 
 
@@ -319,6 +321,7 @@ CREATE TABLE well (
 	well_number VARCHAR(50) NULL,
 	api_number VARCHAR(14) NULL,
 	alternate_names VARCHAR(1024) NULL,
+	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	spud_date DATE NULL,
 	completion_date DATE NULL,
 	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
@@ -377,6 +380,7 @@ CREATE TABLE outcrop (
 	outcrop_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	outcrop_number VARCHAR(50) NULL, -- datatype?
+	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	year SMALLINT NULL,
 	stash JSON NULL,
 
@@ -442,16 +446,10 @@ CREATE TABLE outcrop_mining_district (
 );
 
 
-CREATE TABLE outcrop_region (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	region_id INT REFERENCES region(region_id) NOT NULL,
-	PRIMARY KEY(outcrop_id, region_id)
-);
-
-
 CREATE TABLE borehole (
 	borehole_id BIGSERIAL PRIMARY KEY,
 	prospect_name VARCHAR(255) NOT NULL,
+	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	borehole_number VARCHAR(50) NULL, -- datatype? nullable?
 	alternate_names VARCHAR(1024) NULL,
 	completion_date DATE NULL,
@@ -550,7 +548,11 @@ CREATE TABLE container_file (
 CREATE TABLE keyword (
 	keyword_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
-	code VARCHAR(8) NULL
+	description VARCHAR(150) NULL,
+	code VARCHAR(8) NULL,
+	legacy_code VARCHAR(8) NULL,
+
+	temp_code VARCHAR(16) NULL
 );
 
 
