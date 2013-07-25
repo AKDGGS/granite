@@ -11,6 +11,7 @@ DROP TABLE IF EXISTS
 	borehole_note,
 	borehole_organization,
 	borehole_point,
+	borehole_quadrangle,
 	borehole_url,
 	borehole_utm,
 	collection,
@@ -72,10 +73,13 @@ DROP TABLE IF EXISTS
 	utm,
 	visitor,
 	well,
+	well_horizon,
 	well_note,
 	well_operator,
+	well_place,
 	well_plss,
 	well_point,
+	well_quadrangle,
 	well_url
 CASCADE;
 
@@ -340,6 +344,32 @@ CREATE TABLE well (
 );
 
 
+CREATE TABLE well_horizon (
+	well_horizon_id SERIAL PRIMARY KEY,
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	type VARCHAR(30) NOT NULL,
+	measured_depth NUMERIC(10, 2) NOT NULL, -- NEED PRECISION
+	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
+	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL
+);
+
+
+CREATE TABLE well_place (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	place_id BIGINT REFERENCES place(place_id) NOT NULL,
+	PRIMARY KEY(well_id, place_id)
+);
+
+
+CREATE TABLE well_quadrangle (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	quadrangle_id BIGINT REFERENCES quadrangle(quadrangle_id) NOT NULL,
+	PRIMARY KEY(well_id, quadrangle_id)
+);
+
+
 CREATE TABLE well_point (
 	well_id BIGINT REFERENCES well(well_id) NOT NULL,
 	point_id BIGINT REFERENCES point(point_id) NOT NULL,
@@ -462,6 +492,13 @@ CREATE TABLE borehole (
 	temp_source VARCHAR(25) NULL,
 	temp_original_id INT NULL,
 	temp_link VARCHAR(255) NULL
+);
+
+
+CREATE TABLE borehole_quadrangle (
+	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
+	quadrangle_id BIGINT REFERENCES quadrangle(quadrangle_id) NOT NULL,
+	PRIMARY KEY(borehole_id, quadrangle_id)
 );
 
 
