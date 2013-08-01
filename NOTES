@@ -1,0 +1,27 @@
+Add indexes for:
+	container.temp_shelf_idx
+	dimension.height, dimension.width, dimension.depth, dimension.temp_type
+	collection.name
+	container_material.name
+	container_type.name
+	core_diameter.name
+	core_diameter.core_diameter
+	inventory_branch.name
+	organization.name
+	organization.abbr
+	organization_type.name
+	person.temp_fullname
+	unit.name
+	unit.abbr
+	inventory.temp_original_id
+
+	place.name
+	place.type
+	quadrangle.name
+	quadrangle.abbr
+
+	note.note_date
+	note.note_type_id
+	note_type.name
+
+	ALL SPATIAL TYPES

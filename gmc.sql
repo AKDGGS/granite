@@ -162,7 +162,8 @@ CREATE TABLE dimension (
 	unit_id INT REFERENCES unit(unit_id) NOT NULL,
 	height NUMERIC(10,2) NOT NULL,
 	width NUMERIC(10,2) NOT NULL,
-	depth NUMERIC(10,2) NOT NULL
+	depth NUMERIC(10,2) NOT NULL,
+	temp_type VARCHAR(50) NULL
 );
 
 
@@ -610,6 +611,7 @@ CREATE TABLE inventory (
 	collection_id INT REFERENCES collection(collection_id) NULL,
 	project_id INT REFERENCES project(project_id) NULL,
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
+	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
 	sample_number VARCHAR(25) NULL, -- NEED SIZE
 	sample_number_prefix VARCHAR(25) NULL,
@@ -630,7 +632,7 @@ CREATE TABLE inventory (
 	-- Into remarks: Screen size
 	remarks TEXT NULL,
 
-	spacer SMALLINT NULL DEFAULT 1,
+	tray SMALLINT NULL DEFAULT 1,
 
 	interval_top INT NULL,
 	interval_bottom INT NULL,
