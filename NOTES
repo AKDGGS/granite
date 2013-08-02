@@ -24,4 +24,6 @@ Add indexes for:
 	note.note_type_id
 	note_type.name
 
+	dimension.name
+
 	ALL SPATIAL TYPES

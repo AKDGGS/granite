@@ -160,6 +160,8 @@ CREATE TABLE unit (
 CREATE TABLE dimension (
 	dimension_id SERIAL PRIMARY KEY,
 	unit_id INT REFERENCES unit(unit_id) NOT NULL,
+
+	name VARCHAR(50) NOT NULL,
 	height NUMERIC(10,2) NOT NULL,
 	width NUMERIC(10,2) NOT NULL,
 	depth NUMERIC(10,2) NOT NULL,
@@ -224,7 +226,7 @@ CREATE TABLE organization (
 	name VARCHAR(255) NOT NULL,
 	abbr VARCHAR(25) NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
-	remarks TEXT NULL,
+	remark TEXT NULL,
 	temp_original_id INT NULL
 );
 
@@ -629,8 +631,8 @@ CREATE TABLE inventory (
 	slip_number INT NULL,
 	lab_number VARCHAR(100), -- NEED SIZE
 	map_number VARCHAR(25), -- Stores BLM map number
-	-- Into remarks: Screen size
-	remarks TEXT NULL,
+	-- Into remark: Screen size
+	remark TEXT NULL,
 
 	tray SMALLINT NULL DEFAULT 1,
 
@@ -728,7 +730,7 @@ CREATE TABLE inventory_outcrop (
 CREATE TABLE inventory_quality (
 	inventory_quality_id BIGSERIAL PRIMARY KEY,
 	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
-	note TEXT NULL, -- NULLABLE?
+	remark TEXT NULL, -- NULLABLE?
 	check_date DATE NOT NULL DEFAULT NOW(), -- REVIEW NAME
 	sorted BOOLEAN NOT NULL DEFAULT false, -- REVIEW DEFAULT
 	damaged BOOLEAN NOT NULL DEFAULT false,
