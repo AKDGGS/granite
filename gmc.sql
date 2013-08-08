@@ -244,7 +244,9 @@ CREATE TABLE person (
 	preferred_id BIGINT REFERENCES person(person_id) NULL,
 
 	-- Used for referencing the user in the short-term during the import
-	temp_fullname VARCHAR(150) NULL
+	temp_fullname VARCHAR(150) NULL,
+	temp_organization VARCHAR(255) NULL,
+	temp_old_id INT NULL
 );
 
 
@@ -307,6 +309,7 @@ CREATE TABLE core_diameter (
 CREATE TABLE collection (
 	collection_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
+	description VARCHAR(255) NULL,
 	organization_id BIGINT REFERENCES organization(organization_id) NULL
 );
 
