@@ -662,7 +662,11 @@ CREATE TABLE inventory (
 	active BOOLEAN NOT NULL DEFAULT true,
 
 	temp_original_id INT NULL,
-	temp_shelf_idx VARCHAR(25) NULL
+	temp_shelf_idx VARCHAR(25) NULL,
+	temp_sample_form VARCHAR(20) NULL,
+	temp_world VARCHAR(15) NULL,
+	temp_location_id BIGINT NULL,
+	temp_drawer VARCHAR(50) NULL
 );
 
 
