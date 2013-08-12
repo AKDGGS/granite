@@ -17,6 +17,7 @@ DROP INDEX IF EXISTS temp_container_temp_shelf_idx_idx, temp_dimension_hwdt_idx,
 CREATE INDEX temp_container_temp_shelf_idx_idx ON container(temp_shelf_idx);
 CREATE INDEX temp_dimension_hwdt_idx ON dimension(height, width, depth, temp_type);
 CREATE INDEX temp_person_temp_fullname_idx ON person(temp_fullname);
+CREATE INDEX temp_inventory_temp_sample_form_idx ON inventory(temp_sample_form);
 CREATE INDEX temp_inventory_orignial_idx ON inventory(temp_original_id, temp_world);
 
 CREATE INDEX collection_name_idx ON collection(name);
