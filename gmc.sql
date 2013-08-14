@@ -96,7 +96,10 @@ CREATE TABLE note (
 	note TEXT NOT NULL,
 	note_date DATE NOT NULL DEFAULT NOW(),
 	is_public BOOLEAN NOT NULL DEFAULT true,
-	username VARCHAR(25) NOT NULL
+	username VARCHAR(25) NOT NULL,
+
+	temp_original_id INT NULL,
+	temp_world VARCHAR(15) NULL
 );
 
 
@@ -497,7 +500,8 @@ CREATE TABLE borehole (
 
 	temp_source VARCHAR(25) NULL,
 	temp_original_id INT NULL,
-	temp_link VARCHAR(255) NULL
+	temp_link VARCHAR(255) NULL,
+	temp_publication_link INT NULL
 );
 
 
@@ -577,6 +581,9 @@ CREATE TABLE container (
 	barcode VARCHAR(25) NULL,
 
 	active BOOLEAN NOT NULL DEFAULT true,
+
+	temp_parent VARCHAR(20) NULL,
+	temp_type VARCHAR(100) NULL,
 	temp_shelf_idx VARCHAR(35) NULL
 );
 
@@ -592,10 +599,7 @@ CREATE TABLE keyword (
 	keyword_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
 	description VARCHAR(150) NULL,
-	code VARCHAR(8) NULL,
-	legacy_code VARCHAR(8) NULL,
-
-	temp_code VARCHAR(16) NULL
+	code VARCHAR(8) NULL
 );
 
 
@@ -654,6 +658,7 @@ CREATE TABLE inventory (
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	skeleton BOOLEAN NOT NULL DEFAULT false,
 	radiation_cps NUMERIC(10, 2) NULL, -- NEED SIZE
+	radiation_msv NUMERIC(10, 2) NULL, -- NEED SIZE
 	received_date DATE NULL,
 	entered_date DATE NULL,
 	modified_date DATE NULL,

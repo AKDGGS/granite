@@ -12,7 +12,7 @@ DROP INDEX IF EXISTS temp_container_temp_shelf_idx_idx, temp_dimension_hwdt_idx,
 	organization_organization_type_idx, unit_name_idx, unit_abbr_idx,
 	place_name_idx, place_type_idx, quadrangle_name_idx,
 	note_note_date_idx, note_note_type_id_idx, note_type_name_idx,
-	dimension_name_idx;
+	dimension_name_idx, inventory_keyword_keyword_id_idx;
 
 CREATE INDEX temp_container_temp_shelf_idx_idx ON container(temp_shelf_idx);
 CREATE INDEX temp_dimension_hwdt_idx ON dimension(height, width, depth, temp_type);
@@ -38,5 +38,6 @@ CREATE INDEX note_note_date_idx ON note(note_date);
 CREATE INDEX note_note_type_id_idx ON note(note_type_id);
 CREATE INDEX note_type_name_idx ON note_type(name);
 CREATE INDEX dimension_name_idx ON dimension(name);
+CREATE INDEX inventory_keyword_keyword_id_idx ON inventory_keyword(keyword_id);
 
 COMMIT;
