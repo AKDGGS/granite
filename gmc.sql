@@ -71,6 +71,7 @@ DROP TABLE IF EXISTS
 	url,
 	url_type,
 	utm,
+	utm_type,
 	visitor,
 	well,
 	well_horizon,
@@ -86,7 +87,8 @@ CASCADE;
 
 CREATE TABLE note_type (
 	note_type_id SERIAL PRIMARY KEY,
-	name VARCHAR(50)
+	name VARCHAR(50),
+	description VARCHAR(255)
 );
 
 
@@ -129,8 +131,10 @@ CREATE TABLE url_type (
 CREATE TABLE url (
 	url_id BIGSERIAL PRIMARY KEY,
 	url_type_id INT REFERENCES url_type(url_type_id) NULL,
-	description VARCHAR(100) NULL,
-	url TEXT
+	description VARCHAR(255) NULL,
+	url TEXT,
+	temp_original_id INT NULL,
+	temp_world VARCHAR(15) NULL
 );
 
 
@@ -143,7 +147,7 @@ CREATE TABLE file_type (
 CREATE TABLE file (
 	file_id BIGSERIAL PRIMARY KEY,
 	file_type_id INT REFERENCES file_type(file_type_id) NULL,
-	description VARCHAR(100) NULL,
+	description VARCHAR(255) NULL,
 	mimetype VARCHAR(255) NOT NULL DEFAULT 'application/octet-stream',
 	size BIGINT NOT NULL,
 	filename VARCHAR(255) NOT NULL,
@@ -156,7 +160,7 @@ CREATE TABLE unit (
 	unit_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NULL,
 	abbr VARCHAR(5) NULL,
-	description VARCHAR(100) NULL
+	description VARCHAR(255) NULL
 );
 
 
@@ -172,9 +176,17 @@ CREATE TABLE dimension (
 );
 
 
+CREATE TABLE utm_type (
+	utm_type_id SERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL
+);
+
+
 CREATE TABLE utm (
 	utm_id BIGSERIAL PRIMARY KEY,
+	utm_type_id INT REFERENCES utm_type(utm_type_id) NULL,
 	unit_id INT REFERENCES unit(unit_id) NULL,
+	description VARCHAR(255) NULL,
 	zone VARCHAR(3) NULL,
 	easting INT NULL,
 	northing INT NULL,
@@ -212,8 +224,8 @@ CREATE TABLE point_type (
 
 CREATE TABLE point (
 	point_id BIGSERIAL PRIMARY KEY,
-	point_type_id INT REFERENCES point_type(point_type_id) NOT NULL,
-	description VARCHAR(150) NULL,
+	point_type_id INT REFERENCES point_type(point_type_id) NULL,
+	description VARCHAR(255) NULL,
 	geom GEOMETRY(Point, 0) NOT NULL
 );
 
@@ -330,10 +342,12 @@ CREATE TABLE project (
 
 CREATE TABLE well (
 	well_id BIGSERIAL PRIMARY KEY,
+
 	name VARCHAR(255) NOT NULL,
+	alt_names VARCHAR(1024) NULL,
+
 	well_number VARCHAR(50) NULL,
 	api_number VARCHAR(14) NULL,
-	alternate_names VARCHAR(1024) NULL,
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	spud_date DATE NULL,
 	completion_date DATE NULL,
@@ -487,10 +501,17 @@ CREATE TABLE outcrop_mining_district (
 
 CREATE TABLE borehole (
 	borehole_id BIGSERIAL PRIMARY KEY,
+
 	prospect_name VARCHAR(255) NOT NULL,
+	alt_prospect_names VARCHAR(1024) NULL,
+
+	borehole_number VARCHAR(50) NULL,
+	borehole_name VARCHAR(50) NULL,
+	alt_borehole_names VARCHAR(1024) NULL,
+	ardf_number VARCHAR(25) NULL,
+
+
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
-	borehole_number VARCHAR(50) NULL, -- datatype? nullable?
-	alternate_names VARCHAR(1024) NULL,
 	completion_date DATE NULL,
 	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
@@ -574,7 +595,7 @@ CREATE TABLE container (
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
 	name VARCHAR(50) NOT NULL,
-	description VARCHAR(100) NULL,
+	description VARCHAR(255) NULL,
 
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 
@@ -598,7 +619,7 @@ CREATE TABLE container_file (
 CREATE TABLE keyword (
 	keyword_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
-	description VARCHAR(150) NULL,
+	description VARCHAR(255) NULL,
 	code VARCHAR(8) NULL
 );
 
@@ -607,7 +628,7 @@ CREATE TABLE inventory_branch (
 	-- Branch of geology e.g. ""Seismic", "Oil and Gas", "Processed", 
 	inventory_branch_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
-	description VARCHAR(100) NULL
+	description VARCHAR(255) NULL
 );
 
 
@@ -742,9 +763,9 @@ CREATE TABLE inventory_outcrop (
 CREATE TABLE inventory_quality (
 	inventory_quality_id BIGSERIAL PRIMARY KEY,
 	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
-	remark TEXT NULL, -- NULLABLE?
-	check_date DATE NOT NULL DEFAULT NOW(), -- REVIEW NAME
-	sorted BOOLEAN NOT NULL DEFAULT false, -- REVIEW DEFAULT
+	check_date DATE NOT NULL DEFAULT NOW(),
+	remark TEXT NULL,
+	sorted BOOLEAN NOT NULL DEFAULT true,
 	damaged BOOLEAN NOT NULL DEFAULT false,
 	box_damaged BOOLEAN NOT NULL DEFAULT false,
 	missing BOOLEAN NOT NULL DEFAULT false,
@@ -757,7 +778,7 @@ CREATE TABLE inventory_quality (
 CREATE TABLE process (
 	process_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
-	description VARCHAR(250) NULL
+	description VARCHAR(255) NULL
 );
 
 
