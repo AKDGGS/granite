@@ -770,6 +770,7 @@ CREATE TABLE inventory_quality (
 	box_damaged BOOLEAN NOT NULL DEFAULT false,
 	missing BOOLEAN NOT NULL DEFAULT false,
 	data_missing BOOLEAN NOT NULL DEFAULT false,
+	barcode_missing BOOLEAN NOT NULL DEFAULT false,
 	label_obscured BOOLEAN NOT NULL DEFAULT false,
 	username VARCHAR(25) NOT NULL
 );
