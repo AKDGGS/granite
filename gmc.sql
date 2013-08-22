@@ -4,7 +4,6 @@ SET CLIENT_MIN_MESSAGES TO WARNING;
 
 BEGIN;
 
-
 DROP TABLE IF EXISTS
 	borehole,
 	borehole_mining_district,
@@ -99,6 +98,7 @@ CREATE TABLE note (
 	note_date DATE NOT NULL DEFAULT NOW(),
 	is_public BOOLEAN NOT NULL DEFAULT true,
 	username VARCHAR(25) NOT NULL,
+	active BOOLEAN NOT NULL DEFAULT true,
 
 	temp_original_id INT NULL,
 	temp_world VARCHAR(15) NULL
@@ -108,7 +108,9 @@ CREATE TABLE note (
 CREATE TABLE quadrangle (
 	quadrangle_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(30) NOT NULL,
+	alt_name VARCHAR(30) NULL,
 	abbr VARCHAR(5) NULL,
+	alt_abbr VARCHAR(5) NULL,
 	scale INT NOT NULL,
 	geom GEOMETRY(MultiPolygon, 0) NULL
 );
@@ -172,6 +174,7 @@ CREATE TABLE dimension (
 	height NUMERIC(10,2) NOT NULL,
 	width NUMERIC(10,2) NOT NULL,
 	depth NUMERIC(10,2) NOT NULL,
+
 	temp_type VARCHAR(50) NULL
 );
 
@@ -191,7 +194,9 @@ CREATE TABLE utm (
 	easting INT NULL,
 	northing INT NULL,
 	srid INT NULL,
-	geom GEOMETRY(MultiPolygon, 0) NULL
+	geom GEOMETRY(MultiPolygon, 0) NULL,
+
+	temp_original_id INT NULL
 );
 
 
@@ -226,7 +231,9 @@ CREATE TABLE point (
 	point_id BIGSERIAL PRIMARY KEY,
 	point_type_id INT REFERENCES point_type(point_type_id) NULL,
 	description VARCHAR(255) NULL,
-	geom GEOMETRY(Point, 0) NOT NULL
+	geom GEOMETRY(Point, 0) NOT NULL,
+
+	temp_original_id INT NULL
 );
 
 
@@ -505,11 +512,10 @@ CREATE TABLE borehole (
 	prospect_name VARCHAR(255) NOT NULL,
 	alt_prospect_names VARCHAR(1024) NULL,
 
-	borehole_number VARCHAR(50) NULL,
 	borehole_name VARCHAR(50) NULL,
 	alt_borehole_names VARCHAR(1024) NULL,
-	ardf_number VARCHAR(25) NULL,
 
+	ardf_number VARCHAR(25) NULL,
 
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	completion_date DATE NULL,
@@ -588,7 +594,6 @@ CREATE TABLE container_type (
 
 
 CREATE TABLE container (
-	-- Add lon/lat spatial data to container
 	container_id BIGSERIAL PRIMARY KEY,
 	parent_container_id BIGINT REFERENCES container(container_id) NULL,
 	container_type_id INT REFERENCES container_type(container_type_id) NULL,
@@ -765,7 +770,7 @@ CREATE TABLE inventory_quality (
 	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
 	check_date DATE NOT NULL DEFAULT NOW(),
 	remark TEXT NULL,
-	sorted BOOLEAN NOT NULL DEFAULT true,
+	unsorted BOOLEAN NOT NULL DEFAULT false,
 	damaged BOOLEAN NOT NULL DEFAULT false,
 	box_damaged BOOLEAN NOT NULL DEFAULT false,
 	missing BOOLEAN NOT NULL DEFAULT false,
