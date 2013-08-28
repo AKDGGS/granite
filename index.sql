@@ -32,7 +32,7 @@ CREATE INDEX temp_container_temp_shelf_idx_idx ON container(temp_shelf_idx);
 CREATE INDEX temp_dimension_hwdt_idx ON dimension(height, width, depth, temp_type);
 CREATE INDEX temp_person_temp_fullname_idx ON person(temp_fullname);
 CREATE INDEX temp_inventory_temp_sample_form_idx ON inventory(temp_sample_form);
-CREATE INDEX temp_inventory_temp_orignial_idx ON inventory(temp_original_id, temp_world);
+CREATE INDEX temp_inventory_temp_original_idx ON inventory(temp_original_id, temp_world);
 
 CREATE INDEX collection_name_idx ON collection(name);
 CREATE INDEX container_active_idx ON container(active);
@@ -65,5 +65,6 @@ CREATE INDEX note_type_name_idx ON note_type(name);
 CREATE INDEX dimension_name_idx ON dimension(name);
 CREATE INDEX inventory_keyword_keyword_id_idx ON inventory_keyword(keyword_id);
 CREATE INDEX inventory_quality_check_date_idx ON inventory_quality(check_date);
+CREATE INDEX borehole_ardf_number_idx ON borehole(LOWER(ardf_number));
 
 COMMIT;
