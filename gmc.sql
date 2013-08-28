@@ -288,7 +288,9 @@ CREATE TABLE publication (
 	publication_number VARCHAR(50) NULL,
 	publication_series VARCHAR(50) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
-	temp_original_id INT NULL
+
+	temp_original_id INT NULL,
+	temp_source VARCHAR(30) NULL
 ); 
 
 
