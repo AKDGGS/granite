@@ -36,6 +36,7 @@ CREATE INDEX temp_inventory_temp_original_idx ON inventory(temp_original_id, tem
 
 CREATE INDEX collection_name_idx ON collection(name);
 CREATE INDEX container_active_idx ON container(active);
+CREATE INDEX container_parent_container_id_idx ON container(parent_container_id);
 CREATE INDEX container_material_name_idx ON container_material(name);
 CREATE INDEX container_type_name_idx ON container_type(name);
 CREATE INDEX core_diameter_name_idx ON core_diameter(name);
