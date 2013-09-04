@@ -57,6 +57,7 @@ DROP TABLE IF EXISTS
 	point_type,
 	process,
 	project,
+	prospect,
 	publication,
 	publication_note,
 	publication_organization,
@@ -101,7 +102,7 @@ CREATE TABLE note (
 	active BOOLEAN NOT NULL DEFAULT true,
 
 	temp_original_id INT NULL,
-	temp_world VARCHAR(15) NULL
+	temp_source VARCHAR(25) NULL
 );
 
 
@@ -136,7 +137,7 @@ CREATE TABLE url (
 	description VARCHAR(255) NULL,
 	url TEXT,
 	temp_original_id INT NULL,
-	temp_world VARCHAR(15) NULL
+	temp_source VARCHAR(25) NULL
 );
 
 
@@ -268,7 +269,7 @@ CREATE TABLE person (
 	-- Used for referencing the user in the short-term during the import
 	temp_fullname VARCHAR(150) NULL,
 	temp_organization VARCHAR(255) NULL,
-	temp_old_id INT NULL
+	temp_original_id INT NULL
 );
 
 
@@ -508,16 +509,23 @@ CREATE TABLE outcrop_mining_district (
 );
 
 
-CREATE TABLE borehole (
-	borehole_id BIGSERIAL PRIMARY KEY,
-
+CREATE TABLE prospect (
+	prospect_id BIGSERIAL PRIMARY KEY,
 	prospect_name VARCHAR(255) NOT NULL,
 	alt_prospect_names VARCHAR(1024) NULL,
+	ardf_number VARCHAR(25) NULL,
+
+	temp_source VARCHAR(25) NULL,
+	temp_original_id INT NULL
+);
+
+
+CREATE TABLE borehole (
+	borehole_id BIGSERIAL PRIMARY KEY,
+	prospect_id BIGINT REFERENCES prospect(prospect_id) NULL,
 
 	borehole_name VARCHAR(50) NULL,
 	alt_borehole_names VARCHAR(1024) NULL,
-
-	ardf_number VARCHAR(25) NULL,
 
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	completion_date DATE NULL,
@@ -644,7 +652,6 @@ CREATE TABLE inventory (
 	inventory_branch_id INT REFERENCES inventory_branch(inventory_branch_id) NOT NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
-	container_id BIGINT REFERENCES container(container_id) NULL,
 	collection_id INT REFERENCES collection(collection_id) NULL,
 	project_id INT REFERENCES project(project_id) NULL,
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
@@ -697,7 +704,7 @@ CREATE TABLE inventory (
 	temp_original_id INT NULL,
 	temp_shelf_idx VARCHAR(25) NULL,
 	temp_sample_form VARCHAR(20) NULL,
-	temp_world VARCHAR(15) NULL,
+	temp_source VARCHAR(25) NULL,
 	temp_location_id BIGINT NULL,
 	temp_drawer VARCHAR(50) NULL
 );
@@ -773,6 +780,7 @@ CREATE TABLE inventory_quality (
 	check_date DATE NOT NULL DEFAULT NOW(),
 	remark TEXT NULL,
 	unsorted BOOLEAN NOT NULL DEFAULT false,
+	possible_radiation BOOLEAN NOT NULL DEFAULT false,
 	damaged BOOLEAN NOT NULL DEFAULT false,
 	box_damaged BOOLEAN NOT NULL DEFAULT false,
 	missing BOOLEAN NOT NULL DEFAULT false,
