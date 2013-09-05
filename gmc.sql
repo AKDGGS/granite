@@ -161,8 +161,8 @@ CREATE TABLE file (
 
 CREATE TABLE unit (
 	unit_id SERIAL PRIMARY KEY,
-	name VARCHAR(100) NULL,
-	abbr VARCHAR(5) NULL,
+	name VARCHAR(100) NOT NULL,
+	abbr VARCHAR(5) NOT NULL,
 	description VARCHAR(255) NULL
 );
 
