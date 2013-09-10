@@ -25,7 +25,8 @@ DROP INDEX IF EXISTS
 	note_active_idx,
 	note_note_date_idx, note_note_type_id_idx, note_type_name_idx,
 	dimension_name_idx, inventory_keyword_keyword_id_idx,
-	inventory_quality_check_date_idx, prospect_ardf_number_idx
+	inventory_quality_check_date_idx, prospect_ardf_number_idx,
+	plss_geom_idx, point_geom_idx, place_geom_idx, quadrangle_geom_idx
 ;
 
 
@@ -70,5 +71,10 @@ CREATE INDEX dimension_name_idx ON dimension(name);
 CREATE INDEX inventory_keyword_keyword_id_idx ON inventory_keyword(keyword_id);
 CREATE INDEX inventory_quality_check_date_idx ON inventory_quality(check_date);
 CREATE INDEX prospect_ardf_number_idx ON prospect(LOWER(ardf_number));
+
+CREATE INDEX plss_geom_idx ON plss USING GIST(geom);
+CREATE INDEX point_geom_idx ON point USING GIST(geom);
+CREATE INDEX place_geom_idx ON place USING GIST(geom);
+CREATE INDEX quadrangle_geom_idx ON quadrangle USING GIST(geom);
 
 COMMIT;
