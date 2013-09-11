@@ -14,27 +14,48 @@ DROP INDEX IF EXISTS
 	temp_inventory_temp_drawer_idx,
 	temp_inventory_temp_source_idx,
 
-	collection_name_idx, container_active_idx,
-	container_material_name_idx, container_type_name_idx,
-	core_diameter_name_idx, core_diameter_core_diameter_idx,
-	inventory_inventory_branch_id_idx, inventory_parent_id_idx,
-	inventory_dimension_id_idx, inventory_container_inventory_id_idx,
-	inventory_container_container_id_idx, inventory_container_log_date_idx,
-	inventory_collection_id_idx, inventory_project_id_idx,
-	inventory_container_material_id_idx, inventory_collector_id_idx,
-	inventory_active_idx, inventory_borehole_borehole_id_idx,
+	collection_name_idx,
+	container_active_idx,
+	container_material_name_idx,
+	container_type_name_idx,
+	core_diameter_name_idx,
+	core_diameter_core_diameter_idx,
+	inventory_inventory_branch_id_idx,
+	inventory_parent_id_idx,
+	inventory_dimension_id_idx,
+	inventory_container_inventory_id_idx,
+	inventory_container_container_id_idx,
+	inventory_container_log_date_idx,
+	inventory_collection_id_idx,
+	inventory_project_id_idx,
+	inventory_container_material_id_idx,
+	inventory_collector_id_idx,
+	inventory_active_idx,
+	inventory_borehole_borehole_id_idx,
 	inventory_borehole_inventory_id_idx,
 	inventory_branch_name_idx,
 	keyword_lower_name_idx,
 	keyword_name_idx,
-	organization_name_idx, organization_abbr_idx,
-	organization_organization_type_id_idx, unit_name_idx, unit_abbr_idx,
-	place_name_idx, place_type_idx, quadrangle_name_idx,
+	organization_name_idx,
+	organization_abbr_idx,
+	organization_organization_type_id_idx,
+	unit_name_idx,
+	unit_abbr_idx,
+	place_name_idx,
+	place_type_idx,
+	quadrangle_name_idx,
 	note_active_idx,
-	note_note_date_idx, note_note_type_id_idx, note_type_name_idx,
-	dimension_name_idx, inventory_keyword_keyword_id_idx,
-	inventory_quality_check_date_idx, prospect_ardf_number_idx,
-	plss_geom_idx, point_geom_idx, place_geom_idx, quadrangle_geom_idx
+	note_note_date_idx,
+	note_note_type_id_idx,
+	note_type_name_idx,
+	dimension_name_idx,
+	inventory_keyword_keyword_id_idx,
+	inventory_quality_check_date_idx,
+	prospect_ardf_number_idx,
+	plss_geom_idx,
+	point_geom_idx,
+	place_geom_idx,
+	quadrangle_geom_idx
 ;
 
 
@@ -42,7 +63,7 @@ CREATE INDEX temp_container_temp_shelf_idx_idx ON container(temp_shelf_idx);
 CREATE INDEX temp_dimension_hwdt_idx ON dimension(height, width, depth, temp_type);
 CREATE INDEX temp_person_temp_fullname_idx ON person(temp_fullname);
 CREATE INDEX temp_inventory_temp_sample_form_idx ON inventory(temp_sample_form);
-CREATE INDEX temp_inventory_temp_original_idx ON inventory(temp_original_id, temp_source);
+CREATE INDEX temp_inventory_temp_original_id_idx ON inventory(temp_original_id, temp_source);
 CREATE INDEX temp_inventory_temp_shelf_idx_idx ON public.inventory(temp_shelf_idx);
 CREATE INDEX temp_inventory_temp_drawer_idx ON public.inventory(temp_drawer);
 CREATE INDEX temp_inventory_temp_source_idx ON public.inventory(temp_source);
