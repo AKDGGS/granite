@@ -101,7 +101,7 @@ CREATE TABLE note (
 	username VARCHAR(25) NOT NULL,
 	active BOOLEAN NOT NULL DEFAULT true,
 
-	temp_original_id INT NULL,
+	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(25) NULL
 );
 
@@ -136,7 +136,7 @@ CREATE TABLE url (
 	url_type_id INT REFERENCES url_type(url_type_id) NULL,
 	description VARCHAR(255) NULL,
 	url TEXT,
-	temp_original_id INT NULL,
+	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(25) NULL
 );
 
@@ -197,7 +197,7 @@ CREATE TABLE utm (
 	srid INT NULL,
 	geom GEOMETRY(MultiPolygon, 0) NULL,
 
-	temp_original_id INT NULL
+	temp_original_id BIGINT NULL
 );
 
 
@@ -234,7 +234,7 @@ CREATE TABLE point (
 	description VARCHAR(255) NULL,
 	geom GEOMETRY(Point, 0) NOT NULL,
 
-	temp_original_id INT NULL
+	temp_original_id BIGINT NULL
 );
 
 
@@ -250,7 +250,7 @@ CREATE TABLE organization (
 	abbr VARCHAR(25) NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
 	remark TEXT NULL,
-	temp_original_id INT NULL
+	temp_original_id BIGINT NULL
 );
 
 
@@ -269,7 +269,7 @@ CREATE TABLE person (
 	-- Used for referencing the user in the short-term during the import
 	temp_fullname VARCHAR(150) NULL,
 	temp_organization VARCHAR(255) NULL,
-	temp_original_id INT NULL
+	temp_original_id BIGINT NULL
 );
 
 
@@ -290,7 +290,7 @@ CREATE TABLE publication (
 	publication_series VARCHAR(50) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 
-	temp_original_id INT NULL,
+	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(30) NULL
 ); 
 
@@ -346,7 +346,7 @@ CREATE TABLE project (
 	start_date DATE NULL,
 	end_date DATE NULL,
 
-	temp_original_id INT NULL
+	temp_original_id BIGINT NULL
 );
 
 
@@ -372,7 +372,7 @@ CREATE TABLE well (
 	stash JSON NULL,
 
 	temp_source VARCHAR(25) NULL,
-	temp_original_id INT NULL,
+	temp_original_id BIGINT NULL,
 	temp_link VARCHAR(255) NULL
 );
 
@@ -448,7 +448,7 @@ CREATE TABLE outcrop (
 	stash JSON NULL,
 
 	temp_source VARCHAR(25) NULL,
-	temp_original_id INT NULL,
+	temp_original_id BIGINT NULL,
 	temp_link VARCHAR(255) NULL
 );
 
@@ -516,7 +516,7 @@ CREATE TABLE prospect (
 	ardf_number VARCHAR(25) NULL,
 
 	temp_source VARCHAR(25) NULL,
-	temp_original_id INT NULL
+	temp_original_id BIGINT NULL
 );
 
 
@@ -536,7 +536,7 @@ CREATE TABLE borehole (
 	stash JSON NULL,
 
 	temp_source VARCHAR(25) NULL,
-	temp_original_id INT NULL,
+	temp_original_id BIGINT NULL,
 	temp_link VARCHAR(255) NULL,
 	temp_publication_link INT NULL
 );
@@ -701,7 +701,7 @@ CREATE TABLE inventory (
 	stash JSON NULL,
 	active BOOLEAN NOT NULL DEFAULT true,
 
-	temp_original_id INT NULL,
+	temp_original_id BIGINT NULL,
 	temp_shelf_idx VARCHAR(25) NULL,
 	temp_sample_form VARCHAR(20) NULL,
 	temp_source VARCHAR(25) NULL,
