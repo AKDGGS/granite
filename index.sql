@@ -10,6 +10,10 @@ DROP INDEX IF EXISTS
 	temp_person_temp_fullname_idx,
 	temp_inventory_temp_sample_form_idx,
 	temp_inventory_temp_original_id_idx,
+	temp_inventory_temp_shelf_idx_idx,
+	temp_inventory_temp_drawer_idx,
+	temp_inventory_temp_source_idx,
+
 	collection_name_idx, container_active_idx,
 	container_material_name_idx, container_type_name_idx,
 	core_diameter_name_idx, core_diameter_core_diameter_idx,
@@ -18,8 +22,12 @@ DROP INDEX IF EXISTS
 	inventory_container_container_id_idx, inventory_container_log_date_idx,
 	inventory_collection_id_idx, inventory_project_id_idx,
 	inventory_container_material_id_idx, inventory_collector_id_idx,
-	inventory_active_idx,
-	inventory_branch_name_idx, organization_name_idx, organization_abbr_idx,
+	inventory_active_idx, inventory_borehole_borehole_id_idx,
+	inventory_borehole_inventory_id_idx,
+	inventory_branch_name_idx,
+	keyword_lower_name_idx,
+	keyword_name_idx,
+	organization_name_idx, organization_abbr_idx,
 	organization_organization_type_id_idx, unit_name_idx, unit_abbr_idx,
 	place_name_idx, place_type_idx, quadrangle_name_idx,
 	note_active_idx,
@@ -35,6 +43,10 @@ CREATE INDEX temp_dimension_hwdt_idx ON dimension(height, width, depth, temp_typ
 CREATE INDEX temp_person_temp_fullname_idx ON person(temp_fullname);
 CREATE INDEX temp_inventory_temp_sample_form_idx ON inventory(temp_sample_form);
 CREATE INDEX temp_inventory_temp_original_idx ON inventory(temp_original_id, temp_source);
+CREATE INDEX temp_inventory_temp_shelf_idx_idx ON public.inventory(temp_shelf_idx);
+CREATE INDEX temp_inventory_temp_drawer_idx ON public.inventory(temp_drawer);
+CREATE INDEX temp_inventory_temp_source_idx ON public.inventory(temp_source);
+
 
 CREATE INDEX collection_name_idx ON collection(name);
 CREATE INDEX container_active_idx ON container(active);
@@ -54,7 +66,11 @@ CREATE INDEX inventory_container_container_id_idx ON inventory_container(contain
 CREATE INDEX inventory_container_log_date_idx ON inventory_container(log_date);
 CREATE INDEX inventory_collector_id_idx ON inventory(collector_id);
 CREATE INDEX inventory_active_idx ON inventory(active);
+CREATE INDEX inventory_borehole_borehole_id_idx ON inventory_borehole(borehole_id);
+CREATE INDEX inventory_borehole_inventory_id_idx ON inventory_borehole(inventory_id);
 CREATE INDEX inventory_branch_name_idx ON inventory_branch(name);
+CREATE INDEX keyword_lower_name_idx ON keyword(LOWER(name));
+CREATE INDEX keyword_name_idx ON keyword(name);
 CREATE INDEX organization_name_idx ON organization(name);
 CREATE INDEX organization_abbr_idx ON organization(abbr);
 CREATE INDEX organization_organization_type_id_idx ON organization(organization_type_id);
