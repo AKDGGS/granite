@@ -511,8 +511,8 @@ CREATE TABLE outcrop_mining_district (
 
 CREATE TABLE prospect (
 	prospect_id BIGSERIAL PRIMARY KEY,
-	prospect_name VARCHAR(255) NOT NULL,
-	alt_prospect_names VARCHAR(1024) NULL,
+	name VARCHAR(255) NOT NULL,
+	alt_names VARCHAR(1024) NULL,
 	ardf_number VARCHAR(25) NULL,
 
 	temp_source VARCHAR(25) NULL,
@@ -524,8 +524,8 @@ CREATE TABLE borehole (
 	borehole_id BIGSERIAL PRIMARY KEY,
 	prospect_id BIGINT REFERENCES prospect(prospect_id) NULL,
 
-	borehole_name VARCHAR(50) NULL,
-	alt_borehole_names VARCHAR(1024) NULL,
+	name VARCHAR(50) NULL,
+	alt_names VARCHAR(1024) NULL,
 
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	completion_date DATE NULL,
@@ -615,6 +615,7 @@ CREATE TABLE container (
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 
 	barcode VARCHAR(25) NULL,
+	alt_barcode VARCHAR(25) NULL,
 
 	active BOOLEAN NOT NULL DEFAULT true,
 
@@ -664,7 +665,7 @@ CREATE TABLE inventory (
 	published_number_has_suffix BOOLEAN NOT NULL DEFAULT false,
 	published_description TEXT NULL, -- NEED SIZE
 	barcode VARCHAR(25) NULL,
-	other_barcode VARCHAR(25) NULL,
+	alt_barcode VARCHAR(25) NULL,
 	state_number VARCHAR(50) NULL, -- NEED SIZE
 	box_number VARCHAR(50) NULL, -- NEED SIZE
 	set_number VARCHAR(50) NULL, -- NEED SIZE

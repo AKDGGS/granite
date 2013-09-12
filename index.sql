@@ -15,6 +15,8 @@ DROP INDEX IF EXISTS
 	temp_inventory_temp_source_idx,
 
 	collection_name_idx,
+	container_barcode_idx,
+	container_alt_barcode_idx,
 	container_active_idx,
 	container_material_name_idx,
 	container_type_name_idx,
@@ -23,6 +25,8 @@ DROP INDEX IF EXISTS
 	inventory_inventory_branch_id_idx,
 	inventory_parent_id_idx,
 	inventory_dimension_id_idx,
+	inventory_barcode_idx,
+	inventory_alt_barcode_idx,
 	inventory_container_inventory_id_idx,
 	inventory_container_container_id_idx,
 	inventory_container_log_date_idx,
@@ -70,6 +74,8 @@ CREATE INDEX temp_inventory_temp_source_idx ON public.inventory(temp_source);
 
 
 CREATE INDEX collection_name_idx ON collection(name);
+CREATE INDEX container_barcode_idx ON container(barcode);
+CREATE INDEX container_alt_barcode_idx ON container(alt_barcode);
 CREATE INDEX container_active_idx ON container(active);
 CREATE INDEX container_parent_container_id_idx ON container(parent_container_id);
 CREATE INDEX container_material_name_idx ON container_material(name);
@@ -81,6 +87,8 @@ CREATE INDEX inventory_parent_id_idx ON inventory(parent_id);
 CREATE INDEX inventory_dimension_id_idx ON inventory(dimension_id);
 CREATE INDEX inventory_collection_id_idx ON inventory(collection_id);
 CREATE INDEX inventory_project_id_idx ON inventory(project_id);
+CREATE INDEX inventory_barcode_idx ON inventory(barcode);
+CREATE INDEX inventory_alt_barcode_idx ON inventory(alt_barcode);
 CREATE INDEX inventory_container_material_id_idx ON inventory(container_material_id);
 CREATE INDEX inventory_container_inventory_id_idx ON inventory_container(inventory_id);
 CREATE INDEX inventory_container_container_id_idx ON inventory_container(container_id);
