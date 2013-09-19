@@ -37,6 +37,8 @@ DROP INDEX IF EXISTS
 	inventory_active_idx,
 	inventory_borehole_borehole_id_idx,
 	inventory_borehole_inventory_id_idx,
+	inventory_well_well_id_idx,
+	inventory_well_inventory_id_idx,
 	inventory_branch_name_idx,
 	keyword_lower_name_idx,
 	keyword_name_idx,
@@ -97,6 +99,8 @@ CREATE INDEX inventory_collector_id_idx ON inventory(collector_id);
 CREATE INDEX inventory_active_idx ON inventory(active);
 CREATE INDEX inventory_borehole_borehole_id_idx ON inventory_borehole(borehole_id);
 CREATE INDEX inventory_borehole_inventory_id_idx ON inventory_borehole(inventory_id);
+CREATE INDEX inventory_well_well_id_idx ON inventory_well(well_id);
+CREATE INDEX inventory_well_inventory_id_idx ON inventory_well(inventory_id);
 CREATE INDEX inventory_branch_name_idx ON inventory_branch(name);
 CREATE INDEX keyword_lower_name_idx ON keyword(LOWER(name));
 CREATE INDEX keyword_name_idx ON keyword(name);
