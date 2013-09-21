@@ -22,6 +22,9 @@ DROP TABLE IF EXISTS
 	dimension,
 	file,
 	file_type,
+	horizon,
+	horizon_organization,
+	horizon_person,
 	inventory,
 	inventory_borehole,
 	inventory_branch,
@@ -350,6 +353,32 @@ CREATE TABLE project (
 );
 
 
+CREATE TABLE horizon (
+	horizon_id BIGSERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL,
+	type VARCHAR(30) NOT NULL,
+	measured_depth NUMERIC(10, 2) NOT NULL, -- NEED PRECISION
+	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
+	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	published_date DATE NULL
+);
+
+
+CREATE TABLE horizon_person (
+	horizon_id BIGINT REFERENCES horizon(horizon_id),
+	person_id BIGINT REFERENCES person(person_id),
+	PRIMARY KEY(horizon_id, person_id)
+);
+
+
+CREATE TABLE horizon_organization (
+	horizon_id BIGINT REFERENCES horizon(horizon_id),
+	organization_id BIGINT REFERENCES organization(organization_id),
+	PRIMARY KEY(horizon_id, organization_id)
+);
+
+
 CREATE TABLE well (
 	well_id BIGSERIAL PRIMARY KEY,
 
@@ -378,14 +407,9 @@ CREATE TABLE well (
 
 
 CREATE TABLE well_horizon (
-	well_horizon_id SERIAL PRIMARY KEY,
 	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	name VARCHAR(50) NOT NULL,
-	type VARCHAR(30) NOT NULL,
-	measured_depth NUMERIC(10, 2) NOT NULL, -- NEED PRECISION
-	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
-	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL
+	horizon_id BIGINT REFERENCES horizon(horizon_id) NOT NULL,
+	PRIMARY KEY(well_id, horizon_id)
 );
 
 
