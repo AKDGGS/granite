@@ -28,7 +28,6 @@ DROP TABLE IF EXISTS
 	horizon_person,
 	inventory,
 	inventory_borehole,
-	inventory_branch,
 	inventory_container,
 	inventory_file,
 	inventory_keyword,
@@ -682,17 +681,8 @@ CREATE TABLE keyword (
 );
 
 
-CREATE TABLE inventory_branch (
-	-- Branch of geology e.g. ""Seismic", "Oil and Gas", "Processed", 
-	inventory_branch_id SERIAL PRIMARY KEY,
-	name VARCHAR(50) NOT NULL,
-	description VARCHAR(255) NULL
-);
-
-
 CREATE TABLE inventory (
 	inventory_id BIGSERIAL PRIMARY KEY,
-	inventory_branch_id INT REFERENCES inventory_branch(inventory_branch_id) NOT NULL,
 	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
 	collector_id BIGINT REFERENCES person(person_id) NULL,
 	collection_id INT REFERENCES collection(collection_id) NULL,

@@ -22,7 +22,6 @@ DROP INDEX IF EXISTS
 	container_type_name_idx,
 	core_diameter_name_idx,
 	core_diameter_core_diameter_idx,
-	inventory_inventory_branch_id_idx,
 	inventory_parent_id_idx,
 	inventory_dimension_id_idx,
 	inventory_barcode_idx,
@@ -39,7 +38,6 @@ DROP INDEX IF EXISTS
 	inventory_borehole_inventory_id_idx,
 	inventory_well_well_id_idx,
 	inventory_well_inventory_id_idx,
-	inventory_branch_name_idx,
 	keyword_lower_name_idx,
 	keyword_name_idx,
 	organization_name_idx,
@@ -84,7 +82,6 @@ CREATE INDEX container_material_name_idx ON container_material(name);
 CREATE INDEX container_type_name_idx ON container_type(name);
 CREATE INDEX core_diameter_name_idx ON core_diameter(name);
 CREATE INDEX core_diameter_core_diameter_idx ON core_diameter(core_diameter);
-CREATE INDEX inventory_inventory_branch_id_idx ON inventory(inventory_branch_id);
 CREATE INDEX inventory_parent_id_idx ON inventory(parent_id);
 CREATE INDEX inventory_dimension_id_idx ON inventory(dimension_id);
 CREATE INDEX inventory_collection_id_idx ON inventory(collection_id);
@@ -101,7 +98,6 @@ CREATE INDEX inventory_borehole_borehole_id_idx ON inventory_borehole(borehole_i
 CREATE INDEX inventory_borehole_inventory_id_idx ON inventory_borehole(inventory_id);
 CREATE INDEX inventory_well_well_id_idx ON inventory_well(well_id);
 CREATE INDEX inventory_well_inventory_id_idx ON inventory_well(inventory_id);
-CREATE INDEX inventory_branch_name_idx ON inventory_branch(name);
 CREATE INDEX keyword_lower_name_idx ON keyword(LOWER(name));
 CREATE INDEX keyword_name_idx ON keyword(name);
 CREATE INDEX organization_name_idx ON organization(name);
