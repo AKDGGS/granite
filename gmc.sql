@@ -675,8 +675,10 @@ CREATE TABLE container_file (
 CREATE TABLE keyword (
 	keyword_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
+	alias VARCHAR(150) NOT NULL,
 	description VARCHAR(255) NULL,
-	code VARCHAR(8) NULL
+
+	temp_code VARCHAR(8) NULL
 );
 
 
