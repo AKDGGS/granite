@@ -22,6 +22,7 @@ DROP TABLE IF EXISTS
 	dimension,
 	file,
 	file_type,
+	formation,
 	horizon,
 	horizon_organization,
 	horizon_person,
@@ -44,6 +45,7 @@ DROP TABLE IF EXISTS
 	organization,
 	organization_type,
 	outcrop,
+	outcrop_formation,
 	outcrop_mining_district,
 	outcrop_note,
 	outcrop_organization,
@@ -77,7 +79,7 @@ DROP TABLE IF EXISTS
 	utm_type,
 	visitor,
 	well,
-	well_horizon,
+	well_formation,
 	well_note,
 	well_operator,
 	well_place,
@@ -353,29 +355,9 @@ CREATE TABLE project (
 );
 
 
-CREATE TABLE horizon (
-	horizon_id BIGSERIAL PRIMARY KEY,
-	name VARCHAR(50) NOT NULL,
-	type VARCHAR(30) NOT NULL,
-	measured_depth NUMERIC(10, 2) NOT NULL, -- NEED PRECISION
-	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
-	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	published_date DATE NULL
-);
-
-
-CREATE TABLE horizon_person (
-	horizon_id BIGINT REFERENCES horizon(horizon_id),
-	person_id BIGINT REFERENCES person(person_id),
-	PRIMARY KEY(horizon_id, person_id)
-);
-
-
-CREATE TABLE horizon_organization (
-	horizon_id BIGINT REFERENCES horizon(horizon_id),
-	organization_id BIGINT REFERENCES organization(organization_id),
-	PRIMARY KEY(horizon_id, organization_id)
+CREATE TABLE formation (
+	formation_id BIGSERIAL PRIMARY KEY,
+	name VARCHAR(50) NOT NULL
 );
 
 
@@ -403,13 +385,6 @@ CREATE TABLE well (
 	temp_source VARCHAR(25) NULL,
 	temp_original_id BIGINT NULL,
 	temp_link VARCHAR(255) NULL
-);
-
-
-CREATE TABLE well_horizon (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	horizon_id BIGINT REFERENCES horizon(horizon_id) NOT NULL,
-	PRIMARY KEY(well_id, horizon_id)
 );
 
 
@@ -463,6 +438,40 @@ CREATE TABLE well_plss (
 );
 
 
+CREATE TABLE well_formation (
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	formation_id BIGINT REFERENCES formation(formation_id) NOT NULL,
+	PRIMARY KEY(well_id, formation_id)
+);
+
+
+CREATE TABLE horizon (
+	horizon_id BIGSERIAL PRIMARY KEY,
+	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	type VARCHAR(30) NOT NULL,
+	measured_depth NUMERIC(10, 2) NOT NULL, -- NEED PRECISION
+	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
+	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	published_date DATE NULL
+);
+
+
+CREATE TABLE horizon_person (
+	horizon_id BIGINT REFERENCES horizon(horizon_id),
+	person_id BIGINT REFERENCES person(person_id),
+	PRIMARY KEY(horizon_id, person_id)
+);
+
+
+CREATE TABLE horizon_organization (
+	horizon_id BIGINT REFERENCES horizon(horizon_id),
+	organization_id BIGINT REFERENCES organization(organization_id),
+	PRIMARY KEY(horizon_id, organization_id)
+);
+
+
 CREATE TABLE outcrop (
 	outcrop_id BIGSERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
@@ -495,6 +504,13 @@ CREATE TABLE outcrop_utm (
 	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
 	utm_id BIGINT REFERENCES utm(utm_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, utm_id)
+);
+
+
+CREATE TABLE outcrop_formation (
+	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
+	formation_id BIGINT REFERENCES formation(formation_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, formation_id)
 );
 
 
