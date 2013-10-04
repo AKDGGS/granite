@@ -30,6 +30,9 @@ DROP INDEX IF EXISTS temp_inventory_temp_source_idx;
 CREATE INDEX temp_inventory_temp_source_idx ON inventory(temp_source);
 
 
+DROP INDEX IF EXISTS borehole_prospect_id_idx;
+CREATE INDEX borehole_prospect_id_idx ON borehole(prospect_id);
+
 DROP INDEX IF EXISTS borehole_point_borehole_id_idx;
 CREATE INDEX borehole_point_borehole_id_idx ON borehole_point(borehole_id);
 
