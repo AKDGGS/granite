@@ -186,6 +186,9 @@ CREATE INDEX inventory_quality_check_date_idx ON inventory_quality(check_date);
 DROP INDEX IF EXISTS prospect_ardf_number_idx;
 CREATE INDEX prospect_ardf_number_idx ON prospect(LOWER(ardf_number));
 
+DROP INDEX IF EXISTS well_api_number_idx;
+CREATE INDEX well_api_number_idx ON well(api_number);
+
 DROP INDEX IF EXISTS well_name_idx;
 CREATE INDEX well_name_idx ON well(name);
 
