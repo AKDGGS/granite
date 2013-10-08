@@ -485,7 +485,7 @@ CREATE TABLE outcrop (
 	temp_source VARCHAR(25) NULL,
 	temp_original_id BIGINT NULL,
 	temp_link VARCHAR(255) NULL,
-	temp publication_link INT NULL
+	temp_publication_link INT NULL
 );
 
 
