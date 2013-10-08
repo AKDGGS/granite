@@ -179,6 +179,7 @@ CREATE TABLE dimension (
 	height NUMERIC(10,2) NOT NULL,
 	width NUMERIC(10,2) NOT NULL,
 	depth NUMERIC(10,2) NOT NULL,
+	remark TEXT NULL,
 
 	temp_type VARCHAR(50) NULL
 );
@@ -448,12 +449,14 @@ CREATE TABLE horizon (
 	horizon_id BIGSERIAL PRIMARY KEY,
 	well_id BIGINT REFERENCES well(well_id) NOT NULL,
 	name VARCHAR(50) NOT NULL,
+	alt_names VARCHAR(1024) NULL,
 	type VARCHAR(30) NOT NULL,
 	measured_depth NUMERIC(10, 2) NOT NULL, -- NEED PRECISION
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
 	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	published_date DATE NULL
+	published_date DATE NULL,
+	remark TEXT NULL
 );
 
 
@@ -482,7 +485,7 @@ CREATE TABLE outcrop (
 	temp_source VARCHAR(25) NULL,
 	temp_original_id BIGINT NULL,
 	temp_link VARCHAR(255) NULL,
-	tmp publication_link INT NULL
+	temp publication_link INT NULL
 );
 
 
@@ -813,6 +816,7 @@ CREATE TABLE inventory_quality (
 	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
 	check_date DATE NOT NULL DEFAULT NOW(),
 	remark TEXT NULL,
+	needs_detail BOOLEAN NOT NULL DEFAULT false,
 	unsorted BOOLEAN NOT NULL DEFAULT false,
 	possible_radiation BOOLEAN NOT NULL DEFAULT false,
 	damaged BOOLEAN NOT NULL DEFAULT false,
