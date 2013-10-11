@@ -17,8 +17,14 @@ CREATE INDEX temp_person_temp_fullname_idx ON person(temp_fullname);
 DROP INDEX IF EXISTS temp_inventory_temp_sample_form_idx;
 CREATE INDEX temp_inventory_temp_sample_form_idx ON inventory(temp_sample_form);
 
+DROP INDEX IF EXISTS temp_inventory_temp_original_source_id_idx;
+CREATE INDEX temp_inventory_temp_original_source_id_idx ON inventory(temp_original_id, temp_source);  
+
 DROP INDEX IF EXISTS temp_inventory_temp_original_id_idx;
-CREATE INDEX temp_inventory_temp_original_id_idx ON inventory(temp_original_id, temp_source);
+CREATE INDEX temp_inventory_temp_original_id_idx ON inventory(temp_original_id);  --* were originally combined, original was renamed
+
+DROP INDEX IF EXISTS temp_inventory_temp_source_idx;
+CREATE INDEX temp_inventory_temp_source_idx ON inventory(temp_source);            --* were originally combined, original was renamed
 
 DROP INDEX IF EXISTS temp_inventory_temp_shelf_idx_idx;
 CREATE INDEX temp_inventory_temp_shelf_idx_idx ON inventory(temp_shelf_idx);
@@ -28,6 +34,16 @@ CREATE INDEX temp_inventory_temp_drawer_idx ON inventory(temp_drawer);
 
 DROP INDEX IF EXISTS temp_inventory_temp_source_idx;
 CREATE INDEX temp_inventory_temp_source_idx ON inventory(temp_source);
+
+DROP INDEX IF EXISTS temp_inventory_temp_location_id_idx;
+CREATE INDEX temp_inventory_temp_location_id_idx ON inventory(temp_location_id);
+
+DROP INDEX IF EXISTS temp_note_temp_original_id_idx;
+CREATE INDEX temp_note_temp_original_id_idx ON note(temp_original_id);
+
+DROP INDEX IF EXISTS temp_note_temp_source_idx;
+CREATE INDEX temp_note_temp_source_idx ON note(temp_source);
+
 
 
 DROP INDEX IF EXISTS borehole_prospect_id_idx;
@@ -44,6 +60,12 @@ CREATE INDEX collection_name_idx ON collection(name);
 
 DROP INDEX IF EXISTS container_barcode_idx;
 CREATE INDEX container_barcode_idx ON container(barcode);
+
+DROP INDEX IF EXISTS container_container_type_id_idx;
+CREATE INDEX container_container_type_id_idx ON container(container_type_id);
+
+DROP INDEX IF EXISTS container_name_idx;
+CREATE INDEX container_name_idx ON container(name);
 
 DROP INDEX IF EXISTS container_alt_barcode_idx;
 CREATE INDEX container_alt_barcode_idx ON container(alt_barcode);
@@ -126,6 +148,9 @@ CREATE INDEX keyword_lower_name_idx ON keyword(LOWER(name));
 DROP INDEX IF EXISTS keyword_name_idx;
 CREATE INDEX keyword_name_idx ON keyword(name);
 
+DROP INDEX IF EXISTS keyword_description_idx;
+CREATE INDEX keyword_description_idx ON keyword(description);
+
 DROP INDEX IF EXISTS outcrop_point_outcrop_id_idx;
 CREATE INDEX outcrop_point_outcrop_id_idx ON outcrop_point(outcrop_id);
 
@@ -146,6 +171,9 @@ CREATE INDEX organization_abbr_idx ON organization(abbr);
 
 DROP INDEX IF EXISTS organization_organization_type_id_idx;
 CREATE INDEX organization_organization_type_id_idx ON organization(organization_type_id);
+
+DROP INDEX IF EXISTS publication_citation_id_idx;
+CREATE INDEX publication_citation_id_idx ON publication(citation_id);
 
 DROP INDEX IF EXISTS unit_name_idx;
 CREATE INDEX unit_name_idx ON unit(name);
@@ -195,6 +223,9 @@ CREATE INDEX well_name_idx ON well(name);
 DROP INDEX IF EXISTS well_well_number_idx;
 CREATE INDEX well_well_number_idx ON well(well_number);
 
+DROP INDEX IF EXISTS well_api_number_int_idx;
+CREATE INDEX well_api_number_int_idx ON well(CAST (api_number AS bigint));
+
 DROP INDEX IF EXISTS well_point_point_id_idx;
 CREATE INDEX well_point_point_id_idx ON well_point(point_id);
 
@@ -208,6 +239,7 @@ DROP INDEX IF EXISTS well_place_well_id_idx;
 CREATE INDEX well_place_well_id_idx ON well_place(well_id);
 
 
+
 DROP INDEX IF EXISTS plss_geom_idx;
 CREATE INDEX plss_geom_idx ON plss USING GIST(geom);
 
@@ -219,6 +251,7 @@ CREATE INDEX place_geom_idx ON place USING GIST(geom);
 
 DROP INDEX IF EXISTS quadrangle_geom_idx;
 CREATE INDEX quadrangle_geom_idx ON quadrangle USING GIST(geom);
+
 
 
 COMMIT;

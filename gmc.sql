@@ -97,7 +97,7 @@ CREATE TABLE note_type (
 
 
 CREATE TABLE note (
-	note_id BIGSERIAL PRIMARY KEY,
+	note_id SERIAL PRIMARY KEY,
 	note_type_id INT REFERENCES note_type(note_type_id) NOT NULL,
 	note TEXT NOT NULL,
 	note_date DATE NOT NULL DEFAULT NOW(),
@@ -111,7 +111,7 @@ CREATE TABLE note (
 
 
 CREATE TABLE quadrangle (
-	quadrangle_id BIGSERIAL PRIMARY KEY,
+	quadrangle_id SERIAL PRIMARY KEY,
 	name VARCHAR(30) NOT NULL,
 	alt_name VARCHAR(30) NULL,
 	abbr VARCHAR(5) NULL,
@@ -122,7 +122,7 @@ CREATE TABLE quadrangle (
 
 
 CREATE TABLE place (
-	place_id BIGSERIAL PRIMARY KEY,
+	place_id SERIAL PRIMARY KEY,
 	name VARCHAR(150) NOT NULL,
 	type VARCHAR(20) NOT NULL,
 	geom GEOMETRY(Point, 0) NULL
@@ -136,7 +136,7 @@ CREATE TABLE url_type (
 
 
 CREATE TABLE url (
-	url_id BIGSERIAL PRIMARY KEY,
+	url_id SERIAL PRIMARY KEY,
 	url_type_id INT REFERENCES url_type(url_type_id) NULL,
 	description VARCHAR(255) NULL,
 	url TEXT,
@@ -152,11 +152,11 @@ CREATE TABLE file_type (
 
 
 CREATE TABLE file (
-	file_id BIGSERIAL PRIMARY KEY,
+	file_id SERIAL PRIMARY KEY,
 	file_type_id INT REFERENCES file_type(file_type_id) NULL,
 	description VARCHAR(255) NULL,
 	mimetype VARCHAR(255) NOT NULL DEFAULT 'application/octet-stream',
-	size BIGINT NOT NULL,
+	size INT NOT NULL,
 	filename VARCHAR(255) NOT NULL,
 	md5 CHAR(16) NOT NULL,
 	content BYTEA NOT NULL
@@ -192,7 +192,7 @@ CREATE TABLE utm_type (
 
 
 CREATE TABLE utm (
-	utm_id BIGSERIAL PRIMARY KEY,
+	utm_id SERIAL PRIMARY KEY,
 	utm_type_id INT REFERENCES utm_type(utm_type_id) NULL,
 	unit_id INT REFERENCES unit(unit_id) NULL,
 	description VARCHAR(255) NULL,
@@ -234,7 +234,7 @@ CREATE TABLE point_type (
 
 
 CREATE TABLE point (
-	point_id BIGSERIAL PRIMARY KEY,
+	point_id SERIAL PRIMARY KEY,
 	point_type_id INT REFERENCES point_type(point_type_id) NULL,
 	description VARCHAR(255) NULL,
 	geom GEOMETRY(Point, 0) NOT NULL,
@@ -250,7 +250,7 @@ CREATE TABLE organization_type (
 
 
 CREATE TABLE organization (
-	organization_id BIGSERIAL PRIMARY KEY,
+	organization_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	abbr VARCHAR(25) NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
@@ -260,7 +260,7 @@ CREATE TABLE organization (
 
 
 CREATE TABLE person (
-	person_id BIGSERIAL PRIMARY KEY,
+	person_id SERIAL PRIMARY KEY,
 	first VARCHAR(100) NULL,
 	middle VARCHAR(100) NULL,
 	last VARCHAR(100) NOT NULL,
@@ -269,7 +269,7 @@ CREATE TABLE person (
 	phone VARCHAR(25) NULL,
 	email VARCHAR(255) NULL,
 
-	preferred_id BIGINT REFERENCES person(person_id) NULL,
+	preferred_id INT REFERENCES person(person_id) NULL,
 
 	-- Used for referencing the user in the short-term during the import
 	temp_fullname VARCHAR(150) NULL,
@@ -279,16 +279,16 @@ CREATE TABLE person (
 
 
 CREATE TABLE person_organization (
-	person_id BIGINT REFERENCES person(person_id), 
-	organization_id BIGINT REFERENCES organization(organization_id),
+	person_id INT REFERENCES person(person_id), 
+	organization_id INT REFERENCES organization(organization_id),
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	PRIMARY KEY(person_id, organization_id, log_date)
 );
 
 
 CREATE TABLE publication (
-	publication_id BIGSERIAL PRIMARY KEY,
-	citation_id BIGINT NULL,
+	publication_id SERIAL PRIMARY KEY,
+	citation_id INT NULL,
 	title TEXT NOT NULL,
 	year INT NULL,
 	publication_number VARCHAR(50) NULL,
@@ -301,29 +301,29 @@ CREATE TABLE publication (
 
 
 CREATE TABLE publication_url (
-	publication_id BIGINT REFERENCES publication(publication_id) NOT NULL,
-	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	publication_id INT REFERENCES publication(publication_id) NOT NULL,
+	url_id INT REFERENCES url(url_id) NOT NULL,
 	PRIMARY KEY(publication_id, url_id)
 );
 
 
 CREATE TABLE publication_person (
-	publication_id BIGINT REFERENCES publication(publication_id),
-	person_id BIGINT REFERENCES person(person_id),
+	publication_id INT REFERENCES publication(publication_id),
+	person_id INT REFERENCES person(person_id),
 	PRIMARY KEY(publication_id, person_id)
 );
 
 
 CREATE TABLE publication_organization (
-	publication_id BIGINT REFERENCES publication(publication_id),
-	organization_id BIGINT REFERENCES organization(organization_id),
+	publication_id INT REFERENCES publication(publication_id),
+	organization_id INT REFERENCES organization(organization_id),
 	PRIMARY KEY(publication_id, organization_id)
 );
 
 
 CREATE TABLE publication_note (
-	publication_id BIGINT REFERENCES publication(publication_id) NOT NULL,
-	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	publication_id INT REFERENCES publication(publication_id) NOT NULL,
+	note_id INT REFERENCES note(note_id) NOT NULL,
 	PRIMARY KEY(publication_id, note_id)
 );
 
@@ -340,13 +340,13 @@ CREATE TABLE collection (
 	collection_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
 	description VARCHAR(255) NULL,
-	organization_id BIGINT REFERENCES organization(organization_id) NULL
+	organization_id INT REFERENCES organization(organization_id) NULL
 );
 
 
 CREATE TABLE project (
 	project_id SERIAL PRIMARY KEY,
-	organization_id BIGINT REFERENCES organization(organization_id) NULL,
+	organization_id INT REFERENCES organization(organization_id) NULL,
 	name VARCHAR(100) NOT NULL,
 	start_date DATE NULL,
 	end_date DATE NULL,
@@ -356,13 +356,13 @@ CREATE TABLE project (
 
 
 CREATE TABLE formation (
-	formation_id BIGSERIAL PRIMARY KEY,
+	formation_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
 );
 
 
 CREATE TABLE well (
-	well_id BIGSERIAL PRIMARY KEY,
+	well_id SERIAL PRIMARY KEY,
 
 	name VARCHAR(255) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
@@ -389,65 +389,65 @@ CREATE TABLE well (
 
 
 CREATE TABLE well_place (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	place_id BIGINT REFERENCES place(place_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	place_id INT REFERENCES place(place_id) NOT NULL,
 	PRIMARY KEY(well_id, place_id)
 );
 
 
 CREATE TABLE well_quadrangle (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	quadrangle_id BIGINT REFERENCES quadrangle(quadrangle_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	quadrangle_id INT REFERENCES quadrangle(quadrangle_id) NOT NULL,
 	PRIMARY KEY(well_id, quadrangle_id)
 );
 
 
 CREATE TABLE well_point (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	point_id BIGINT REFERENCES point(point_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	point_id INT REFERENCES point(point_id) NOT NULL,
 	PRIMARY KEY(well_id, point_id)
 );
 
 
 CREATE TABLE well_operator (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	organization_id BIGINT REFERENCES organization(organization_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	organization_id INT REFERENCES organization(organization_id) NOT NULL,
 	is_current BOOLEAN NOT NULL DEFAULT true,
 	PRIMARY KEY(well_id, organization_id)
 );
 
 
 CREATE TABLE well_url (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	url_id INT REFERENCES url(url_id) NOT NULL,
 	PRIMARY KEY(well_id, url_id)
 );
 
 
 CREATE TABLE well_note (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	note_id INT REFERENCES note(note_id) NOT NULL,
 	PRIMARY KEY(well_id, note_id)
 );
 
 
 CREATE TABLE well_plss (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	plss_id BIGINT REFERENCES plss(plss_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	plss_id INT REFERENCES plss(plss_id) NOT NULL,
 	PRIMARY KEY(well_id, plss_id)
 );
 
 
 CREATE TABLE well_formation (
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
-	formation_id BIGINT REFERENCES formation(formation_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	formation_id INT REFERENCES formation(formation_id) NOT NULL,
 	PRIMARY KEY(well_id, formation_id)
 );
 
 
 CREATE TABLE horizon (
-	horizon_id BIGSERIAL PRIMARY KEY,
-	well_id BIGINT REFERENCES well(well_id) NOT NULL,
+	horizon_id SERIAL PRIMARY KEY,
+	well_id INT REFERENCES well(well_id) NOT NULL,
 	name VARCHAR(50) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
 	type VARCHAR(30) NOT NULL,
@@ -461,21 +461,21 @@ CREATE TABLE horizon (
 
 
 CREATE TABLE horizon_person (
-	horizon_id BIGINT REFERENCES horizon(horizon_id),
-	person_id BIGINT REFERENCES person(person_id),
+	horizon_id INT REFERENCES horizon(horizon_id),
+	person_id INT REFERENCES person(person_id),
 	PRIMARY KEY(horizon_id, person_id)
 );
 
 
 CREATE TABLE horizon_organization (
-	horizon_id BIGINT REFERENCES horizon(horizon_id),
-	organization_id BIGINT REFERENCES organization(organization_id),
+	horizon_id INT REFERENCES horizon(horizon_id),
+	organization_id INT REFERENCES organization(organization_id),
 	PRIMARY KEY(horizon_id, organization_id)
 );
 
 
 CREATE TABLE outcrop (
-	outcrop_id BIGSERIAL PRIMARY KEY,
+	outcrop_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	outcrop_number VARCHAR(50) NULL, -- datatype?
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
@@ -490,70 +490,70 @@ CREATE TABLE outcrop (
 
 
 CREATE TABLE outcrop_quadrangle (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	quadrangle_id BIGINT REFERENCES quadrangle(quadrangle_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	quadrangle_id INT REFERENCES quadrangle(quadrangle_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, quadrangle_id)
 );
 
 
 CREATE TABLE outcrop_point (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	point_id BIGINT REFERENCES point(point_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	point_id INT REFERENCES point(point_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, point_id)
 );
 
 
 CREATE TABLE outcrop_utm (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	utm_id BIGINT REFERENCES utm(utm_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	utm_id INT REFERENCES utm(utm_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, utm_id)
 );
 
 
 CREATE TABLE outcrop_formation (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	formation_id BIGINT REFERENCES formation(formation_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	formation_id INT REFERENCES formation(formation_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, formation_id)
 );
 
 
 CREATE TABLE outcrop_note (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	note_id INT REFERENCES note(note_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, note_id)
 );
 
 
 CREATE TABLE outcrop_organization (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	organization_id BIGINT REFERENCES organization(organization_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	organization_id INT REFERENCES organization(organization_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, organization_id)
 );
 
 
 CREATE TABLE outcrop_place (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	place_id BIGINT REFERENCES place(place_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	place_id INT REFERENCES place(place_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, place_id)
 );
 
 
 CREATE TABLE outcrop_plss (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	plss_id BIGINT REFERENCES plss(plss_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	plss_id INT REFERENCES plss(plss_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, plss_id)
 );
 
 
 CREATE TABLE outcrop_mining_district (
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id) NOT NULL,
-	mining_district_id BIGINT REFERENCES mining_district(mining_district_id) NOT NULL,
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	mining_district_id INT REFERENCES mining_district(mining_district_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, mining_district_id)
 );
 
 
 CREATE TABLE prospect (
-	prospect_id BIGSERIAL PRIMARY KEY,
+	prospect_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
 	ardf_number VARCHAR(25) NULL,
@@ -564,8 +564,8 @@ CREATE TABLE prospect (
 
 
 CREATE TABLE borehole (
-	borehole_id BIGSERIAL PRIMARY KEY,
-	prospect_id BIGINT REFERENCES prospect(prospect_id) NULL,
+	borehole_id SERIAL PRIMARY KEY,
+	prospect_id INT REFERENCES prospect(prospect_id) NULL,
 
 	name VARCHAR(50) NULL,
 	alt_names VARCHAR(1024) NULL,
@@ -586,50 +586,50 @@ CREATE TABLE borehole (
 
 
 CREATE TABLE borehole_quadrangle (
-	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
-	quadrangle_id BIGINT REFERENCES quadrangle(quadrangle_id) NOT NULL,
+	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
+	quadrangle_id INT REFERENCES quadrangle(quadrangle_id) NOT NULL,
 	PRIMARY KEY(borehole_id, quadrangle_id)
 );
 
 
 CREATE TABLE borehole_point (
-	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
-	point_id BIGINT REFERENCES point(point_id) NOT NULL,
+	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
+	point_id INT REFERENCES point(point_id) NOT NULL,
 	PRIMARY KEY(borehole_id, point_id)
 );
 
 
 CREATE TABLE borehole_utm (
-	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
-	utm_id BIGINT REFERENCES utm(utm_id) NOT NULL,
+	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
+	utm_id INT REFERENCES utm(utm_id) NOT NULL,
 	PRIMARY KEY(borehole_id, utm_id)
 );
 
 
 CREATE TABLE borehole_url (
-	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
-	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
+	url_id INT REFERENCES url(url_id) NOT NULL,
 	PRIMARY KEY(borehole_id, url_id)
 );
 
 
 CREATE TABLE borehole_mining_district (
-	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
-	mining_district_id BIGINT REFERENCES mining_district(mining_district_id) NOT NULL,
+	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
+	mining_district_id INT REFERENCES mining_district(mining_district_id) NOT NULL,
 	PRIMARY KEY(borehole_id, mining_district_id)
 );
 
 
 CREATE TABLE borehole_note (
-	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
-	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
+	note_id INT REFERENCES note(note_id) NOT NULL,
 	PRIMARY KEY(borehole_id, note_id)
 );
 
 
 CREATE TABLE borehole_organization (
-	borehole_id BIGINT REFERENCES borehole(borehole_id) NOT NULL,
-	organization_id BIGINT REFERENCES organization(organization_id) NOT NULL,
+	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
+	organization_id INT REFERENCES organization(organization_id) NOT NULL,
 	PRIMARY KEY(borehole_id, organization_id)
 );
 
@@ -647,8 +647,8 @@ CREATE TABLE container_type (
 
 
 CREATE TABLE container (
-	container_id BIGSERIAL PRIMARY KEY,
-	parent_container_id BIGINT REFERENCES container(container_id) NULL,
+	container_id SERIAL PRIMARY KEY,
+	parent_container_id INT REFERENCES container(container_id) NULL,
 	container_type_id INT REFERENCES container_type(container_type_id) NULL,
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
@@ -669,8 +669,8 @@ CREATE TABLE container (
 
 
 CREATE TABLE container_file (
-	container_id BIGINT REFERENCES container(container_id),
-	file_id BIGINT REFERENCES file(file_id),
+	container_id INT REFERENCES container(container_id),
+	file_id INT REFERENCES file(file_id),
 	PRIMARY KEY(container_id, file_id)
 );
 
@@ -686,9 +686,9 @@ CREATE TABLE keyword (
 
 
 CREATE TABLE inventory (
-	inventory_id BIGSERIAL PRIMARY KEY,
-	parent_id BIGINT REFERENCES inventory(inventory_id) NULL,
-	collector_id BIGINT REFERENCES person(person_id) NULL,
+	inventory_id SERIAL PRIMARY KEY,
+	parent_id INT REFERENCES inventory(inventory_id) NULL,
+	collector_id INT REFERENCES person(person_id) NULL,
 	collection_id INT REFERENCES collection(collection_id) NULL,
 	project_id INT REFERENCES project(project_id) NULL,
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
@@ -748,72 +748,72 @@ CREATE TABLE inventory (
 
 
 CREATE TABLE inventory_url (
-	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
-	url_id BIGINT REFERENCES url(url_id) NOT NULL,
+	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
+	url_id INT REFERENCES url(url_id) NOT NULL,
 	PRIMARY KEY(inventory_id, url_id)
 );
 
 
 CREATE TABLE inventory_keyword (
-	inventory_id BIGINT REFERENCES inventory(inventory_id),
+	inventory_id INT REFERENCES inventory(inventory_id),
 	keyword_id INT REFERENCES keyword(keyword_id),
 	PRIMARY KEY(inventory_id, keyword_id)
 );
 
 
 CREATE TABLE inventory_container (
-	inventory_container_id BIGSERIAL PRIMARY KEY,
-	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
-	container_id BIGINT REFERENCES container(container_id) NOT NULL,
+	inventory_container_id SERIAL PRIMARY KEY,
+	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
+	container_id INT REFERENCES container(container_id) NOT NULL,
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 
 CREATE TABLE inventory_publication (
-	inventory_id BIGINT REFERENCES inventory(inventory_id),
-	publication_id BIGINT REFERENCES publication(publication_id),
+	inventory_id INT REFERENCES inventory(inventory_id),
+	publication_id INT REFERENCES publication(publication_id),
 	PRIMARY KEY(inventory_id, publication_id)
 );
 
 
 CREATE TABLE inventory_file (
-	inventory_id BIGINT REFERENCES inventory(inventory_id),
-	file_id BIGINT REFERENCES file(file_id),
+	inventory_id INT REFERENCES inventory(inventory_id),
+	file_id INT REFERENCES file(file_id),
 	PRIMARY KEY(inventory_id, file_id)
 );
 
 
 CREATE TABLE inventory_note (
-	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
-	note_id BIGINT REFERENCES note(note_id) NOT NULL,
+	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
+	note_id INT REFERENCES note(note_id) NOT NULL,
 	PRIMARY KEY(inventory_id, note_id)
 );
 
 
 CREATE TABLE inventory_borehole (
-	inventory_id BIGINT REFERENCES inventory(inventory_id),
-	borehole_id BIGINT REFERENCES borehole(borehole_id),
+	inventory_id INT REFERENCES inventory(inventory_id),
+	borehole_id INT REFERENCES borehole(borehole_id),
 	PRIMARY KEY(inventory_id, borehole_id)
 );
 
 
 CREATE TABLE inventory_well (
-	inventory_id BIGINT REFERENCES inventory(inventory_id),
-	well_id BIGINT REFERENCES well(well_id),
+	inventory_id INT REFERENCES inventory(inventory_id),
+	well_id INT REFERENCES well(well_id),
 	PRIMARY KEY(inventory_id, well_id)
 );
 
 
 CREATE TABLE inventory_outcrop (
-	inventory_id BIGINT REFERENCES inventory(inventory_id),
-	outcrop_id BIGINT REFERENCES outcrop(outcrop_id),
+	inventory_id INT REFERENCES inventory(inventory_id),
+	outcrop_id INT REFERENCES outcrop(outcrop_id),
 	PRIMARY KEY(inventory_id, outcrop_id)
 );
 
 
 CREATE TABLE inventory_quality (
-	inventory_quality_id BIGSERIAL PRIMARY KEY,
-	inventory_id BIGINT REFERENCES inventory(inventory_id) NOT NULL,
+	inventory_quality_id SERIAL PRIMARY KEY,
+	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
 	check_date DATE NOT NULL DEFAULT NOW(),
 	remark TEXT NULL,
 	needs_detail BOOLEAN NOT NULL DEFAULT false,
@@ -837,7 +837,7 @@ CREATE TABLE process (
 
 
 CREATE TABLE sample (
-	sample_id BIGSERIAL PRIMARY KEY,
+	sample_id SERIAL PRIMARY KEY,
 	sample_agreement_id INT NULL,
 	sample_date DATE NOT NULL,
 	due_date DATE NOT NULL
@@ -845,29 +845,29 @@ CREATE TABLE sample (
 
 
 CREATE TABLE sample_file (
-	sample_id BIGINT REFERENCES sample(sample_id),
-	file_id BIGINT REFERENCES file(file_id),
+	sample_id INT REFERENCES sample(sample_id),
+	file_id INT REFERENCES file(file_id),
 	PRIMARY KEY(sample_id, file_id)
 );
 
 
 CREATE TABLE sample_process_inventory (
-	sample_id BIGINT REFERENCES sample(sample_id),
-	inventory_id BIGINT REFERENCES inventory(inventory_id),
+	sample_id INT REFERENCES sample(sample_id),
+	inventory_id INT REFERENCES inventory(inventory_id),
 	process_id INT REFERENCES process(process_id),
 
 	completion_date DATE NULL,
 	purpose VARCHAR(500) NULL,
 	comments TEXT NULL,
 
-	publication_id BIGINT REFERENCES publication(publication_id) NULL,
+	publication_id INT REFERENCES publication(publication_id) NULL,
 	PRIMARY KEY(sample_id, inventory_id, process_id)
 );
 
 
 CREATE TABLE visitor (
-	visitor_id BIGSERIAL PRIMARY KEY,
-	person_id BIGINT REFERENCES person(person_id) NOT NULL,
+	visitor_id SERIAL PRIMARY KEY,
+	person_id INT REFERENCES person(person_id) NOT NULL,
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
