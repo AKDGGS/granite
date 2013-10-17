@@ -38,6 +38,7 @@ DROP TABLE IF EXISTS
 	inventory_url,
 	inventory_well,
 	keyword,
+	keyword_group,
 	mining_district,
 	note,
 	note_type,
@@ -62,6 +63,7 @@ DROP TABLE IF EXISTS
 	process,
 	project,
 	prospect,
+	prospect_file,
 	publication,
 	publication_note,
 	publication_organization,
@@ -78,14 +80,14 @@ DROP TABLE IF EXISTS
 	utm_type,
 	visitor,
 	well,
-	well_formation,
 	well_note,
 	well_operator,
 	well_place,
 	well_plss,
 	well_point,
 	well_quadrangle,
-	well_url
+	well_url,
+	well_file
 CASCADE;
 
 
@@ -438,10 +440,10 @@ CREATE TABLE well_plss (
 );
 
 
-CREATE TABLE well_formation (
-	well_id INT REFERENCES well(well_id) NOT NULL,
-	formation_id INT REFERENCES formation(formation_id) NOT NULL,
-	PRIMARY KEY(well_id, formation_id)
+CREATE TABLE well_file (
+	well_id INT REFERENCES well(well_id),
+	file_id INT REFERENCES file(file_id),
+	PRIMARY KEY(well_id, file_id)
 );
 
 
@@ -451,10 +453,11 @@ CREATE TABLE horizon (
 	name VARCHAR(50) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
 	type VARCHAR(30) NOT NULL,
-	measured_depth NUMERIC(10, 2) NOT NULL, -- NEED PRECISION
-	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
-	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	measured_depth_top NUMERIC(8, 2) NULL,
+	measured_depth_bottom NUMERIC(8, 2) NULL,
+	vertical_depth_top NUMERIC(8, 2) NULL,
+	vertical_depth_bottom NUMERIC(8, 2) NULL,
+	unit_id INT REFERENCES unit(unit_id) NULL,
 	published_date DATE NULL,
 	remark TEXT NULL
 );
@@ -560,6 +563,13 @@ CREATE TABLE prospect (
 
 	temp_source VARCHAR(25) NULL,
 	temp_original_id BIGINT NULL
+);
+
+
+CREATE TABLE prospect_file (
+	prospect_id INT REFERENCES prospect(prospect_id),
+	file_id INT REFERENCES file(file_id),
+	PRIMARY KEY(prospect_id, file_id)
 );
 
 
@@ -675,11 +685,18 @@ CREATE TABLE container_file (
 );
 
 
+CREATE TABLE keyword_group (
+	keyword_group_id SERIAL PRIMARY KEY,
+	name VARCHAR(150) NOT NULL
+);
+
+
 CREATE TABLE keyword (
 	keyword_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL,
 	alias VARCHAR(150) NULL,
 	description VARCHAR(255) NULL,
+	keyword_group_id INT REFERENCES keyword_group(keyword_group_id),
 
 	temp_code VARCHAR(8) NULL
 );
