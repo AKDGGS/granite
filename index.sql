@@ -136,6 +136,12 @@ CREATE INDEX inventory_outcrop_inventory_id_idx ON inventory_outcrop(inventory_i
 DROP INDEX IF EXISTS inventory_outcrop_outcrop_id_idx;
 CREATE INDEX inventory_outcrop_outcrop_id_idx ON inventory_outcrop(outcrop_id);
 
+DROP INDEX IF EXISTS inventory_publication_publication_id_idx;
+CREATE INDEX inventory_publication_publication_id_dix ON inventory_publication(publication_id);
+
+DROP INDEX IF EXISTS inventory_publication_inventory_id_idx;
+CREATE INDEX inventory_publication_inventory_id_idx ON inventory_publication(inventory_id);
+
 DROP INDEX IF EXISTS inventory_well_well_id_idx;
 CREATE INDEX inventory_well_well_id_idx ON inventory_well(well_id);
 
