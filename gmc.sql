@@ -22,10 +22,10 @@ DROP TABLE IF EXISTS
 	dimension,
 	file,
 	file_type,
-	formation,
-	horizon,
-	horizon_organization,
-	horizon_person,
+	stratigraphy_type,
+	stratigraphy,
+	stratigraphy_organization,
+	stratigraphy_person,
 	inventory,
 	inventory_borehole,
 	inventory_container,
@@ -45,7 +45,7 @@ DROP TABLE IF EXISTS
 	organization,
 	organization_type,
 	outcrop,
-	outcrop_formation,
+	outcrop_stratigraphy,
 	outcrop_mining_district,
 	outcrop_note,
 	outcrop_organization,
@@ -357,9 +357,18 @@ CREATE TABLE project (
 );
 
 
-CREATE TABLE formation (
-	formation_id SERIAL PRIMARY KEY,
+CREATE TABLE stratigraphy_type (
+	stratigraphy_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(50) NOT NULL
+);
+
+
+CREATE TABLE stratigraphy (
+	stratigraphy_id SERIAL PRIMARY KEY,
+	parent_id INT REFERENCES stratigraphy(stratigraphy_id) NULL,
+	stratigraphy_type_id INT REFERENCES stratigraphy_type(stratigraphy_type_id) NOT NULL,
+	name VARCHAR(50) NOT NULL,
+	alt_names VARCHAR(1024) NULL
 );
 
 
@@ -372,14 +381,17 @@ CREATE TABLE well (
 	well_number VARCHAR(50) NULL,
 	api_number VARCHAR(14) NULL,
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
+	is_federal BOOLEAN NOT NULL DEFAULT false,
+	
 	spud_date DATE NULL,
 	completion_date DATE NULL,
-	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
-	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	vertical_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
-	vertical_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	elevation NUMERIC(10, 2) NULL,  -- NEED PRECISION
-	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
+
+	measured_depth NUMERIC(10, 2) NULL,
+	vertical_depth NUMERIC(10, 2) NULL,
+	elevation NUMERIC(10, 2) NULL,
+	elevation_kb NUMERIC(10, 2) NULL,
+	unit_id INT REFERENCES unit(unit_id) NULL,
+
 	permit_status VARCHAR(6) NULL,
 	completion_status VARCHAR(6) NULL,
 	stash JSON NULL,
@@ -447,12 +459,9 @@ CREATE TABLE well_file (
 );
 
 
-CREATE TABLE horizon (
-	horizon_id SERIAL PRIMARY KEY,
-	well_id INT REFERENCES well(well_id) NOT NULL,
-	name VARCHAR(50) NOT NULL,
-	alt_names VARCHAR(1024) NULL,
-	type VARCHAR(30) NOT NULL,
+CREATE TABLE well_stratigraphy (
+	well_stratigraphy_id SERIAL PRIMARY KEY,
+	stratigraphy_id INT REFERENCES stratigraphy(stratigraphy_id) NOT NULL,
 	measured_depth_top NUMERIC(8, 2) NULL,
 	measured_depth_bottom NUMERIC(8, 2) NULL,
 	vertical_depth_top NUMERIC(8, 2) NULL,
@@ -463,17 +472,17 @@ CREATE TABLE horizon (
 );
 
 
-CREATE TABLE horizon_person (
-	horizon_id INT REFERENCES horizon(horizon_id),
+CREATE TABLE well_stratigraphy_person (
+	well_stratigraphy_id INT REFERENCES well_stratigraphy(well_stratigraphy_id),
 	person_id INT REFERENCES person(person_id),
-	PRIMARY KEY(horizon_id, person_id)
+	PRIMARY KEY(well_stratigraphy_id, person_id)
 );
 
 
-CREATE TABLE horizon_organization (
-	horizon_id INT REFERENCES horizon(horizon_id),
+CREATE TABLE well_stratigraphy_organization (
+	well_stratigraphy_id INT REFERENCES well_stratigraphy(well_stratigraphy_id),
 	organization_id INT REFERENCES organization(organization_id),
-	PRIMARY KEY(horizon_id, organization_id)
+	PRIMARY KEY(well_stratigraphy_id, organization_id)
 );
 
 
@@ -513,10 +522,10 @@ CREATE TABLE outcrop_utm (
 );
 
 
-CREATE TABLE outcrop_formation (
+CREATE TABLE outcrop_stratigraphy (
 	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
-	formation_id INT REFERENCES formation(formation_id) NOT NULL,
-	PRIMARY KEY(outcrop_id, formation_id)
+	stratigraphy_id INT REFERENCES stratigraphy(stratigraphy_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, stratigraphy_id)
 );
 
 
