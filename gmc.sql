@@ -87,7 +87,10 @@ DROP TABLE IF EXISTS
 	well_point,
 	well_quadrangle,
 	well_url,
-	well_file
+	well_file,
+	well_stratigraphy,
+	well_stratigraphy_person,
+	well_stratigraphy_organization
 CASCADE;
 
 
@@ -462,6 +465,7 @@ CREATE TABLE well_file (
 CREATE TABLE well_stratigraphy (
 	well_stratigraphy_id SERIAL PRIMARY KEY,
 	stratigraphy_id INT REFERENCES stratigraphy(stratigraphy_id) NOT NULL,
+	well_id INT REFERENCES well(well_id) NOT NULL,
 	measured_depth_top NUMERIC(8, 2) NULL,
 	measured_depth_bottom NUMERIC(8, 2) NULL,
 	vertical_depth_top NUMERIC(8, 2) NULL,
