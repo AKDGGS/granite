@@ -590,7 +590,7 @@ CREATE TABLE borehole (
 	borehole_id SERIAL PRIMARY KEY,
 	prospect_id INT REFERENCES prospect(prospect_id) NULL,
 
-	name VARCHAR(50) NULL,
+	name VARCHAR(50) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
 
 	is_onshore BOOLEAN NOT NULL DEFAULT true,

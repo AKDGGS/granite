@@ -3,7 +3,8 @@ SET SCHEMA 'public';
 SET CLIENT_MIN_MESSAGES TO WARNING;
 
 
-CREATE OR REPLACE VIEW inventory_point AS (
+CREATE OR REPLACE VIEW inventory_geom_precision AS (
+	-- Borehole Point
 	SELECT ib.inventory_id, p.geom
 	FROM inventory_borehole AS ib
 	JOIN borehole_point AS bp ON bp.borehole_id = ib.borehole_id
@@ -12,14 +13,7 @@ CREATE OR REPLACE VIEW inventory_point AS (
 
 	UNION ALL
 
-	SELECT iw.inventory_id, p.geom
-	FROM inventory_well AS iw
-	JOIN well_point AS wp ON wp.well_id = iw.well_id
-	JOIN point AS p ON p.point_id = wp.point_id
-	WHERE p.geom IS NOT NULL
-
-	UNION ALL
-
+	-- Outcrop Point
 	SELECT io.inventory_id, p.geom
 	FROM inventory_outcrop AS io
 	JOIN outcrop_point AS op ON op.outcrop_id = io.outcrop_id
@@ -28,6 +22,25 @@ CREATE OR REPLACE VIEW inventory_point AS (
 
 	UNION ALL
 
+	-- Well Point
+	SELECT iw.inventory_id, p.geom
+	FROM inventory_well AS iw
+	JOIN well_point AS wp ON wp.well_id = iw.well_id
+	JOIN point AS p ON p.point_id = wp.point_id
+	WHERE p.geom IS NOT NULL
+
+	UNION ALL
+
+	-- Outcrop Place
+	SELECT io.inventory_id, p.geom
+	FROM inventory_outcrop AS io
+	JOIN outcrop_place AS op ON op.outcrop_id = io.outcrop_id
+	JOIN place AS p ON p.place_id = op.place_id
+	WHERE p.geom IS NOT NULL
+
+	UNION ALL
+
+	-- Well Place
 	SELECT iw.inventory_id, p.geom
 	FROM inventory_well AS iw
 	JOIN well_place AS wp ON wp.well_id = iw.well_id
@@ -36,11 +49,48 @@ CREATE OR REPLACE VIEW inventory_point AS (
 
 	UNION ALL
 
+	-- Outcrop PLSS
 	SELECT io.inventory_id, p.geom
 	FROM inventory_outcrop AS io
-	JOIN outcrop_place AS op ON op.outcrop_id = io.outcrop_id
-	JOIN place AS p ON p.place_id = op.place_id
-	WHERE p.geom IS NOT NULL
+	JOIN outcrop_plss AS op ON op.outcrop_id = io.outcrop_id
+	JOIN plss AS p ON p.plss_id = op.plss_id
+	WHERE p.geom IS NOT NULL AND township IS NOT NULL
+
+	UNION ALL
+
+	-- Well PLSS
+	SELECT iw.inventory_id, p.geom
+	FROM inventory_well AS iw
+	JOIN well_plss AS wp ON wp.well_id = iw.well_id
+	JOIN plss AS p ON p.plss_id = wp.plss_id
+	WHERE p.geom IS NOT NULL AND township IS NOT NULL
+
+	UNION ALL
+
+	-- Borehole Quadrangle
+	SELECT ib.inventory_id, q.geom
+	FROM inventory_borehole AS ib
+	JOIN borehole_quadrangle AS bq ON bq.borehole_id = ib.borehole_id
+	JOIN quadrangle AS q ON q.quadrangle_id = bq.quadrangle_id
+	WHERE q.geom IS NOT NULL AND q.scale = 63360
+
+	UNION ALL
+
+	-- Outcrop Quadrangle
+	SELECT io.inventory_id, q.geom
+	FROM inventory_outcrop AS io
+	JOIN outcrop_quadrangle AS oq ON oq.outcrop_id = io.outcrop_id
+	JOIN quadrangle AS q ON q.quadrangle_id = oq.quadrangle_id
+	WHERE q.geom IS NOT NULL AND q.scale = 63360
+
+	UNION ALL
+
+	-- Well Quadrangle
+	SELECT iw.inventory_id, q.geom
+	FROM inventory_well AS iw
+	JOIN well_quadrangle AS wq ON wq.well_id = iw.well_id
+	JOIN quadrangle AS q ON q.quadrangle_id = wq.quadrangle_id
+	WHERE q.geom IS NOT NULL AND q.scale = 63360
 );
 
 
