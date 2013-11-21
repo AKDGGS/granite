@@ -292,3 +292,21 @@ CREATE OR REPLACE VIEW outcrop_geom AS (
 	JOIN mining_district AS md ON md.mining_district_id = om.mining_district_id
 	WHERE md.geom IS NOT NULL)
 );
+
+
+CREATE OR REPLACE VIEW well_geom_point AS (
+	(
+		-- Point
+		SELECT wp.well_id, po.geom
+		FROM well_point AS wp
+		JOIN point AS po ON po.point_id = wp.point_id
+		WHERE po.geom IS NOT NULL
+	) UNION ALL (
+		-- Place
+		SELECT wp.well_id, pl.geom
+		FROM well_place AS wp
+		JOIN place AS pl ON pl.place_id = wp.place_id
+		WHERE pl.geom IS NOT NULL
+	)
+);
+

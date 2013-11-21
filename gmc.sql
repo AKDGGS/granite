@@ -718,27 +718,26 @@ CREATE TABLE keyword (
 CREATE TABLE inventory (
 	inventory_id SERIAL PRIMARY KEY,
 	parent_id INT REFERENCES inventory(inventory_id) NULL,
-	collector_id INT REFERENCES person(person_id) NULL,
 	collection_id INT REFERENCES collection(collection_id) NULL,
 	project_id INT REFERENCES project(project_id) NULL,
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
-	sample_number VARCHAR(25) NULL, -- NEED SIZE
+	sample_number VARCHAR(25) NULL,
 	sample_number_prefix VARCHAR(25) NULL,
-	alt_sample_number VARCHAR(25) NULL, -- NEED SIZE
-	published_sample_number VARCHAR(25) NULL, -- NEED SIZE
+	alt_sample_number VARCHAR(25) NULL,
+	published_sample_number VARCHAR(25) NULL,
 	published_number_has_suffix BOOLEAN NOT NULL DEFAULT false,
-	published_description TEXT NULL, -- NEED SIZE
+	published_description TEXT NULL,
 	barcode VARCHAR(25) NULL,
 	alt_barcode VARCHAR(25) NULL,
-	state_number VARCHAR(50) NULL, -- NEED SIZE
-	box_number VARCHAR(50) NULL, -- NEED SIZE
-	set_number VARCHAR(50) NULL, -- NEED SIZE
-	split_number VARCHAR(10) NULL, -- NEED SIZE
+	state_number VARCHAR(50) NULL,
+	box_number VARCHAR(50) NULL,
+	set_number VARCHAR(50) NULL,
+	split_number VARCHAR(10) NULL,
 	slide_number VARCHAR(10) NULL,
 	slip_number INT NULL,
-	lab_number VARCHAR(100), -- NEED SIZE
+	lab_number VARCHAR(100),
 	map_number VARCHAR(25), -- Stores BLM map number
 	-- Into remark: Screen size
 	remark TEXT NULL,
@@ -752,7 +751,7 @@ CREATE TABLE inventory (
 	core_number VARCHAR(25) NULL,
 	core_diameter_id INT REFERENCES core_diameter(core_diameter_id) NULL,
 
-	weight NUMERIC(10, 2) NULL, -- NEED SIZE
+	weight NUMERIC(10, 2) NULL,
 	weight_unit_id INT REFERENCES unit(unit_id) NULL,
 
 	sample_frequency VARCHAR(25) NULL,
@@ -774,6 +773,13 @@ CREATE TABLE inventory (
 	temp_source VARCHAR(25) NULL,
 	temp_location_id BIGINT NULL,
 	temp_drawer VARCHAR(50) NULL
+);
+
+
+CREATE TABLE inventory_collector (
+	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
+	collector_id INT REFERENCES person(person_id) NOT NULL,
+	PRIMARY KEY(inventory_id, collector_id)
 );
 
 
