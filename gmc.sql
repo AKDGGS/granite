@@ -260,6 +260,7 @@ CREATE TABLE organization (
 	abbr VARCHAR(25) NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
 	remark TEXT NULL,
+
 	temp_original_id BIGINT NULL
 );
 
@@ -371,7 +372,10 @@ CREATE TABLE stratigraphy (
 	parent_id INT REFERENCES stratigraphy(stratigraphy_id) NULL,
 	stratigraphy_type_id INT REFERENCES stratigraphy_type(stratigraphy_type_id) NOT NULL,
 	name VARCHAR(50) NOT NULL,
-	alt_names VARCHAR(1024) NULL
+	alt_names VARCHAR(1024) NULL,
+	remark TEXT NULL,
+
+	temp_original_id BIGINT NULL
 );
 
 
