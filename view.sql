@@ -310,3 +310,36 @@ CREATE OR REPLACE VIEW well_geom_point AS (
 	)
 );
 
+
+CREATE OR REPLACE VIEW inventory_mining_district AS (
+	SELECT inventory_id, mining_district_id
+	FROM (
+		SELECT iw.inventory_id, q.mining_district_id
+		FROM (
+			SELECT wg.well_id, md.mining_district_id
+			FROM well_geom AS wg
+			JOIN mining_district AS md ON ST_Intersects(wg.geom, md.geom)
+		) AS q
+		JOIN inventory_well AS iw ON iw.well_id = q.well_id
+
+		UNION ALL
+
+		SELECT ib.inventory_id, q.mining_district_id
+		FROM (
+			SELECT bg.borehole_id, md.mining_district_id
+			FROM borehole_geom AS bg
+			JOIN mining_district AS md ON ST_Intersects(bg.geom, md.geom)
+		) AS q
+		JOIN inventory_borehole AS ib ON ib.borehole_id = q.borehole_id
+
+		UNION ALL
+
+		SELECT io.inventory_id, q.mining_district_id
+		FROM (
+			SELECT og.outcrop_id, md.mining_district_id
+			FROM outcrop_geom AS og
+			JOIN mining_district AS md ON ST_Intersects(og.geom, md.geom)
+		) AS q
+		JOIN inventory_outcrop AS io ON io.outcrop_id = q.outcrop_id
+	) AS q
+);
