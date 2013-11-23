@@ -193,6 +193,9 @@ CREATE INDEX place_type_idx ON place(type);
 DROP INDEX IF EXISTS quadrangle_name_idx;
 CREATE INDEX quadrangle_name_idx ON quadrangle(name);
 
+DROP INDEX IF EXISTS quadrangle_scale_idx;
+CREATE INDEX quadrangle_scale_idx ON quadrangle(scale);
+
 DROP INDEX IF EXISTS note_active_idx;
 CREATE INDEX note_active_idx ON note(active);
 
@@ -255,6 +258,8 @@ CREATE INDEX place_geom_idx ON place USING GIST(geom);
 DROP INDEX IF EXISTS quadrangle_geom_idx;
 CREATE INDEX quadrangle_geom_idx ON quadrangle USING GIST(geom);
 
+DROP INDEX IF EXISTS mining_district_geom_idx;
+CREATE INDEX mining_district_geom_idx ON mining_district USING GIST(geom);
 
 
 COMMIT;
