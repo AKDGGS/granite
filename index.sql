@@ -134,7 +134,7 @@ DROP INDEX IF EXISTS inventory_outcrop_outcrop_id_idx;
 CREATE INDEX inventory_outcrop_outcrop_id_idx ON inventory_outcrop(outcrop_id);
 
 DROP INDEX IF EXISTS inventory_publication_publication_id_idx;
-CREATE INDEX inventory_publication_publication_id_dix ON inventory_publication(publication_id);
+CREATE INDEX inventory_publication_publication_id_idx ON inventory_publication(publication_id);
 
 DROP INDEX IF EXISTS inventory_publication_inventory_id_idx;
 CREATE INDEX inventory_publication_inventory_id_idx ON inventory_publication(inventory_id);
@@ -193,6 +193,12 @@ CREATE INDEX place_type_idx ON place(type);
 DROP INDEX IF EXISTS quadrangle_name_idx;
 CREATE INDEX quadrangle_name_idx ON quadrangle(name);
 
+DROP INDEX IF EXISTS mining_district_name_idx;
+CREATE INDEX mining_district_name_idx ON mining_district(name);
+
+DROP INDEX IF EXISTS mining_district_lower_name_idx;
+CREATE INDEX mining_district_lower_name_idx ON mining_district(LOWER(name));
+
 DROP INDEX IF EXISTS quadrangle_scale_idx;
 CREATE INDEX quadrangle_scale_idx ON quadrangle(scale);
 
@@ -218,7 +224,10 @@ DROP INDEX IF EXISTS inventory_quality_check_date_idx;
 CREATE INDEX inventory_quality_check_date_idx ON inventory_quality(check_date);
 
 DROP INDEX IF EXISTS prospect_ardf_number_idx;
-CREATE INDEX prospect_ardf_number_idx ON prospect(LOWER(ardf_number));
+CREATE INDEX prospect_ardf_number_idx ON prospect(ardf_number);
+
+DROP INDEX IF EXISTS prospect_lower_ardf_number_idx;
+CREATE INDEX prospect_lower_ardf_number_idx ON prospect(LOWER(ardf_number));
 
 DROP INDEX IF EXISTS well_api_number_idx;
 CREATE INDEX well_api_number_idx ON well(api_number);
