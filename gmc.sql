@@ -28,6 +28,7 @@ DROP TABLE IF EXISTS
 	stratigraphy_person,
 	inventory,
 	inventory_borehole,
+	inventory_collector,
 	inventory_container,
 	inventory_file,
 	inventory_keyword,
