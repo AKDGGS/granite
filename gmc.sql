@@ -353,8 +353,11 @@ CREATE TABLE collection (
 
 CREATE TABLE project (
 	project_id SERIAL PRIMARY KEY,
+	dggs_project_id BIGINT NULL,
 	organization_id INT REFERENCES organization(organization_id) NULL,
 	name VARCHAR(100) NOT NULL,
+	description TEXT NULL,
+	remark TEXT NULL,
 	start_date DATE NULL,
 	end_date DATE NULL,
 
@@ -692,6 +695,7 @@ CREATE TABLE container (
 
 	temp_parent VARCHAR(20) NULL,
 	temp_type VARCHAR(100) NULL,
+	temp_original_id BIGINT NULL,
 	temp_shelf_idx VARCHAR(35) NULL
 );
 
