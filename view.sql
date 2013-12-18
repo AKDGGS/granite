@@ -321,6 +321,32 @@ CREATE OR REPLACE VIEW outcrop_geom AS (
 );
 
 
+CREATE OR REPLACE VIEW borehole_geom_point AS (
+	-- Point
+	SELECT bp.borehole_id, po.geom
+	FROM borehole_point AS bp
+	JOIN point AS po ON po.point_id = bp.point_id
+	WHERE po.geom IS NOT NULL
+);
+
+
+CREATE OR REPLACE VIEW outcrop_geom_point AS (
+	(
+		-- Point
+		SELECT op.outcrop_id, po.geom
+		FROM outcrop_point AS op
+		JOIN point AS po ON po.point_id = op.point_id
+		WHERE po.geom IS NOT NULL
+	) UNION ALL (
+		-- Place
+		SELECT op.outcrop_id, pl.geom
+		FROM outcrop_place AS op
+		JOIN place AS pl ON pl.place_id = op.place_id
+		WHERE pl.geom IS NOT NULL
+	)
+);
+
+
 CREATE OR REPLACE VIEW well_geom_point AS (
 	(
 		-- Point
