@@ -229,24 +229,31 @@ CREATE OR REPLACE VIEW container_path AS (
 
 
 CREATE OR REPLACE VIEW borehole_geom AS (
-	(SELECT bp.borehole_id, po.geom
-	FROM borehole_point AS bp
-	JOIN point AS po ON po.point_id = bp.point_id
-	WHERE po.geom IS NOT NULL)
-
-	UNION ALL
-
-	(SELECT bq.borehole_id, qu.geom
-	FROM borehole_quadrangle AS bq
-	JOIN quadrangle AS qu ON qu.quadrangle_id = bq.quadrangle_id
-	WHERE qu.geom IS NOT NULL)
-	
-	UNION ALL
-	
-	(SELECT bm.borehole_id, md.geom
-	FROM borehole_mining_district AS bm
-	JOIN mining_district AS md ON md.mining_district_id = bm.mining_district_id
-	WHERE md.geom IS NOT NULL)
+	(
+		-- Point
+		SELECT bp.borehole_id, po.geom
+		FROM borehole_point AS bp
+		JOIN point AS po ON po.point_id = bp.point_id
+		WHERE po.geom IS NOT NULL
+	) UNION ALL (
+		-- Quadrangle
+		SELECT bq.borehole_id, qu.geom
+		FROM borehole_quadrangle AS bq
+		JOIN quadrangle AS qu ON qu.quadrangle_id = bq.quadrangle_id
+		WHERE qu.geom IS NOT NULL
+	) UNION ALL (
+		-- Mining District
+		SELECT bm.borehole_id, md.geom
+		FROM borehole_mining_district AS bm
+		JOIN mining_district AS md ON md.mining_district_id = bm.mining_district_id
+		WHERE md.geom IS NOT NULL
+	) UNION ALL (
+		-- UTM
+		SELECT bu.borehole_id, u.geom
+		FROM borehole_utm AS bu
+		JOIN utm AS u ON u.utm_id = bu.utm_id
+		WHERE u.geom IS NOT NULL
+	)
 );
 
 
@@ -280,38 +287,37 @@ CREATE OR REPLACE VIEW well_geom AS (
 
 
 CREATE OR REPLACE VIEW outcrop_geom AS (
-	(SELECT op.outcrop_id, po.geom
-	FROM outcrop_point AS op
-	JOIN point AS po ON po.point_id = op.point_id
-	WHERE po.geom IS NOT NULL)
-	
-	UNION ALL
-	
-	(SELECT op.outcrop_id, pl.geom
-	FROM outcrop_place AS op
-	JOIN place AS pl ON pl.place_id = op.place_id
-	WHERE pl.geom IS NOT NULL)
-	
-	UNION ALL
-	
-	(SELECT op.outcrop_id, pl.geom
-	FROM outcrop_plss AS op
-	JOIN plss AS pl ON pl.plss_id = op.plss_id
-	WHERE pl.geom IS NOT NULL)
-	
-	UNION ALL
-	
-	(SELECT oq.outcrop_id, qu.geom
-	FROM outcrop_quadrangle AS oq
-	JOIN quadrangle AS qu ON qu.quadrangle_id = oq.quadrangle_id
-	WHERE qu.geom IS NOT NULL)
-	
-	UNION ALL
-	
-	(SELECT om.outcrop_id, md.geom
-	FROM outcrop_mining_district AS om
-	JOIN mining_district AS md ON md.mining_district_id = om.mining_district_id
-	WHERE md.geom IS NOT NULL)
+	(
+		-- Point
+		SELECT op.outcrop_id, po.geom
+		FROM outcrop_point AS op
+		JOIN point AS po ON po.point_id = op.point_id
+		WHERE po.geom IS NOT NULL
+	) UNION ALL (
+		-- Place
+		SELECT op.outcrop_id, pl.geom
+		FROM outcrop_place AS op
+		JOIN place AS pl ON pl.place_id = op.place_id
+		WHERE pl.geom IS NOT NULL
+	) UNION ALL (
+		-- PLSS
+		SELECT op.outcrop_id, pl.geom
+		FROM outcrop_plss AS op
+		JOIN plss AS pl ON pl.plss_id = op.plss_id
+		WHERE pl.geom IS NOT NULL
+	) UNION ALL (
+		-- Quadrangle
+		SELECT oq.outcrop_id, qu.geom
+		FROM outcrop_quadrangle AS oq
+		JOIN quadrangle AS qu ON qu.quadrangle_id = oq.quadrangle_id
+		WHERE qu.geom IS NOT NULL
+	) UNION ALL (
+		-- Mining District
+		SELECT om.outcrop_id, md.geom
+		FROM outcrop_mining_district AS om
+		JOIN mining_district AS md ON md.mining_district_id = om.mining_district_id
+		WHERE md.geom IS NOT NULL
+	)
 );
 
 
