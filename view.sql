@@ -210,28 +210,23 @@ CREATE OR REPLACE VIEW inventory_building AS (
 );
 
 
-CREATE OR REPLACE VIEW inventory_location AS (
-	SELECT iv.inventory_id, (
-		SELECT STRING_AGG(name, '/') FROM (
-			WITH RECURSIVE t AS (
-				(
-					SELECT 0 AS level, co.container_id,
-						co.parent_container_id, co.name
-					FROM inventory_container AS ic
-					JOIN container AS co ON co.container_id = ic.container_id
-					WHERE ic.inventory_id = iv.inventory_id
-					ORDER BY log_date DESC
-					LIMIT 1
-				) UNION ALL (
-					SELECT level+1, c.container_id,
-						c.parent_container_id, c.name
-					FROM container AS c
-					JOIN t AS t ON c.container_id = t.parent_container_id
-				)
-			) SELECT name FROM t ORDER BY level DESC
-		) AS tree
-	) AS location
-	FROM inventory AS iv
+CREATE OR REPLACE VIEW container_path AS (
+	WITH RECURSIVE t AS (
+		(
+			SELECT 0 AS level, c1.name,
+			c1.container_id, c1.parent_container_id
+			FROM container AS c1
+		) UNION ALL (
+			SELECT t.level+1 AS level, c2.name,
+			t.container_id, c2.parent_container_id
+			FROM container AS c2
+			JOIN t ON t.parent_container_id = c2.container_id
+		)
+	)
+	SELECT container_id,
+		STRING_AGG(name, '/' ORDER BY level DESC) AS path
+	FROM t
+	GROUP BY container_id
 );
 
 
