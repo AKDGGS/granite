@@ -777,6 +777,7 @@ CREATE TABLE inventory (
 	active BOOLEAN NOT NULL DEFAULT true,
 
 	temp_original_id BIGINT NULL,
+	temp_keyword TEXT NULL,
 	temp_shelf_idx VARCHAR(25) NULL,
 	temp_sample_form VARCHAR(20) NULL,
 	temp_source VARCHAR(25) NULL,
