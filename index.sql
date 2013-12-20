@@ -255,20 +255,20 @@ CREATE INDEX well_place_well_id_idx ON well_place(well_id);
 
 
 
-DROP INDEX IF EXISTS plss_geom_idx;
-CREATE INDEX plss_geom_idx ON plss USING GIST(geom);
+DROP INDEX IF EXISTS plss_geog_idx;
+CREATE INDEX plss_geog_idx ON plss USING GIST(geog);
 
-DROP INDEX IF EXISTS point_geom_idx;
-CREATE INDEX point_geom_idx ON point USING GIST(geom);
+DROP INDEX IF EXISTS point_geog_idx;
+CREATE INDEX point_geog_idx ON point USING GIST(geog);
 
-DROP INDEX IF EXISTS place_geom_idx;
-CREATE INDEX place_geom_idx ON place USING GIST(geom);
+DROP INDEX IF EXISTS place_geog_idx;
+CREATE INDEX place_geog_idx ON place USING GIST(geog);
 
-DROP INDEX IF EXISTS quadrangle_geom_idx;
-CREATE INDEX quadrangle_geom_idx ON quadrangle USING GIST(geom);
+DROP INDEX IF EXISTS quadrangle_geog_idx;
+CREATE INDEX quadrangle_geog_idx ON quadrangle USING GIST(geog);
 
-DROP INDEX IF EXISTS mining_district_geom_idx;
-CREATE INDEX mining_district_geom_idx ON mining_district USING GIST(geom);
+DROP INDEX IF EXISTS mining_district_geog_idx;
+CREATE INDEX mining_district_geog_idx ON mining_district USING GIST(geog);
 
 
 COMMIT;

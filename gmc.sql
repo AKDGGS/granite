@@ -123,7 +123,7 @@ CREATE TABLE quadrangle (
 	abbr VARCHAR(5) NULL,
 	alt_abbr VARCHAR(5) NULL,
 	scale INT NOT NULL,
-	geom GEOMETRY(MultiPolygon, 0) NULL
+	geog GEOGRAPHY(MultiPolygon) NULL
 );
 
 
@@ -131,7 +131,7 @@ CREATE TABLE place (
 	place_id SERIAL PRIMARY KEY,
 	name VARCHAR(150) NOT NULL,
 	type VARCHAR(20) NOT NULL,
-	geom GEOMETRY(Point, 0) NULL
+	geog GEOGRAPHY(Point) NULL
 );
 
 
@@ -206,7 +206,7 @@ CREATE TABLE utm (
 	easting INT NULL,
 	northing INT NULL,
 	srid INT NULL,
-	geom GEOMETRY(MultiPolygon, 0) NULL,
+	geog GEOGRAPHY(MultiPolygon) NULL,
 
 	temp_original_id BIGINT NULL
 );
@@ -216,7 +216,7 @@ CREATE TABLE mining_district (
 	mining_district_id SERIAL PRIMARY KEY,
 	name VARCHAR(35) NULL,
 	region VARCHAR(30) NULL,
-	geom GEOMETRY(MultiPolygon, 0) NULL
+	geog GEOGRAPHY(MultiPolygon) NULL
 );
 
 
@@ -229,7 +229,7 @@ CREATE TABLE plss (
 	range_dir VARCHAR(2) NULL,
 	section INT NULL,
 	quadrant VARCHAR(6) NULL,
-	geom GEOMETRY(MultiPolygon, 0) NULL
+	geog GEOGRAPHY(MultiPolygon) NULL
 );
 
 
@@ -243,7 +243,7 @@ CREATE TABLE point (
 	point_id SERIAL PRIMARY KEY,
 	point_type_id INT REFERENCES point_type(point_type_id) NULL,
 	description VARCHAR(255) NULL,
-	geom GEOMETRY(Point, 0) NOT NULL,
+	geog GEOGRAPHY(Point) NOT NULL,
 
 	temp_original_id BIGINT NULL
 );
