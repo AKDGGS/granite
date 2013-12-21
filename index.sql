@@ -270,5 +270,8 @@ CREATE INDEX quadrangle_geog_idx ON quadrangle USING GIST(geog);
 DROP INDEX IF EXISTS mining_district_geog_idx;
 CREATE INDEX mining_district_geog_idx ON mining_district USING GIST(geog);
 
+DROP INDEX IF EXISTS utm_geog_idx;
+CREATE INDEX utm_geog_idx ON utm USING GIST(geog);
+
 
 COMMIT;

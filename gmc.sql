@@ -215,7 +215,6 @@ CREATE TABLE utm (
 CREATE TABLE mining_district (
 	mining_district_id SERIAL PRIMARY KEY,
 	name VARCHAR(35) NULL,
-	region VARCHAR(30) NULL,
 	geog GEOGRAPHY(MultiPolygon) NULL
 );
 
