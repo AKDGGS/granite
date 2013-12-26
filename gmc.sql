@@ -244,7 +244,8 @@ CREATE TABLE point (
 	description VARCHAR(255) NULL,
 	geog GEOGRAPHY(Point) NOT NULL,
 
-	temp_original_id BIGINT NULL
+	temp_original_id BIGINT NULL,
+	temp_source VARCHAR(25) NULL
 );
 
 
