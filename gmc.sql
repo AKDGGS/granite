@@ -24,8 +24,6 @@ DROP TABLE IF EXISTS
 	file_type,
 	stratigraphy_type,
 	stratigraphy,
-	stratigraphy_organization,
-	stratigraphy_person,
 	inventory,
 	inventory_borehole,
 	inventory_collector,
