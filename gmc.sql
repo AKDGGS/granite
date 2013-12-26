@@ -730,6 +730,7 @@ CREATE TABLE inventory (
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
+	dggs_sample_id BIGINT NULL,
 	sample_number VARCHAR(25) NULL,
 	sample_number_prefix VARCHAR(25) NULL,
 	alt_sample_number VARCHAR(25) NULL,
@@ -777,7 +778,7 @@ CREATE TABLE inventory (
 	temp_original_id BIGINT NULL,
 	temp_keyword TEXT NULL,
 	temp_shelf_idx VARCHAR(25) NULL,
-	temp_sample_form VARCHAR(20) NULL,
+	temp_sample_form VARCHAR(100) NULL,
 	temp_source VARCHAR(25) NULL,
 	temp_location_id BIGINT NULL,
 	temp_drawer VARCHAR(50) NULL
