@@ -44,6 +44,15 @@ CREATE INDEX temp_note_temp_original_id_idx ON note(temp_original_id);
 DROP INDEX IF EXISTS temp_note_temp_source_idx;
 CREATE INDEX temp_note_temp_source_idx ON note(temp_source);
 
+DROP INDEX IF EXISTS temp_source_outcrop_idx;
+CREATE INDEX temp_source_outcrop_idx ON outcrop(temp_source);
+
+DROP INDEX IF EXISTS temp_original_id_outcrop_idx;
+CREATE INDEX temp_original_id_outcrop_idx ON outcrop(temp_original_id);
+
+DROP INDEX IF EXISTS temp_source_point_idx;
+CREATE INDEX temp_source_point_idx ON point(temp_source);
+
 
 
 DROP INDEX IF EXISTS borehole_prospect_id_idx;
