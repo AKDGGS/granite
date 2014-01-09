@@ -684,6 +684,8 @@ CREATE TABLE container (
 	name VARCHAR(50) NOT NULL,
 	description VARCHAR(255) NULL,
 
+	remark TEXT NULL,
+
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
 
 	barcode VARCHAR(25) NULL,
