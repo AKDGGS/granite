@@ -72,6 +72,12 @@ DROP TABLE IF EXISTS
 	sample,
 	sample_file,
 	sample_process_inventory,
+	shot_line,
+	shot_line_note,
+	shot_line_url,
+	shot_point,
+	shot_point_place,
+	shot_point_point,
 	unit,
 	url,
 	url_type,
@@ -660,6 +666,55 @@ CREATE TABLE borehole_organization (
 	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
 	organization_id INT REFERENCES organization(organization_id) NOT NULL,
 	PRIMARY KEY(borehole_id, organization_id)
+);
+
+
+CREATE TABLE shot_line (
+	shot_line_id SERIAL PRIMARY KEY,
+	name VARCHAR(100) NOT NULL,
+	alt_names VARCHAR(1024) NULL,
+	year INT NULL,
+	remark TEXT NULL,
+	temp_original_id BIGINT NULL,
+	temp_source VARCHAR(25) NULL
+);
+
+
+CREATE TABLE shot_line_url (
+	shot_line_id INT REFERENCES shot_line(shot_line_id) NOT NULL,
+	url_id INT REFERENCES url(url_id) NOT NULL,
+	PRIMARY KEY(shot_line_id, url_id)
+);
+
+
+CREATE TABLE shot_line_note (
+	shot_line_id INT REFERENCES shot_line(shot_line_id) NOT NULL,
+	note_id INT REFERENCES note(note_id) NOT NULL,
+	PRIMARY KEY(shot_line_id, note_id)
+);
+
+
+CREATE TABLE shot_point (
+	shot_point_id SERIAL PRIMARY KEY,
+	shot_line_id INT REFERENCES shot_line(shot_line_id) NULL,
+	name VARCHAR(100) NOT NULL,
+
+	temp_original_id BIGINT NULL,
+	temp_source VARCHAR(25) NULL
+);
+
+
+CREATE TABLE shot_point_point (
+	shot_point_id INT REFERENCES shot_point(shot_point_id) NOT NULL,
+	point_id INT REFERENCES point(point_id) NOT NULL,
+	PRIMARY KEY(shot_point_id, point_id)
+);
+
+
+CREATE TABLE shot_point_place (
+	shot_point_id INT REFERENCES shot_point(shot_point_id) NOT NULL,
+	place_id INT REFERENCES place(place_id) NOT NULL,
+	PRIMARY KEY(shot_point_id, place_id)
 );
 
 
