@@ -913,6 +913,14 @@ CREATE TABLE inventory_outcrop (
 );
 
 
+CREATE TABLE inventory_shot_point (
+	inventory_id INT REFERENCES inventory(inventory_id),
+	shot_point_id INT REFERENCES shot_point(shot_point_id),
+	PRIMARY KEY(inventory_id, outcrop_id)
+
+);
+
+
 CREATE TABLE inventory_quality (
 	inventory_quality_id SERIAL PRIMARY KEY,
 	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
