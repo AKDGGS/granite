@@ -34,6 +34,7 @@ DROP TABLE IF EXISTS
 	inventory_outcrop,
 	inventory_publication,
 	inventory_quality,
+	inventory_shot_point,
 	inventory_url,
 	inventory_well,
 	keyword,
