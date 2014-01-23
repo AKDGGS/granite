@@ -1,3 +1,7 @@
+-- Energy Districts
+SELECT name, ST_Transform(ST_SetSRID(geom, 3338), 4326)
+FROM energy
+
 -- PLSS generation
 SELECT meridian, null, null, null, null, null::int, geom
 FROM meridian

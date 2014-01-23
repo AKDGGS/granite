@@ -20,6 +20,7 @@ DROP TABLE IF EXISTS
 	container_type,
 	core_diameter,
 	dimension,
+	energy_district,
 	file,
 	file_type,
 	stratigraphy_type,
@@ -128,6 +129,13 @@ CREATE TABLE quadrangle (
 	abbr VARCHAR(5) NULL,
 	alt_abbr VARCHAR(5) NULL,
 	scale INT NOT NULL,
+	geog GEOGRAPHY(MultiPolygon) NULL
+);
+
+
+CREATE TABLE energy_district (
+	energy_district_id SERIAL PRIMARY KEY,
+	name VARCHAR(30) NOT NULL,
 	geog GEOGRAPHY(MultiPolygon) NULL
 );
 

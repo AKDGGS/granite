@@ -276,6 +276,9 @@ CREATE INDEX place_geog_idx ON place USING GIST(geog);
 DROP INDEX IF EXISTS quadrangle_geog_idx;
 CREATE INDEX quadrangle_geog_idx ON quadrangle USING GIST(geog);
 
+DROP INDEX IF EXISTS energy_district_geog_idx;
+CREATE INDEX energy_district_geog_idx ON energy_district USING GIST(geog);
+
 DROP INDEX IF EXISTS mining_district_geog_idx;
 CREATE INDEX mining_district_geog_idx ON mining_district USING GIST(geog);
 
