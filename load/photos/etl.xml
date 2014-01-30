@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE etl SYSTEM "http://scriptella.javaforge.com/dtd/etl.dtd">
+<etl>
+	<!-- Load username and password from properties file -->
+	<properties><include href="${user.home}/gmc.properties"/></properties>
+
+	<connection id="log" driver="text"/>
+	<connection id="jexl" driver="jexl" />
+
+	<connection id="dst" driver="org.postgresql.Driver"
+		user="${username}" password="${password}"
+		url="jdbc:postgresql://146.63.145.77/gmc">
+		characterEncoding=utf-8
+		autocommit=false
+	</connection>
+
+	<connection id="src" driver="csv" url="/home/cdramey/seismic_photo.csv">
+		separator=|
+		null_string=
+		headers=true
+		quote=
+	</connection>
+
+
+	<query connection-id="src">
+		<query connection-id="jexl">
+			path = photo_path.substring(photo_path.indexOf('photos'));
+			path = "/home/cdramey/" + path.replaceAll("\\\\", "/");
+			name = path.substring(path.lastIndexOf('/') + 1);
+
+			file = new('java.io.File', path);
+			length = file.length();
+			exists = file.exists();
+			query.next();
+
+			<script connection-id="log" if="not exists">
+				File ${path} does not exist.
+			</script>
+
+			<query connection-id="dst" if="exists">
+				SELECT COUNT(*) AS iCount
+				FROM inventory
+				WHERE barcode = ?{gmc_barcode}
+
+				<script connection-id="log" if="iCount lt 1">
+					Barcode ${gmc_barcode} not found.
+				</script>
+
+				<script if="iCount gt 0">
+					INSERT INTO file (
+						description, filename, size, md5, content
+					) VALUES (
+						?{description}, ?{name}, ?{length}, '', ?{file path}
+					)
+				</script>
+
+				<script if="iCount gt 0">
+					INSERT INTO inventory_file(inventory_id, file_id)
+					SELECT inventory_id, currval('file_file_id_seq')
+					FROM inventory
+					WHERE barcode = ?{gmc_barcode}
+				</script>
+			</query>
+		</query>
+	</query>
+</etl>
