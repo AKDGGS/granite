@@ -44,17 +44,30 @@ CREATE INDEX temp_note_temp_original_id_idx ON note(temp_original_id);
 DROP INDEX IF EXISTS temp_note_temp_source_idx;
 CREATE INDEX temp_note_temp_source_idx ON note(temp_source);
 
-DROP INDEX IF EXISTS temp_source_outcrop_idx;
-CREATE INDEX temp_source_outcrop_idx ON outcrop(temp_source);
+DROP INDEX IF EXISTS temp_outcrop_temp_source_idx;
+CREATE INDEX temp_outcrop_temp_source_idx ON outcrop(temp_source);
 
-DROP INDEX IF EXISTS temp_original_id_outcrop_idx;
-CREATE INDEX temp_original_id_outcrop_idx ON outcrop(temp_original_id);
+DROP INDEX IF EXISTS temp_outcrop_temp_original_id_idx;
+CREATE INDEX temp_outcrop_temp_original_id_idx ON outcrop(temp_original_id);
 
 DROP INDEX IF EXISTS temp_point_temp_source_idx;
 CREATE INDEX temp_point_temp_source_idx ON point(temp_source);
 
+DROP INDEX IF EXISTS temp_point_temp_original_id_idx;
+CREATE INDEX temp_point_temp_original_id_idx ON point(temp_original_id);
+
 DROP INDEX IF EXISTS temp_shot_point_temp_source_idx;
 CREATE INDEX temp_shot_point_temp_source_idx ON shot_point(temp_source);
+
+DROP INDEX IF EXISTS temp_shot_point_temp_original_id_idx;
+CREATE INDEX temp_shot_point_temp_original_id_idx ON shot_point(temp_original_id);
+
+DROP INDEX IF EXISTS temp_shot_line_temp_source_idx;
+CREATE INDEX temp_shot_line_temp_source_idx ON shot_line(temp_source);
+
+DROP INDEX IF EXISTS temp_shot_line_temp_original_id_idx;
+CREATE INDEX temp_shot_line_temp_original_id_idx ON shot_line(temp_original_id);
+
 
 
 
