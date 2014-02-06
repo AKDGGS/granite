@@ -50,8 +50,11 @@ CREATE INDEX temp_source_outcrop_idx ON outcrop(temp_source);
 DROP INDEX IF EXISTS temp_original_id_outcrop_idx;
 CREATE INDEX temp_original_id_outcrop_idx ON outcrop(temp_original_id);
 
-DROP INDEX IF EXISTS temp_source_point_idx;
-CREATE INDEX temp_source_point_idx ON point(temp_source);
+DROP INDEX IF EXISTS temp_point_temp_source_idx;
+CREATE INDEX temp_point_temp_source_idx ON point(temp_source);
+
+DROP INDEX IF EXISTS temp_shot_point_temp_source_idx;
+CREATE INDEX temp_shot_point_temp_source_idx ON shot_point(temp_source);
 
 
 
