@@ -706,7 +706,7 @@ CREATE TABLE shot_line_note (
 CREATE TABLE shot_point (
 	shot_point_id SERIAL PRIMARY KEY,
 	shot_line_id INT REFERENCES shot_line(shot_line_id) NULL,
-	name VARCHAR(100) NOT NULL,
+	name VARCHAR(100) NULL,
 
 	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(25) NULL
