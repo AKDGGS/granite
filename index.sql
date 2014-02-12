@@ -286,8 +286,16 @@ CREATE INDEX plss_geog_idx ON plss USING GIST(geog);
 DROP INDEX IF EXISTS point_geog_idx;
 CREATE INDEX point_geog_idx ON point USING GIST(geog);
 
+-- B-tree to optimize against IS NULL/IS NOT NULL
+DROP INDEX IF EXISTS point_geog_btree_idx;
+CREATE INDEX point_geog_btree_idx ON point(geog);
+
 DROP INDEX IF EXISTS place_geog_idx;
 CREATE INDEX place_geog_idx ON place USING GIST(geog);
+
+-- B-tree to optimize against IS NULL/IS NOT NULL
+DROP INDEX IF EXISTS place_geog_btree_idx;
+CREATE INDEX place_geog_btree_idx ON place(geog);
 
 DROP INDEX IF EXISTS quadrangle_geog_idx;
 CREATE INDEX quadrangle_geog_idx ON quadrangle USING GIST(geog);
