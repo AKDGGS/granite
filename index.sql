@@ -144,7 +144,7 @@ DROP INDEX IF EXISTS inventory_container_container_id_idx;
 CREATE INDEX inventory_container_container_id_idx ON inventory_container(container_id);
 
 DROP INDEX IF EXISTS inventory_container_log_date_idx;
-CREATE INDEX inventory_container_log_date_idx ON inventory_container(log_date);
+CREATE INDEX inventory_container_log_date_idx ON inventory_container(log_date DESC);
 
 DROP INDEX IF EXISTS inventory_borehole_borehole_id_idx;
 CREATE INDEX inventory_borehole_borehole_id_idx ON inventory_borehole(borehole_id);
