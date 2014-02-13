@@ -24,8 +24,7 @@
 
 	<query connection-id="src">
 		<query connection-id="jexl">
-			path = photo_path.substring(photo_path.indexOf('photos'));
-			path = "/home/cdramey/" + path.replaceAll("\\\\", "/");
+			path = "/storage/data" + photo_path.replaceAll("\\\\", "/");
 			name = path.substring(path.lastIndexOf('/') + 1);
 
 			file = new('java.io.File', path);
