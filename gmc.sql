@@ -69,6 +69,7 @@ DROP TABLE IF EXISTS
 	publication_note,
 	publication_organization,
 	publication_person,
+	publication_quadrangle,
 	publication_url,
 	quadrangle,
 	sample,
@@ -177,7 +178,6 @@ CREATE TABLE file (
 	mimetype VARCHAR(255) NOT NULL DEFAULT 'application/octet-stream',
 	size INT NOT NULL,
 	filename VARCHAR(255) NOT NULL,
-	md5 CHAR(16) NOT NULL,
 	content BYTEA NOT NULL
 );
 
@@ -309,15 +309,24 @@ CREATE TABLE person_organization (
 CREATE TABLE publication (
 	publication_id SERIAL PRIMARY KEY,
 	citation_id INT NULL,
-	title TEXT NOT NULL,
+	title VARCHAR(512) NOT NULL,
+	description VARCHAR(1024) NULL,
 	year INT NULL,
+	publication_type VARCHAR(50) NULL,
 	publication_number VARCHAR(50) NULL,
 	publication_series VARCHAR(50) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 
 	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(30) NULL
-); 
+);
+
+
+CREATE TABLE publication_quadrangle (
+	publication_id INT REFERENCES publication(publication_id) NOT NULL,
+	quadrangle_id INT REFERENCES quadrangle(quadrangle_id) NOT NULL,
+	PRIMARY KEY(publication_id, quadrangle_id)
+);
 
 
 CREATE TABLE publication_url (
@@ -805,7 +814,6 @@ CREATE TABLE inventory (
 	alt_sample_number VARCHAR(25) NULL,
 	published_sample_number VARCHAR(25) NULL,
 	published_number_has_suffix BOOLEAN NOT NULL DEFAULT false,
-	published_description TEXT NULL,
 	barcode VARCHAR(25) NULL,
 	alt_barcode VARCHAR(25) NULL,
 	state_number VARCHAR(50) NULL,
@@ -816,6 +824,8 @@ CREATE TABLE inventory (
 	slip_number INT NULL,
 	lab_number VARCHAR(100),
 	map_number VARCHAR(25), -- Stores BLM map number
+
+	description TEXT NULL,
 	-- Into remark: Screen size
 	remark TEXT NULL,
 
