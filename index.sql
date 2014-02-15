@@ -69,8 +69,6 @@ DROP INDEX IF EXISTS temp_shot_line_temp_original_id_idx;
 CREATE INDEX temp_shot_line_temp_original_id_idx ON shot_line(temp_original_id);
 
 
-
-
 DROP INDEX IF EXISTS borehole_prospect_id_idx;
 CREATE INDEX borehole_prospect_id_idx ON borehole(prospect_id);
 
@@ -278,6 +276,14 @@ CREATE INDEX well_place_place_id_idx ON well_place(place_id);
 DROP INDEX IF EXISTS well_place_well_id_idx;
 CREATE INDEX well_place_well_id_idx ON well_place(well_id);
 
+DROP INDEX IF EXISTS shot_point_shot_line_id_idx;
+CREATE INDEX shot_point_shot_line_id_idx ON shot_point(shot_line_id);
+
+DROP INDEX IF EXISTS inventory_shot_point_inventory_id_idx;
+CREATE INDEX inventory_shot_point_inventory_id_idx ON inventory_shot_point(inventory_id);
+
+DROP INDEX IF EXISTS inventory_shot_point_shot_point_id_idx;
+CREATE INDEX inventory_shot_point_shot_point_id_idx ON inventory_shot_point(shot_point_id);
 
 
 DROP INDEX IF EXISTS plss_geog_idx;
