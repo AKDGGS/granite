@@ -28,13 +28,22 @@ FOR EACH ROW EXECUTE PROCEDURE container_path_cache_fn();
 CREATE OR REPLACE FUNCTION inventory_container_log_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-	IF NEW.container_id IS NOT NULL THEN
+	IF TG_OP = 'INSERT' THEN
 		INSERT INTO inventory_container_log (
 			inventory_id, container_id
 		) VALUES (
 			NEW.inventory_id, NEW.container_id
 		);
+	ELSIF TG_OP = 'UPDATE' THEN
+		IF COALESCE(OLD.container_id, 0) <> COALESCE(NEW.container_id, 0) THEN
+			INSERT INTO inventory_container_log (
+				inventory_id, container_id
+			) VALUES (
+				NEW.inventory_id, NEW.container_id
+			);
+		END IF;
 	END IF;
+
 	RETURN NEW;
 END; $$ LANGUAGE 'plpgsql';
 
