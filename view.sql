@@ -31,6 +31,15 @@ CREATE OR REPLACE VIEW inventory_geog_precision AS (
 
 	UNION ALL
 
+	-- Shotpoint Point
+	(SELECT isp.inventory_id, p.geog
+	FROM inventory_shotpoint AS isp
+	JOIN shotpoint_point AS spp ON spp.shotpoint_id = isp.shotpoint_id
+	JOIN point AS p ON p.point_id = spp.point_id
+	WHERE p.geog IS NOT NULL)
+
+	UNION ALL
+
 	-- Outcrop Place
 	(SELECT io.inventory_id, p.geog
 	FROM inventory_outcrop AS io
@@ -45,6 +54,15 @@ CREATE OR REPLACE VIEW inventory_geog_precision AS (
 	FROM inventory_well AS iw
 	JOIN well_place AS wp ON wp.well_id = iw.well_id
 	JOIN place AS p ON p.place_id = wp.place_id
+	WHERE p.geog IS NOT NULL)
+
+	UNION ALL
+
+	-- Shotpoint Place
+	(SELECT isp.inventory_id, p.geog
+	FROM inventory_shotpoint AS isp
+	JOIN shotpoint_place AS spp ON spp.shotpoint_id = isp.shotpoint_id
+	JOIN place AS p ON p.place_id = spp.place_id
 	WHERE p.geog IS NOT NULL)
 
 	UNION ALL
@@ -117,6 +135,13 @@ CREATE OR REPLACE VIEW inventory_geog AS (
 		JOIN point AS p ON p.point_id = wp.point_id
 		WHERE p.geog IS NOT NULL
 	) UNION ALL (
+		-- Shotpoint Point
+		SELECT isp.inventory_id, p.geog
+		FROM inventory_shotpoint AS isp
+		JOIN shotpoint_point AS spp ON spp.shotpoint_id = isp.shotpoint_id
+		JOIN point AS p ON p.point_id = spp.point_id
+		WHERE p.geog IS NOT NULL
+	) UNION ALL (
 		-- Outcrop Place
 		SELECT io.inventory_id, p.geog
 		FROM inventory_outcrop AS io
@@ -129,6 +154,13 @@ CREATE OR REPLACE VIEW inventory_geog AS (
 		FROM inventory_well AS iw
 		JOIN well_place AS wp ON wp.well_id = iw.well_id
 		JOIN place AS p ON p.place_id = wp.place_id
+		WHERE p.geog IS NOT NULL
+	) UNION ALL (
+		-- Shotpoint Place
+		SELECT isp.inventory_id, p.geog
+		FROM inventory_shotpoint AS isp
+		JOIN shotpoint_place AS spp ON spp.shotpoint_id = isp.shotpoint_id
+		JOIN place AS p ON p.place_id = spp.place_id
 		WHERE p.geog IS NOT NULL
 	) UNION ALL (
 		-- Outcrop PLSS

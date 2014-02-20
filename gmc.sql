@@ -28,14 +28,14 @@ DROP TABLE IF EXISTS
 	inventory,
 	inventory_borehole,
 	inventory_collector,
-	inventory_container,
+	inventory_container_log,
 	inventory_file,
 	inventory_keyword,
 	inventory_note,
 	inventory_outcrop,
 	inventory_publication,
 	inventory_quality,
-	inventory_shot_point,
+	inventory_shotpoint,
 	inventory_url,
 	inventory_well,
 	keyword,
@@ -75,12 +75,12 @@ DROP TABLE IF EXISTS
 	sample,
 	sample_file,
 	sample_process_inventory,
-	shot_line,
-	shot_line_note,
-	shot_line_url,
-	shot_point,
-	shot_point_place,
-	shot_point_point,
+	shotline,
+	shotline_note,
+	shotline_url,
+	shotpoint,
+	shotpoint_place,
+	shotpoint_point,
 	unit,
 	url,
 	url_type,
@@ -687,8 +687,8 @@ CREATE TABLE borehole_organization (
 );
 
 
-CREATE TABLE shot_line (
-	shot_line_id SERIAL PRIMARY KEY,
+CREATE TABLE shotline (
+	shotline_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
 	year INT NULL,
@@ -698,41 +698,40 @@ CREATE TABLE shot_line (
 );
 
 
-CREATE TABLE shot_line_url (
-	shot_line_id INT REFERENCES shot_line(shot_line_id) NOT NULL,
+CREATE TABLE shotline_url (
+	shotline_id INT REFERENCES shotline(shotline_id) NOT NULL,
 	url_id INT REFERENCES url(url_id) NOT NULL,
-	PRIMARY KEY(shot_line_id, url_id)
+	PRIMARY KEY(shotline_id, url_id)
 );
 
 
-CREATE TABLE shot_line_note (
-	shot_line_id INT REFERENCES shot_line(shot_line_id) NOT NULL,
+CREATE TABLE shotline_note (
+	shotline_id INT REFERENCES shotline(shotline_id) NOT NULL,
 	note_id INT REFERENCES note(note_id) NOT NULL,
-	PRIMARY KEY(shot_line_id, note_id)
+	PRIMARY KEY(shotline_id, note_id)
 );
 
 
-CREATE TABLE shot_point (
-	shot_point_id SERIAL PRIMARY KEY,
-	shot_line_id INT REFERENCES shot_line(shot_line_id) NULL,
-	name VARCHAR(100) NULL,
-
+CREATE TABLE shotpoint (
+	shotpoint_id SERIAL PRIMARY KEY,
+	shotline_id INT REFERENCES shotline(shotline_id) NULL,
+	shotpoint_number NUMERIC(8,2) NULL,
 	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(25) NULL
 );
 
 
-CREATE TABLE shot_point_point (
-	shot_point_id INT REFERENCES shot_point(shot_point_id) NOT NULL,
+CREATE TABLE shotpoint_point (
+	shotpoint_id INT REFERENCES shotpoint(shotpoint_id) NOT NULL,
 	point_id INT REFERENCES point(point_id) NOT NULL,
-	PRIMARY KEY(shot_point_id, point_id)
+	PRIMARY KEY(shotpoint_id, point_id)
 );
 
 
-CREATE TABLE shot_point_place (
-	shot_point_id INT REFERENCES shot_point(shot_point_id) NOT NULL,
+CREATE TABLE shotpoint_place (
+	shotpoint_id INT REFERENCES shotpoint(shotpoint_id) NOT NULL,
 	place_id INT REFERENCES place(place_id) NOT NULL,
-	PRIMARY KEY(shot_point_id, place_id)
+	PRIMARY KEY(shotpoint_id, place_id)
 );
 
 
@@ -806,6 +805,7 @@ CREATE TABLE inventory (
 	collection_id INT REFERENCES collection(collection_id) NULL,
 	project_id INT REFERENCES project(project_id) NULL,
 	dimension_id INT REFERENCES dimension(dimension_id) NULL,
+	container_id INT REFERENCES container(container_id) NULL,
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
 	dggs_sample_id BIGINT NULL,
@@ -864,6 +864,14 @@ CREATE TABLE inventory (
 );
 
 
+CREATE TABLE inventory_container_log (
+	inventory_container_log_id SERIAL PRIMARY KEY,
+	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
+	container_id INT REFERENCES container(container_id) NOT NULL,
+	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+
 CREATE TABLE inventory_collector (
 	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
 	collector_id INT REFERENCES person(person_id) NOT NULL,
@@ -882,14 +890,6 @@ CREATE TABLE inventory_keyword (
 	inventory_id INT REFERENCES inventory(inventory_id),
 	keyword_id INT REFERENCES keyword(keyword_id),
 	PRIMARY KEY(inventory_id, keyword_id)
-);
-
-
-CREATE TABLE inventory_container (
-	inventory_container_id SERIAL PRIMARY KEY,
-	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
-	container_id INT REFERENCES container(container_id) NOT NULL,
-	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
 
@@ -935,10 +935,10 @@ CREATE TABLE inventory_outcrop (
 );
 
 
-CREATE TABLE inventory_shot_point (
+CREATE TABLE inventory_shotpoint (
 	inventory_id INT REFERENCES inventory(inventory_id),
-	shot_point_id INT REFERENCES shot_point(shot_point_id),
-	PRIMARY KEY(inventory_id, shot_point_id)
+	shotpoint_id INT REFERENCES shotpoint(shotpoint_id),
+	PRIMARY KEY(inventory_id, shotpoint_id)
 );
 
 

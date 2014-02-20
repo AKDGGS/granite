@@ -4,3 +4,4 @@ DATABASE=gmc
 /usr/bin/psql -d $DATABASE -f trigger.sql
 /usr/bin/psql -d $DATABASE -f index.sql
 /usr/bin/psql -d $DATABASE -f view.sql
+/usr/bin/psql -d $DATABASE -c "VACUUM FULL ANALYZE"

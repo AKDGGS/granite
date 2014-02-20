@@ -56,17 +56,17 @@ CREATE INDEX temp_point_temp_source_idx ON point(temp_source);
 DROP INDEX IF EXISTS temp_point_temp_original_id_idx;
 CREATE INDEX temp_point_temp_original_id_idx ON point(temp_original_id);
 
-DROP INDEX IF EXISTS temp_shot_point_temp_source_idx;
-CREATE INDEX temp_shot_point_temp_source_idx ON shot_point(temp_source);
+DROP INDEX IF EXISTS temp_shotpoint_temp_source_idx;
+CREATE INDEX temp_shotpoint_temp_source_idx ON shotpoint(temp_source);
 
-DROP INDEX IF EXISTS temp_shot_point_temp_original_id_idx;
-CREATE INDEX temp_shot_point_temp_original_id_idx ON shot_point(temp_original_id);
+DROP INDEX IF EXISTS temp_shotpoint_temp_original_id_idx;
+CREATE INDEX temp_shotpoint_temp_original_id_idx ON shotpoint(temp_original_id);
 
-DROP INDEX IF EXISTS temp_shot_line_temp_source_idx;
-CREATE INDEX temp_shot_line_temp_source_idx ON shot_line(temp_source);
+DROP INDEX IF EXISTS temp_shotline_temp_source_idx;
+CREATE INDEX temp_shotline_temp_source_idx ON shotline(temp_source);
 
-DROP INDEX IF EXISTS temp_shot_line_temp_original_id_idx;
-CREATE INDEX temp_shot_line_temp_original_id_idx ON shot_line(temp_original_id);
+DROP INDEX IF EXISTS temp_shotline_temp_original_id_idx;
+CREATE INDEX temp_shotline_temp_original_id_idx ON shotline(temp_original_id);
 
 
 DROP INDEX IF EXISTS borehole_prospect_id_idx;
@@ -132,17 +132,20 @@ CREATE INDEX inventory_barcode_idx ON inventory(barcode);
 DROP INDEX IF EXISTS inventory_alt_barcode_idx;
 CREATE INDEX inventory_alt_barcode_idx ON inventory(alt_barcode);
 
+DROP INDEX IF EXISTS inventory_container_id_idx;
+CREATE INDEX inventory_container_id_idx ON inventory(container_id);
+
 DROP INDEX IF EXISTS inventory_container_material_id_idx;
 CREATE INDEX inventory_container_material_id_idx ON inventory(container_material_id);
 
-DROP INDEX IF EXISTS inventory_container_inventory_id_idx;
-CREATE INDEX inventory_container_inventory_id_idx ON inventory_container(inventory_id);
+DROP INDEX IF EXISTS inventory_container_log_inventory_id_idx;
+CREATE INDEX inventory_container_log_inventory_id_idx ON inventory_container_log(inventory_id);
 
-DROP INDEX IF EXISTS inventory_container_container_id_idx;
-CREATE INDEX inventory_container_container_id_idx ON inventory_container(container_id);
+DROP INDEX IF EXISTS inventory_container_log_container_id_idx;
+CREATE INDEX inventory_container_log_container_id_idx ON inventory_container_log(container_id);
 
-DROP INDEX IF EXISTS inventory_container_log_date_idx;
-CREATE INDEX inventory_container_log_date_idx ON inventory_container(log_date DESC);
+DROP INDEX IF EXISTS inventory_container_log_log_date_idx;
+CREATE INDEX inventory_container_log_log_date_idx ON inventory_container_log(log_date DESC);
 
 DROP INDEX IF EXISTS inventory_borehole_borehole_id_idx;
 CREATE INDEX inventory_borehole_borehole_id_idx ON inventory_borehole(borehole_id);
@@ -276,14 +279,14 @@ CREATE INDEX well_place_place_id_idx ON well_place(place_id);
 DROP INDEX IF EXISTS well_place_well_id_idx;
 CREATE INDEX well_place_well_id_idx ON well_place(well_id);
 
-DROP INDEX IF EXISTS shot_point_shot_line_id_idx;
-CREATE INDEX shot_point_shot_line_id_idx ON shot_point(shot_line_id);
+DROP INDEX IF EXISTS shotpoint_shotline_id_idx;
+CREATE INDEX shotpoint_shotline_id_idx ON shotpoint(shotline_id);
 
-DROP INDEX IF EXISTS inventory_shot_point_inventory_id_idx;
-CREATE INDEX inventory_shot_point_inventory_id_idx ON inventory_shot_point(inventory_id);
+DROP INDEX IF EXISTS inventory_shotpoint_inventory_id_idx;
+CREATE INDEX inventory_shotpoint_inventory_id_idx ON inventory_shotpoint(inventory_id);
 
-DROP INDEX IF EXISTS inventory_shot_point_shot_point_id_idx;
-CREATE INDEX inventory_shot_point_shot_point_id_idx ON inventory_shot_point(shot_point_id);
+DROP INDEX IF EXISTS inventory_shotpoint_shotpoint_id_idx;
+CREATE INDEX inventory_shotpoint_shotpoint_id_idx ON inventory_shotpoint(shotpoint_id);
 
 
 DROP INDEX IF EXISTS plss_geog_idx;
