@@ -714,7 +714,7 @@ CREATE TABLE shotline_note (
 
 CREATE TABLE shotpoint (
 	shotpoint_id SERIAL PRIMARY KEY,
-	shotline_id INT REFERENCES shotline(shotline_id) NULL,
+	shotline_id INT REFERENCES shotline(shotline_id) NOT NULL,
 	shotpoint_number NUMERIC(8,2) NULL,
 	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(25) NULL
@@ -809,7 +809,7 @@ CREATE TABLE inventory (
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
 	dggs_sample_id BIGINT NULL,
-	sample_number VARCHAR(25) NULL,
+	sample_number VARCHAR(50) NULL,
 	sample_number_prefix VARCHAR(25) NULL,
 	alt_sample_number VARCHAR(25) NULL,
 	published_sample_number VARCHAR(25) NULL,
