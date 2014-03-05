@@ -12,7 +12,7 @@ BEGIN
 		NEW.path_cache := (
 			SELECT path FROM container_path
 			WHERE container_id = NEW.parent_container_id
-		);
+		) || '/' || NEW.name;
 	END IF;
 	RETURN NEW;
 END; $$ LANGUAGE 'plpgsql';
