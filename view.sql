@@ -428,3 +428,22 @@ CREATE OR REPLACE VIEW inventory_mining_district AS (
 		JOIN inventory_outcrop AS io ON io.outcrop_id = q.outcrop_id
 	) AS q
 );
+
+
+CREATE OR REPLACE VIEW inventory_shotline AS (
+	SELECT DISTINCT isp.inventory_id, sp.shotline_id
+	FROM inventory_shotpoint AS isp
+	JOIN shotpoint AS sp ON sp.shotpoint_id = isp.shotpoint_id
+);
+
+
+CREATE OR REPLACE VIEW inventory_shotpoint_minmax AS (
+	SELECT isp.inventory_id,
+		MIN(sp.shotpoint_number) AS shotpoint_min,
+		MAX(sp.shotpoint_number) AS shotpoint_max
+	FROM inventory_shotpoint AS isp
+	JOIN shotpoint AS sp
+		ON isp.shotpoint_id = sp.shotpoint_id
+	WHERE sp.shotpoint_number IS NOT NULL
+	GROUP BY isp.inventory_id
+);

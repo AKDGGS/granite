@@ -282,6 +282,9 @@ CREATE INDEX well_place_well_id_idx ON well_place(well_id);
 DROP INDEX IF EXISTS shotpoint_shotline_id_idx;
 CREATE INDEX shotpoint_shotline_id_idx ON shotpoint(shotline_id);
 
+DROP INDEX IF EXISTS shotpoint_shotpoint_number_idx;
+CREATE INDEX shotpoint_shotpoint_number_idx ON shotpoint(shotpoint_number);
+
 DROP INDEX IF EXISTS inventory_shotpoint_inventory_id_idx;
 CREATE INDEX inventory_shotpoint_inventory_id_idx ON inventory_shotpoint(inventory_id);
 
