@@ -437,13 +437,13 @@ CREATE OR REPLACE VIEW inventory_shotline AS (
 );
 
 
-CREATE OR REPLACE VIEW inventory_shotpoint_minmax AS (
-	SELECT isp.inventory_id,
-		MIN(sp.shotpoint_number) AS shotpoint_min,
-		MAX(sp.shotpoint_number) AS shotpoint_max
+CREATE OR REPLACE VIEW inventory_shotline_minmax AS (
+	SELECT isp.inventory_id, sp.shotline_id,
+		MIN(sp.shotpoint_number) AS shotline_min,
+		MAX(sp.shotpoint_number) AS shotline_max
 	FROM inventory_shotpoint AS isp
 	JOIN shotpoint AS sp
 		ON isp.shotpoint_id = sp.shotpoint_id
 	WHERE sp.shotpoint_number IS NOT NULL
-	GROUP BY isp.inventory_id
+	GROUP BY isp.inventory_id, sp.shotline_id
 );
