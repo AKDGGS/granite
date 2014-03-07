@@ -1,4 +1,4 @@
-#1/bin/sh
+#!/bin/sh
 DATABASE=gmc
 
 /usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f gmc.sql
