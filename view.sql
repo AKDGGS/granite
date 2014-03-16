@@ -349,6 +349,12 @@ CREATE OR REPLACE VIEW outcrop_geog AS (
 		FROM outcrop_mining_district AS om
 		JOIN mining_district AS md ON md.mining_district_id = om.mining_district_id
 		WHERE md.geog IS NOT NULL
+	) UNION ALL (
+		-- UTM
+		SELECT ou.outcrop_id, u.geog
+		FROM outcrop_utm AS ou
+		JOIN utm AS u ON u.utm_id = ou.utm_id
+		WHERE u.geog IS NOT NULL
 	)
 );
 
