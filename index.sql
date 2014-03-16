@@ -318,6 +318,9 @@ CREATE INDEX energy_district_geog_idx ON energy_district USING GIST(geog);
 DROP INDEX IF EXISTS mining_district_geog_idx;
 CREATE INDEX mining_district_geog_idx ON mining_district USING GIST(geog);
 
+DROP INDEX IF EXISTS gmc_region_geog_idx;
+CREATE INDEX gmc_region_geog_idx  ON gmc_region USING GIST(geog);
+
 DROP INDEX IF EXISTS utm_geog_idx;
 CREATE INDEX utm_geog_idx ON utm USING GIST(geog);
 

@@ -18,3 +18,6 @@ DATABASE=gmc
 
 /bin/gzip -d -c energy_district.csv.gz | /usr/bin/psql -d $DATABASE -c \
 	"\\COPY energy_district (name, geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
+
+/bin/gzip -d -c gmc_region.csv.gz | /usr/bin/psql -d $DATABASE -c \
+	"\\COPY gmc_region (name, geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
