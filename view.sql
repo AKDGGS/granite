@@ -359,6 +359,23 @@ CREATE OR REPLACE VIEW outcrop_geog AS (
 );
 
 
+CREATE OR REPLACE VIEW shotpoint_geog AS (
+	(
+		-- Point
+		SELECT sp.shotpoint_id, po.geog
+		FROM shotpoint_point AS sp
+		JOIN point AS po ON po.point_id = sp.point_id
+		WHERE po.geog IS NOT NULL
+	) UNION ALL (
+		-- Place
+		SELECT sp.shotpoint_id, pl.geog
+		FROM shotpoint_place AS sp
+		JOIN place AS pl ON pl.place_id = sp.place_id
+		WHERE pl.geog IS NOT NULL
+	)
+);
+
+
 CREATE OR REPLACE VIEW borehole_geog_point AS (
 	-- Point
 	SELECT bp.borehole_id, po.geog
