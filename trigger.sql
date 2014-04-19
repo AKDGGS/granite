@@ -1,8 +1,8 @@
-SET ROLE 'gmc';
 SET SCHEMA 'public';
 SET CLIENT_MIN_MESSAGES TO WARNING;
 
 BEGIN;
+
 
 -- Create function to populate path cache
 CREATE OR REPLACE FUNCTION container_path_cache_fn()
