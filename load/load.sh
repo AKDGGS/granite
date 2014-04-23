@@ -1,5 +1,9 @@
 #!/bin/sh
-DATABASE=gmc
+DATABASE=$1
+if [ -z "$DATABASE" ]; then
+	echo No database specified.
+	exit
+fi
 
 /bin/gzip -d -c place.csv.gz | /usr/bin/psql -d $DATABASE -c \
 	"\\COPY place (name,type,geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"

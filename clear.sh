@@ -1,5 +1,9 @@
 #!/bin/sh
-DATABASE=gmc
+DATABASE=$1
+if [ -z "$DATABASE" ]; then
+	echo No database specified.
+	exit
+fi
 
 /usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f gmc.sql
 RETVAL=$?
