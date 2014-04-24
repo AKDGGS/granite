@@ -914,4 +914,17 @@ CREATE TABLE visitor (
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
+
+CREATE TABLE audit_group (
+	audit_group_id SERIAL PRIMARY KEY,
+	create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+
+CREATE TABLE audit (
+	audit_id SERIAL PRIMARY KEY,
+	audit_group_id INT REFERENCES audit_group(audit_group_id) NOT NULL,
+	barcode VARCHAR(25) NOT NULL
+);
+
 COMMIT;
