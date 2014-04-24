@@ -290,6 +290,9 @@ CREATE INDEX inventory_shotpoint_inventory_id_idx ON inventory_shotpoint(invento
 DROP INDEX IF EXISTS inventory_shotpoint_shotpoint_id_idx;
 CREATE INDEX inventory_shotpoint_shotpoint_id_idx ON inventory_shotpoint(shotpoint_id);
 
+DROP INDEX IF EXISTS audit_barcode_idx;
+CREATE INDEX audit_barcode_idx ON audit(barcode);
+
 
 DROP INDEX IF EXISTS plss_geog_idx;
 CREATE INDEX plss_geog_idx ON plss USING GIST(geog);
