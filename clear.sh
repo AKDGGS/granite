@@ -5,8 +5,13 @@ if [ -z "$DATABASE" ]; then
 	exit
 fi
 
-/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f gmc.sql
+/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f drop.sql
 RETVAL=$?
+
+if [ $RETVAL == 0 ]; then
+	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f gmc.sql
+	RETVAL=$?
+fi
 
 if [ $RETVAL == 0 ]; then
 	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f trigger.sql
