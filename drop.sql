@@ -1,4 +1,6 @@
 DROP TABLE IF EXISTS
+	audit,
+	audit_group,
 	borehole,
 	borehole_mining_district,
 	borehole_note,
