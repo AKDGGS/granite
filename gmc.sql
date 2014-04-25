@@ -917,6 +917,7 @@ CREATE TABLE visitor (
 
 CREATE TABLE audit_group (
 	audit_group_id SERIAL PRIMARY KEY,
+	remark TEXT NULL,
 	create_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
