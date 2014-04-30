@@ -448,15 +448,69 @@ CREATE OR REPLACE VIEW inventory_mining_district AS (
 			JOIN mining_district AS md ON ST_Intersects(og.geog, md.geog)
 		) AS q
 		JOIN inventory_outcrop AS io ON io.outcrop_id = q.outcrop_id
+
+		UNION ALL
+
+		SELECT isp.inventory_id, q.mining_district_id
+		FROM (
+			SELECT sg.shotpoint_id, md.mining_district_id
+			FROM shotpoint_geog AS sg
+			JOIN mining_district AS md ON ST_Intersects(sg.geog, md.geog)
+		) AS q
+		JOIN inventory_shotpoint AS isp ON isp.shotpoint_id = q.shotpoint_id
 	) AS q
 );
-
 
 CREATE OR REPLACE VIEW inventory_shotline AS (
 	SELECT DISTINCT isp.inventory_id, sp.shotline_id
 	FROM inventory_shotpoint AS isp
 	JOIN shotpoint AS sp ON sp.shotpoint_id = isp.shotpoint_id
 );
+
+
+CREATE OR REPLACE VIEW inventory_quadrangle AS (
+	SELECT inventory_id, quadrangle_id
+	FROM (
+		SELECT iw.inventory_id, q.quadrangle_id
+		FROM (
+			SELECT wg.well_id, qr.quadrangle_id
+			FROM well_geog AS wg
+			JOIN quadrangle AS qr ON ST_Intersects(wg.geog, qr.geog)
+		) AS q
+		JOIN inventory_well AS iw ON iw.well_id = q.well_id
+
+		UNION ALL
+
+		SELECT ib.inventory_id, q.quadrangle_id
+		FROM (
+			SELECT bg.borehole_id, qr.quadrangle_id
+			FROM borehole_geog AS bg
+			JOIN quadrangle AS qr ON ST_Intersects(bg.geog, qr.geog)
+		) AS q
+		JOIN inventory_borehole AS ib ON ib.borehole_id = q.borehole_id
+
+		UNION ALL
+
+		SELECT io.inventory_id, q.quadrangle_id
+		FROM (
+			SELECT og.outcrop_id, qr.quadrangle_id
+			FROM outcrop_geog AS og
+			JOIN quadrangle AS qr ON ST_Intersects(og.geog, qr.geog)
+		) AS q
+		JOIN inventory_outcrop AS io ON io.outcrop_id = q.outcrop_id
+
+		UNION ALL
+
+		SELECT isp.inventory_id, q.quadrangle_id
+		FROM (
+			SELECT sg.shotpoint_id, qr.quadrangle_id
+			FROM shotpoint_geog AS sg
+			JOIN quadrangle AS qr ON ST_Intersects(sg.geog, qr.geog)
+		) AS q
+		JOIN inventory_shotpoint AS isp ON isp.shotpoint_id = q.shotpoint_id
+	) AS q
+);
+
 
 
 CREATE OR REPLACE VIEW inventory_shotline_minmax AS (
