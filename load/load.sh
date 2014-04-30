@@ -18,7 +18,7 @@ fi
 	"\\COPY utm (zone,geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
 
 /bin/gzip -d -c quadrangle.csv.gz | /usr/bin/psql -d $DATABASE -c \
-	"\\COPY quadrangle (name, alt_name, abbr, alt_abbr, scale, geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
+	"\\COPY quadrangle (alt_name, name, abbr, alt_abbr, scale, geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
 
 /bin/gzip -d -c energy_district.csv.gz | /usr/bin/psql -d $DATABASE -c \
 	"\\COPY energy_district (name, geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
