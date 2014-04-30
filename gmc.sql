@@ -702,7 +702,7 @@ CREATE TABLE keyword (
 	name VARCHAR(50) NOT NULL,
 	alias VARCHAR(150) NULL,
 	description VARCHAR(255) NULL,
-	keyword_group_id INT REFERENCES keyword_group(keyword_group_id),
+	keyword_group_id INT REFERENCES keyword_group(keyword_group_id) NOT NULL,
 
 	temp_code VARCHAR(8) NULL
 );
