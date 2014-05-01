@@ -476,6 +476,7 @@ CREATE OR REPLACE VIEW inventory_quadrangle AS (
 			SELECT wg.well_id, qr.quadrangle_id
 			FROM well_geog AS wg
 			JOIN quadrangle AS qr ON ST_Intersects(wg.geog, qr.geog)
+			WHERE qr.scale = 250000
 		) AS q
 		JOIN inventory_well AS iw ON iw.well_id = q.well_id
 
@@ -486,6 +487,7 @@ CREATE OR REPLACE VIEW inventory_quadrangle AS (
 			SELECT bg.borehole_id, qr.quadrangle_id
 			FROM borehole_geog AS bg
 			JOIN quadrangle AS qr ON ST_Intersects(bg.geog, qr.geog)
+			WHERE qr.scale = 250000
 		) AS q
 		JOIN inventory_borehole AS ib ON ib.borehole_id = q.borehole_id
 
@@ -496,6 +498,7 @@ CREATE OR REPLACE VIEW inventory_quadrangle AS (
 			SELECT og.outcrop_id, qr.quadrangle_id
 			FROM outcrop_geog AS og
 			JOIN quadrangle AS qr ON ST_Intersects(og.geog, qr.geog)
+			WHERE qr.scale = 250000
 		) AS q
 		JOIN inventory_outcrop AS io ON io.outcrop_id = q.outcrop_id
 
@@ -506,6 +509,7 @@ CREATE OR REPLACE VIEW inventory_quadrangle AS (
 			SELECT sg.shotpoint_id, qr.quadrangle_id
 			FROM shotpoint_geog AS sg
 			JOIN quadrangle AS qr ON ST_Intersects(sg.geog, qr.geog)
+			WHERE qr.scale = 250000
 		) AS q
 		JOIN inventory_shotpoint AS isp ON isp.shotpoint_id = q.shotpoint_id
 	) AS q
