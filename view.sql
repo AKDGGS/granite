@@ -419,47 +419,18 @@ CREATE OR REPLACE VIEW well_geog_point AS (
 
 
 CREATE OR REPLACE VIEW inventory_mining_district AS (
-	SELECT inventory_id, mining_district_id
-	FROM (
-		SELECT iw.inventory_id, q.mining_district_id
-		FROM (
-			SELECT wg.well_id, md.mining_district_id
-			FROM well_geog AS wg
-			JOIN mining_district AS md ON ST_Intersects(wg.geog, md.geog)
-		) AS q
-		JOIN inventory_well AS iw ON iw.well_id = q.well_id
-
-		UNION ALL
-
-		SELECT ib.inventory_id, q.mining_district_id
-		FROM (
-			SELECT bg.borehole_id, md.mining_district_id
-			FROM borehole_geog AS bg
-			JOIN mining_district AS md ON ST_Intersects(bg.geog, md.geog)
-		) AS q
-		JOIN inventory_borehole AS ib ON ib.borehole_id = q.borehole_id
-
-		UNION ALL
-
-		SELECT io.inventory_id, q.mining_district_id
-		FROM (
-			SELECT og.outcrop_id, md.mining_district_id
-			FROM outcrop_geog AS og
-			JOIN mining_district AS md ON ST_Intersects(og.geog, md.geog)
-		) AS q
-		JOIN inventory_outcrop AS io ON io.outcrop_id = q.outcrop_id
-
-		UNION ALL
-
-		SELECT isp.inventory_id, q.mining_district_id
-		FROM (
-			SELECT sg.shotpoint_id, md.mining_district_id
-			FROM shotpoint_geog AS sg
-			JOIN mining_district AS md ON ST_Intersects(sg.geog, md.geog)
-		) AS q
-		JOIN inventory_shotpoint AS isp ON isp.shotpoint_id = q.shotpoint_id
-	) AS q
+	SELECT DISTINCT ik.inventory_id, md.mining_district_id
+	FROM inventory_keyword AS ik
+	JOIN inventory_geog AS ig ON ik.inventory_id = ig.inventory_id
+	JOIN mining_district AS md ON ST_Intersects(ig.geog, md.geog)
+	WHERE ik.keyword_id = (
+		SELECT keyword_id
+		FROM keyword
+		WHERE LOWER(name) = 'mineral'
+		LIMIT 1
+	)
 );
+
 
 CREATE OR REPLACE VIEW inventory_shotline AS (
 	SELECT DISTINCT isp.inventory_id, sp.shotline_id
