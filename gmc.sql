@@ -924,7 +924,7 @@ CREATE TABLE audit_group (
 
 CREATE TABLE audit (
 	audit_id SERIAL PRIMARY KEY,
-	audit_group_id INT REFERENCES audit_group(audit_group_id) NOT NULL,
+	audit_group_id INT REFERENCES audit_group(audit_group_id) ON DELETE CASCADE NOT NULL,
 	barcode VARCHAR(25) NOT NULL
 );
 
