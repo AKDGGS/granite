@@ -19,12 +19,17 @@ if [ $RETVAL == 0 ]; then
 fi
 
 if [ $RETVAL == 0 ]; then
-	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f index.sql
+	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f materialized.sql
 	RETVAL=$?
 fi
 
 if [ $RETVAL == 0 ]; then
 	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f view.sql
+	RETVAL=$?
+fi
+
+if [ $RETVAL == 0 ]; then
+	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f index.sql
 	RETVAL=$?
 fi
 
