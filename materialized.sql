@@ -3,7 +3,7 @@ SET CLIENT_MIN_MESSAGES TO WARNING;
 
 
 -- Materialized spatial view for inventory
-DROP MATERIALIZED VIEW IF EXISTS inventory_geog;
+DROP MATERIALIZED VIEW IF EXISTS inventory_geog CASCADE;
 
 CREATE MATERIALIZED VIEW inventory_geog AS (
 	-- Boreholes
@@ -135,18 +135,12 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 
 	UNION ALL
 
-	-- Handle shotline(s) for inventory
-	SELECT DISTINCT inventory_id,
-		ST_Makeline(geog::geometry)::geography AS geog
-	FROM (
-		SELECT isp.inventory_id, sp.shotline_id, p.geog
-		FROM inventory_shotpoint AS isp
-		JOIN shotpoint AS sp ON sp.shotpoint_id = isp.shotpoint_id
-		JOIN shotpoint_point AS spp ON spp.shotpoint_id = sp.shotpoint_id
-		JOIN point AS p ON p.point_id = spp.point_id
-		ORDER BY isp.inventory_id, sp.shotline_id, sp.shotpoint_number
-	) AS q
-	GROUP BY inventory_id, shotline_id
+	-- Handle shotpoints(s) for inventory
+	SELECT DISTINCT isp.inventory_id, p.geog
+	FROM inventory_shotpoint AS isp
+	JOIN shotpoint AS sp ON sp.shotpoint_id = isp.shotpoint_id
+	JOIN shotpoint_point AS spp ON spp.shotpoint_id = sp.shotpoint_id
+	JOIN point AS p ON p.point_id = spp.point_id
 );
 
 CREATE INDEX inventory_geog_inventory_id_idx ON inventory_geog(inventory_id);
@@ -155,7 +149,7 @@ CREATE INDEX inventory_geog_geog_idx ON inventory_geog USING GIST(geog);
 
 
 -- Materialized spatial view for well
-DROP MATERIALIZED VIEW IF EXISTS well_geog;
+DROP MATERIALIZED VIEW IF EXISTS well_geog CASCADE;
 
 CREATE MATERIALIZED VIEW well_geog AS (
 	SELECT DISTINCT ON (well_id) well_id,
@@ -199,7 +193,7 @@ CREATE INDEX well_geog_geog_idx ON well_geog USING GIST(geog);
 
 
 -- Materialized spatial view for borehole
-DROP MATERIALIZED VIEW IF EXISTS borehole_geog;
+DROP MATERIALIZED VIEW IF EXISTS borehole_geog CASCADE;
 
 CREATE MATERIALIZED VIEW borehole_geog AS (
 	SELECT DISTINCT ON (borehole_id) borehole_id,
@@ -245,7 +239,7 @@ CREATE INDEX borehole_geog_geog_idx ON borehole_geog USING GIST(geog);
 
 
 -- Materialized spatial view for outcrop
-DROP MATERIALIZED VIEW IF EXISTS outcrop_geog;
+DROP MATERIALIZED VIEW IF EXISTS outcrop_geog CASCADE;
 
 CREATE MATERIALIZED VIEW outcrop_geog AS (
 	SELECT DISTINCT ON (outcrop_id) outcrop_id,
@@ -305,11 +299,10 @@ CREATE INDEX outcrop_geog_geog_idx ON outcrop_geog USING GIST(geog);
 
 
 -- Materialized spatial view for shotpoint
-DROP MATERIALIZED VIEW IF EXISTS shotpoint_geog;
+DROP MATERIALIZED VIEW IF EXISTS shotpoint_geog CASCADE;
 
 CREATE MATERIALIZED VIEW shotpoint_geog AS (
-	SELECT DISTINCT ON (shotpoint_id) shotpoint_id,
-		geog
+	SELECT DISTINCT shotpoint_id, geog
 	FROM (
 		-- Point
 		SELECT sp.shotpoint_id, po.geog
@@ -333,7 +326,7 @@ CREATE INDEX shotpoint_geog_geog_idx ON shotpoint_geog USING GIST(geog);
 
 
 -- Materialized spatial view for quadrangle
-DROP MATERIALIZED VIEW IF EXISTS quadrangle_geog;
+DROP MATERIALIZED VIEW IF EXISTS quadrangle_geog CASCADE;
 
 CREATE MATERIALIZED VIEW quadrangle_geog AS (
 	SELECT quadrangle_id, scale,
@@ -349,7 +342,7 @@ CREATE INDEX quadrangle_geog_geom_idx ON quadrangle_geog USING GIST(geog);
 
 
 -- Materialized spatial view for mining_district
-DROP MATERIALIZED VIEW IF EXISTS mining_district_geog;
+DROP MATERIALIZED VIEW IF EXISTS mining_district_geog CASCADE;
 
 CREATE MATERIALIZED VIEW mining_district_geog AS (
 	SELECT mining_district_id,
@@ -363,7 +356,7 @@ CREATE INDEX mining_district_geog_geom_idx ON mining_district_geog USING GIST(ge
 
 
 -- Materialized spatial view for energy_district
-DROP MATERIALIZED VIEW IF EXISTS energy_district_geog;
+DROP MATERIALIZED VIEW IF EXISTS energy_district_geog CASCADE;
 
 CREATE MATERIALIZED VIEW energy_district_geog AS (
 	SELECT energy_district_id,
@@ -377,7 +370,7 @@ CREATE INDEX energy_district_geog_geom_idx ON energy_district_geog USING GIST(ge
 
 
 -- Materialized spatial view for gmc_region
-DROP MATERIALIZED VIEW IF EXISTS gmc_region_geog;
+DROP MATERIALIZED VIEW IF EXISTS gmc_region_geog CASCADE;
 
 CREATE MATERIALIZED VIEW gmc_region_geog AS (
 	SELECT gmc_region_id,
@@ -388,3 +381,24 @@ CREATE MATERIALIZED VIEW gmc_region_geog AS (
 CREATE INDEX gmc_region_geog_gmc_region_id_idx ON gmc_region_geog(gmc_region_id);
 
 CREATE INDEX gmc_region_geog_geom_idx ON gmc_region_geog USING GIST(geog);
+
+
+-- Materialized spatial view for shotline that merges all shotpoints into
+-- a line
+DROP MATERIALIZED VIEW IF EXISTS shotline_geog CASCADE;
+CREATE MATERIALIZED VIEW shotline_geog AS (
+  SELECT shotline_id,
+		ST_Makeline(geog::geometry)::geography AS geog
+  FROM (
+    SELECT sp.shotline_id, p.geog
+    FROM shotpoint AS sp
+    JOIN shotpoint_point AS spp ON spp.shotpoint_id = sp.shotpoint_id
+    JOIN point AS p ON p.point_id = spp.point_id
+    ORDER BY sp.shotline_id ASC, sp.shotpoint_number DESC
+  ) AS q
+  GROUP BY shotline_id
+);
+
+CREATE INDEX shotline_geog_shotline_id_idx ON shotline_geog(shotline_id);
+
+CREATE INDEX shotline_geog_geog_idx ON shotline_geog USING GIST(geog);

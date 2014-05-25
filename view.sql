@@ -1,7 +1,8 @@
 SET SCHEMA 'public';
 SET CLIENT_MIN_MESSAGES TO WARNING;
 
-DROP VIEW IF EXISTS container_building;
+
+DROP VIEW IF EXISTS container_building CASCADE;
 CREATE VIEW container_building AS ( 
 	WITH RECURSIVE t AS (
 		(
@@ -27,7 +28,7 @@ CREATE VIEW container_building AS (
 );
 
 
-DROP VIEW IF EXISTS container_path;
+DROP VIEW IF EXISTS container_path CASCADE;
 CREATE VIEW container_path AS (
 	WITH RECURSIVE t AS (
 		(
@@ -48,7 +49,7 @@ CREATE VIEW container_path AS (
 );
 
 
-DROP VIEW IF EXISTS inventory_shotline;
+DROP VIEW IF EXISTS inventory_shotline CASCADE;
 CREATE VIEW inventory_shotline AS (
 	SELECT DISTINCT isp.inventory_id, sp.shotline_id
 	FROM inventory_shotpoint AS isp
@@ -56,7 +57,7 @@ CREATE VIEW inventory_shotline AS (
 );
 
 
-DROP VIEW IF EXISTS inventory_shotline_minmax;
+DROP VIEW IF EXISTS inventory_shotline_minmax CASCADE; 
 CREATE VIEW inventory_shotline_minmax AS (
 	SELECT isp.inventory_id, sp.shotline_id,
 		MIN(sp.shotpoint_number) AS shotline_min,
@@ -68,7 +69,8 @@ CREATE VIEW inventory_shotline_minmax AS (
 	GROUP BY isp.inventory_id, sp.shotline_id
 );
 
-DROP VIEW IF EXISTS inventory_bin;
+
+DROP VIEW IF EXISTS inventory_bin CASCADE;
 CREATE VIEW inventory_bin AS (
 	SELECT i.inventory_id, CASE
 		WHEN i.radiation_cps > 0 OR i.radiation_msv > 0 THEN 'Radioactive'
