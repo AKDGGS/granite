@@ -16,27 +16,6 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 		JOIN borehole_point AS bp ON bp.borehole_id = ib.borehole_id
 		JOIN point AS p ON p.point_id = bp.point_id
 		WHERE p.geog IS NOT NULL
-
-		) UNION ALL (
-
-		-- Borehole Quadrangle
-		SELECT ib.inventory_id, ib.borehole_id, q.geog
-		FROM inventory_borehole AS ib
-		JOIN borehole_quadrangle AS bq ON bq.borehole_id = ib.borehole_id
-		JOIN quadrangle AS q ON q.quadrangle_id = bq.quadrangle_id
-		WHERE q.geog IS NOT NULL
-		ORDER BY q.scale ASC
-
-		) UNION ALL (
-
-		-- Borehole Mining District
-		SELECT ib.inventory_id, ib.borehole_id, md.geog
-		FROM inventory_borehole AS ib
-		JOIN borehole_mining_district AS bmd ON
-			bmd.borehole_id = ib.borehole_id
-		JOIN mining_district AS md ON
-			md.mining_district_id = bmd.mining_district_id
-		WHERE md.geog IS NOT NULL
 	)) AS q
 
 	UNION ALL
@@ -79,17 +58,6 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 		JOIN quadrangle AS q ON q.quadrangle_id = oq.quadrangle_id
 		WHERE q.geog IS NOT NULL
 		ORDER BY q.scale ASC
-
-		) UNION ALL (
-
-		-- Outcrop Mining District
-		SELECT io.inventory_id, io.outcrop_id, md.geog
-		FROM inventory_outcrop AS io
-		JOIN outcrop_mining_district AS omd ON
-			omd.outcrop_id = io.outcrop_id
-		JOIN mining_district AS md ON
-			md.mining_district_id = omd.mining_district_id
-		WHERE md.geog IS NOT NULL
 	)) AS q
 
 	UNION ALL
@@ -121,16 +89,6 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 		JOIN well_plss AS wp ON wp.well_id = iw.well_id
 		JOIN plss AS p ON p.plss_id = wp.plss_id
 		WHERE p.geog IS NOT NULL
-
-		) UNION ALL (
-
-		-- Well Quadrangle
-		SELECT iw.inventory_id, iw.well_id, q.geog
-		FROM inventory_well AS iw
-		JOIN well_quadrangle AS wq ON wq.well_id = iw.well_id
-		JOIN quadrangle AS q ON q.quadrangle_id = wq.quadrangle_id
-		WHERE q.geog IS NOT NULL
-		ORDER BY q.scale ASC	
 	)) AS q
 
 	UNION ALL
@@ -176,14 +134,6 @@ CREATE MATERIALIZED VIEW well_geog AS (
 		FROM well_plss AS wp
 		JOIN plss AS pl ON pl.plss_id = wp.plss_id
 		WHERE pl.geog IS NOT NULL
-	
-		UNION ALL
-	
-		-- Quadrangle
-		SELECT wq.well_id, qu.geog
-		FROM well_quadrangle AS wq
-		JOIN quadrangle AS qu ON qu.quadrangle_id = wq.quadrangle_id
-		WHERE qu.geog IS NOT NULL
 	) AS v
 );
 
@@ -196,41 +146,11 @@ CREATE INDEX well_geog_geog_idx ON well_geog USING GIST(geog);
 DROP MATERIALIZED VIEW IF EXISTS borehole_geog CASCADE;
 
 CREATE MATERIALIZED VIEW borehole_geog AS (
-	SELECT DISTINCT ON (borehole_id) borehole_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
-	FROM (
-		-- Point
-		SELECT bp.borehole_id, po.geog
-		FROM borehole_point AS bp
-		JOIN point AS po ON po.point_id = bp.point_id
-		WHERE po.geog IS NOT NULL
-	
-		UNION ALL
-	
-		-- Quadrangle
-		SELECT bq.borehole_id, qu.geog
-		FROM borehole_quadrangle AS bq
-		JOIN quadrangle AS qu ON
-			qu.quadrangle_id = bq.quadrangle_id
-		WHERE qu.geog IS NOT NULL
-	
-		UNION ALL
-	
-		-- Mining District
-		SELECT bm.borehole_id, md.geog
-		FROM borehole_mining_district AS bm
-		JOIN mining_district AS md ON
-			md.mining_district_id = bm.mining_district_id
-		WHERE md.geog IS NOT NULL
-	
-		UNION ALL
-	
-		-- UTM
-		SELECT bu.borehole_id, u.geog
-		FROM borehole_utm AS bu
-		JOIN utm AS u ON u.utm_id = bu.utm_id
-		WHERE u.geog IS NOT NULL
-	) AS v
+	SELECT DISTINCT ON (bp.borehole_id)
+		bp.borehole_id, po.geog
+	FROM borehole_point AS bp
+	JOIN point AS po ON po.point_id = bp.point_id
+	WHERE po.geog IS NOT NULL
 );
 
 CREATE INDEX borehole_geog_borehole_id_idx ON borehole_geog(borehole_id);
@@ -274,22 +194,6 @@ CREATE MATERIALIZED VIEW outcrop_geog AS (
 		FROM outcrop_quadrangle AS oq
 		JOIN quadrangle AS qu ON qu.quadrangle_id = oq.quadrangle_id
 		WHERE qu.geog IS NOT NULL
-
-		UNION ALL
-
-		-- Mining District
-		SELECT om.outcrop_id, md.geog
-		FROM outcrop_mining_district AS om
-		JOIN mining_district AS md ON md.mining_district_id = om.mining_district_id
-		WHERE md.geog IS NOT NULL
-
-		UNION ALL
-
-		-- UTM
-		SELECT ou.outcrop_id, u.geog
-		FROM outcrop_utm AS ou
-		JOIN utm AS u ON u.utm_id = ou.utm_id
-		WHERE u.geog IS NOT NULL
 	) AS v
 );
 
@@ -302,22 +206,11 @@ CREATE INDEX outcrop_geog_geog_idx ON outcrop_geog USING GIST(geog);
 DROP MATERIALIZED VIEW IF EXISTS shotpoint_geog CASCADE;
 
 CREATE MATERIALIZED VIEW shotpoint_geog AS (
-	SELECT DISTINCT shotpoint_id, geog
-	FROM (
-		-- Point
-		SELECT sp.shotpoint_id, po.geog
-		FROM shotpoint_point AS sp
-		JOIN point AS po ON po.point_id = sp.point_id
-		WHERE po.geog IS NOT NULL
-
-		UNION ALL
-
-		-- Place
-		SELECT sp.shotpoint_id, pl.geog
-		FROM shotpoint_place AS sp
-		JOIN place AS pl ON pl.place_id = sp.place_id
-		WHERE pl.geog IS NOT NULL
-	) AS v
+	SELECT DISTINCT ON (sp.shotpoint_id)
+		sp.shotpoint_id, po.geog
+	FROM shotpoint_point AS sp
+	JOIN point AS po ON po.point_id = sp.point_id
+	WHERE po.geog IS NOT NULL
 );
 
 CREATE INDEX shotpoint_geog_shotpoint_id_idx ON shotpoint_geog(shotpoint_id);

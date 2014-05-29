@@ -73,10 +73,12 @@ CREATE VIEW inventory_shotline_minmax AS (
 DROP VIEW IF EXISTS inventory_bin CASCADE;
 CREATE VIEW inventory_bin AS (
 	SELECT i.inventory_id, CASE
-		WHEN i.radiation_cps > 0 OR i.radiation_msv > 0 THEN 'Radioactive'
+		WHEN i.radiation_msv > 0 THEN 'Radioactive'
 		WHEN il.inventory_id IS NOT NULL THEN 'Light-weight'
-		ELSE COALESCE(ig.name, 'Unknown') END AS bin
+		ELSE COALESCE(ig.name, 'Unknown' || COALESCE(' - ' || c.name, '')) END AS bin
 	FROM inventory AS i
+	LEFT OUTER JOIN collection AS c ON
+		c.collection_id = i.collection_id
 	LEFT OUTER JOIN (
 		SELECT DISTINCT ik.inventory_id
 		FROM inventory_keyword AS ik

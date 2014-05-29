@@ -351,13 +351,6 @@ CREATE TABLE well_place (
 );
 
 
-CREATE TABLE well_quadrangle (
-	well_id INT REFERENCES well(well_id) NOT NULL,
-	quadrangle_id INT REFERENCES quadrangle(quadrangle_id) NOT NULL,
-	PRIMARY KEY(well_id, quadrangle_id)
-);
-
-
 CREATE TABLE well_point (
 	well_id INT REFERENCES well(well_id) NOT NULL,
 	point_id INT REFERENCES point(point_id) NOT NULL,
@@ -500,13 +493,6 @@ CREATE TABLE outcrop_plss (
 );
 
 
-CREATE TABLE outcrop_mining_district (
-	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
-	mining_district_id INT REFERENCES mining_district(mining_district_id) NOT NULL,
-	PRIMARY KEY(outcrop_id, mining_district_id)
-);
-
-
 CREATE TABLE prospect (
 	prospect_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
@@ -547,13 +533,6 @@ CREATE TABLE borehole (
 );
 
 
-CREATE TABLE borehole_quadrangle (
-	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
-	quadrangle_id INT REFERENCES quadrangle(quadrangle_id) NOT NULL,
-	PRIMARY KEY(borehole_id, quadrangle_id)
-);
-
-
 CREATE TABLE borehole_point (
 	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
 	point_id INT REFERENCES point(point_id) NOT NULL,
@@ -561,24 +540,10 @@ CREATE TABLE borehole_point (
 );
 
 
-CREATE TABLE borehole_utm (
-	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
-	utm_id INT REFERENCES utm(utm_id) NOT NULL,
-	PRIMARY KEY(borehole_id, utm_id)
-);
-
-
 CREATE TABLE borehole_url (
 	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
 	url_id INT REFERENCES url(url_id) NOT NULL,
 	PRIMARY KEY(borehole_id, url_id)
-);
-
-
-CREATE TABLE borehole_mining_district (
-	borehole_id INT REFERENCES borehole(borehole_id) NOT NULL,
-	mining_district_id INT REFERENCES mining_district(mining_district_id) NOT NULL,
-	PRIMARY KEY(borehole_id, mining_district_id)
 );
 
 
@@ -634,13 +599,6 @@ CREATE TABLE shotpoint_point (
 	shotpoint_id INT REFERENCES shotpoint(shotpoint_id) NOT NULL,
 	point_id INT REFERENCES point(point_id) NOT NULL,
 	PRIMARY KEY(shotpoint_id, point_id)
-);
-
-
-CREATE TABLE shotpoint_place (
-	shotpoint_id INT REFERENCES shotpoint(shotpoint_id) NOT NULL,
-	place_id INT REFERENCES place(place_id) NOT NULL,
-	PRIMARY KEY(shotpoint_id, place_id)
 );
 
 
@@ -756,8 +714,7 @@ CREATE TABLE inventory (
 	recovery VARCHAR(25) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	skeleton BOOLEAN NOT NULL DEFAULT false,
-	radiation_cps NUMERIC(10, 2) NULL, -- NEED SIZE
-	radiation_msv NUMERIC(10, 2) NULL, -- NEED SIZE
+	radiation_msv NUMERIC(10, 4) NULL, -- NEED SIZE
 	received_date DATE NULL,
 	entered_date DATE NULL,
 	modified_date DATE NULL,
