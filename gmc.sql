@@ -451,13 +451,6 @@ CREATE TABLE outcrop_point (
 );
 
 
-CREATE TABLE outcrop_utm (
-	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
-	utm_id INT REFERENCES utm(utm_id) NOT NULL,
-	PRIMARY KEY(outcrop_id, utm_id)
-);
-
-
 CREATE TABLE outcrop_stratigraphy (
 	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
 	stratigraphy_id INT REFERENCES stratigraphy(stratigraphy_id) NOT NULL,
