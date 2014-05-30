@@ -513,9 +513,9 @@ CREATE TABLE borehole (
 
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	completion_date DATE NULL,
-	measured_depth NUMERIC(10, 2) NULL, -- NEED PRECISION
+	measured_depth NUMERIC(8, 2) NULL,
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
-	elevation NUMERIC(10, 2) NULL,  -- NEED PRECISION
+	elevation NUMERIC(8, 2) NULL,
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
 	stash JSON NULL,
 
@@ -558,7 +558,7 @@ CREATE TABLE shotline (
 	shotline_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
-	year INT NULL,
+	year SMALLINT NULL,
 	remark TEXT NULL,
 	temp_original_id BIGINT NULL,
 	temp_source VARCHAR(25) NULL
@@ -686,13 +686,12 @@ CREATE TABLE inventory (
 	map_number VARCHAR(25), -- Stores BLM map number
 
 	description TEXT NULL,
-	-- Into remark: Screen size
 	remark TEXT NULL,
 
 	tray SMALLINT NULL DEFAULT 1,
 
-	interval_top INT NULL,
-	interval_bottom INT NULL,
+	interval_top NUMERIC(8,2) NULL,
+	interval_bottom NUMERIC(8,2) NULL,
 	interval_unit_id INT REFERENCES unit(unit_id) NULL,
 
 	core_number VARCHAR(25) NULL,
@@ -707,7 +706,8 @@ CREATE TABLE inventory (
 	recovery VARCHAR(25) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	skeleton BOOLEAN NOT NULL DEFAULT false,
-	radiation_msv NUMERIC(10, 4) NULL, -- NEED SIZE
+	-- Radiation level in milli-sievert per hour
+	radiation_msvh NUMERIC(10, 4) NULL,
 	received_date DATE NULL,
 	entered_date DATE NULL,
 	modified_date DATE NULL,
