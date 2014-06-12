@@ -131,6 +131,9 @@ CREATE INDEX inventory_barcode_idx ON inventory(barcode);
 DROP INDEX IF EXISTS inventory_alt_barcode_idx;
 CREATE INDEX inventory_alt_barcode_idx ON inventory(alt_barcode);
 
+DROP INDEX IF EXISTS inventory_coalesce_barcode_idx;
+CREATE INDEX inventory_coalesce_barcode_idx ON inventory(coalesce(barcode, alt_barcode));
+
 DROP INDEX IF EXISTS inventory_container_id_idx;
 CREATE INDEX inventory_container_id_idx ON inventory(container_id);
 
