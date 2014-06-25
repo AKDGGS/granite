@@ -49,6 +49,14 @@ CREATE VIEW container_path AS (
 );
 
 
+DROP VIEW IF EXISTS inventory_prospect CASCADE;
+CREATE VIEW inventory_prospect AS (
+	SELECT DISTINCT ibh.inventory_id, bh.prospect_id
+	FROM inventory_borehole AS ibh
+	JOIN borehole AS bh ON bh.borehole_id = ibh.borehole_id
+);
+
+
 DROP VIEW IF EXISTS inventory_shotline CASCADE;
 CREATE VIEW inventory_shotline AS (
 	SELECT DISTINCT isp.inventory_id, sp.shotline_id
