@@ -153,40 +153,81 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 	LEFT OUTER JOIN container AS ct ON ct.container_id = i.container_id
 	LEFT OUTER JOIN collection AS cl ON cl.collection_id = i.collection_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
+	WHERE i.active
 );
 
 CREATE INDEX inventory_search_inventory_id_idx
 	ON inventory_search(inventory_id);
-CREATE INDEX inventory_search_top_idx
-	ON inventory_search(top);
-CREATE INDEX inventory_search_bottom_idx
-	ON inventory_search(bottom);
+CREATE INDEX inventory_search_top_a_idx
+	ON inventory_search(top ASC NULLS LAST);
+CREATE INDEX inventory_search_top_d_idx
+	ON inventory_search(top DESC NULLS LAST);
+
+CREATE INDEX inventory_search_bottom_a_idx
+	ON inventory_search(bottom ASC NULLS LAST);
+CREATE INDEX inventory_search_bottom_d_idx
+	ON inventory_search(bottom DESC NULLS LAST);
+
 CREATE INDEX inventory_search_keyword_ids_idx
 	ON inventory_search USING GIN(keyword_ids);
 CREATE INDEX inventory_search_intervalrange_idx
 	ON inventory_search USING GIST(intervalrange);
-CREATE INDEX inventory_search_barcode_sort_idx
-	ON inventory_search(barcode_sort);
-CREATE INDEX inventory_search_borehole_sort_idx
-	ON inventory_search(borehole_sort);
-CREATE INDEX inventory_search_box_sort_idx
-	ON inventory_search(box_sort);
-CREATE INDEX inventory_search_collection_sort_idx
-	ON inventory_search(collection_sort);
-CREATE INDEX inventory_search_core_sort_idx
-	ON inventory_search(core_sort);
-CREATE INDEX inventory_search_location_sort_idx
-	ON inventory_search(location_sort);
-CREATE INDEX inventory_search_prospect_sort_idx
-	ON inventory_search(prospect_sort);
-CREATE INDEX inventory_search_sample_sort_idx
-	ON inventory_search(sample_sort);
-CREATE INDEX inventory_search_set_sort_idx
-	ON inventory_search(set_sort);
-CREATE INDEX inventory_search_well_sort_idx
-	ON inventory_search(well_sort);
-CREATE INDEX inventory_search_well_number_idx
-	ON inventory_search(well_number_sort);
+
+CREATE INDEX inventory_search_barcode_sort_a_idx
+	ON inventory_search(barcode_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_barcode_sort_d_idx
+	ON inventory_search(barcode_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_borehole_a_sort_idx
+	ON inventory_search(borehole_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_borehole_d_sort_idx
+	ON inventory_search(borehole_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_box_sort_a_idx
+	ON inventory_search(box_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_box_sort_d_idx
+	ON inventory_search(box_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_collection_sort_a_idx
+	ON inventory_search(collection_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_collection_sort_d_idx
+	ON inventory_search(collection_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_core_sort_a_idx
+	ON inventory_search(core_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_core_sort_d_idx
+	ON inventory_search(core_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_location_sort_a_idx
+	ON inventory_search(location_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_location_sort_d_idx
+	ON inventory_search(location_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_prospect_sort_a_idx
+	ON inventory_search(prospect_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_prospect_sort_d_idx
+	ON inventory_search(prospect_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_sample_sort_a_idx
+	ON inventory_search(sample_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_sample_sort_d_idx
+	ON inventory_search(sample_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_set_sort_a_idx
+	ON inventory_search(set_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_set_sort_d_idx
+	ON inventory_search(set_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_well_sort_a_idx
+	ON inventory_search(well_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_well_sort_d_idx
+	ON inventory_search(well_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_well_number_a_idx
+	ON inventory_search(well_number_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_well_number_d_idx
+	ON inventory_search(well_number_sort DESC NULLS LAST);
+
 CREATE INDEX inventory_search_sample_idx
 	ON inventory_search USING GIN(sample);
 CREATE INDEX inventory_search_core_idx
