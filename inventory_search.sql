@@ -1,4 +1,4 @@
-DROP MATERIALIZED VIEW inventory_search;
+DROP MATERIALIZED VIEW IF EXISTS inventory_search;
 CREATE MATERIALIZED VIEW inventory_search AS (
 	SELECT
 		i.inventory_id,
