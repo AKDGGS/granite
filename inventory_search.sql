@@ -31,13 +31,15 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		TO_TSVECTOR('simple', i.box_number) AS box,
 		TO_TSVECTOR('simple', COALESCE(cl.name, '')) AS collection,
 		TO_TSVECTOR('simple', COALESCE(pr.name, '')) AS project,
+
+		TO_TSVECTOR('simple', COALESCE(q.quadrangle, '')) AS quadrangle,
 		(
 			TO_TSVECTOR('simple', COALESCE(i.barcode, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.alt_barcode, ''))
 			|| TO_TSVECTOR('simple', REGEXP_REPLACE(COALESCE(i.barcode, ''), '[^\d]', '', 'g'))
 		) AS barcode,
 		(
-			TO_TSVECTOR('simple', ct.path_cache)
+			TO_TSVECTOR('simple', REPLACE(ct.path_cache, '/', ' '))
 			|| TO_TSVECTOR('simple', REPLACE(ct.path_cache, '/', ''))
 		) AS location, 
 		(
@@ -88,10 +90,11 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', COALESCE(s.shotline_name_alt, ''))
 			|| TO_TSVECTOR('simple', COALESCE(k.keyword, ''))
 			|| TO_TSVECTOR('simple', COALESCE(k.keyword_alias, ''))
-			|| TO_TSVECTOR('simple', COALESCE(ct.path_cache, ''))
+			|| TO_TSVECTOR('simple', REPLACE(COALESCE(ct.path_cache, ''), '/', ' '))
 			|| TO_TSVECTOR('simple', REPLACE(COALESCE(ct.path_cache, ''), '/', ''))
 			|| TO_TSVECTOR('simple', COALESCE(cl.name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(pr.name, ''))
+			|| TO_TSVECTOR('simple', COALESCE(q.quadrangle, ''))
 		) AS everything,
 		g.geog
 	FROM inventory AS i
@@ -150,6 +153,13 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		SELECT DISTINCT(inventory_id) inventory_id, geog
 		FROM inventory_geog
 	) AS g ON g.inventory_id = i.inventory_id
+	LEFT OUTER JOIN (
+		SELECT iq.inventory_id,
+			STRING_AGG(q.name, ' ') AS quadrangle
+		FROM inventory_quadrangle AS iq
+		JOIN quadrangle AS q ON q.quadrangle_id = iq.quadrangle_id
+		GROUP BY iq.inventory_id
+	) AS q ON q.inventory_id = i.inventory_id
 	LEFT OUTER JOIN container AS ct ON ct.container_id = i.container_id
 	LEFT OUTER JOIN collection AS cl ON cl.collection_id = i.collection_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
