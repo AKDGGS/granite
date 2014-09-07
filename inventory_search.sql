@@ -13,12 +13,20 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		
 		k.keyword_ids,
 	
-		CASE WHEN COALESCE(i.barcode, i.alt_barcode) IS NULL THEN NULL ELSE RANK() OVER(ORDER BY COALESCE(i.barcode, i.alt_barcode))::int END AS barcode_sort,
+		CASE WHEN COALESCE(i.barcode, i.alt_barcode) IS NULL THEN NULL
+		ELSE DENSE_RANK() OVER(ORDER BY COALESCE(i.barcode, i.alt_barcode))::int END AS barcode_sort,
 
-		CASE WHEN i.box_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.box_number)::int END AS box_sort,
-		CASE WHEN i.core_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.core_number)::int END AS core_sort,
-		CASE WHEN i.sample_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.sample_number)::int END AS sample_sort,
-		CASE WHEN i.set_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.set_number)::int END AS set_sort,
+		CASE WHEN i.box_number IS NULL THEN NULL
+		ELSE DENSE_RANK() OVER(ORDER BY i.box_number)::int END AS box_sort,
+
+		CASE WHEN i.core_number IS NULL THEN NULL
+		ELSE DENSE_RANK() OVER(ORDER BY i.core_number)::int END AS core_sort,
+
+		CASE WHEN i.sample_number IS NULL THEN NULL
+		ELSE DENSE_RANK() OVER(ORDER BY i.sample_number)::int END AS sample_sort,
+
+		CASE WHEN i.set_number IS NULL THEN NULL
+		ELSE DENSE_RANK() OVER(ORDER BY i.set_number)::int END AS set_sort,
 	
 		cl.collection_sort,	
 		ct.location_sort,	
@@ -26,6 +34,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		b.prospect_sort,
 		w.well_sort,
 		w.well_number_sort,
+		k.keyword_sort,
 		
 		TO_TSVECTOR('simple', i.sample_number) AS sample,
 		TO_TSVECTOR('simple', i.core_number) AS core,
@@ -102,8 +111,9 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 	FROM inventory AS i
 	LEFT OUTER JOIN (
 		SELECT *,
-			RANK() OVER(ORDER BY well_name)::int AS well_sort,
-			CASE WHEN well_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY well_number)::int END AS well_number_sort
+			DENSE_RANK() OVER(ORDER BY well_name)::int AS well_sort,
+			CASE WHEN well_number IS NULL THEN NULL
+			ELSE DENSE_RANK() OVER(ORDER BY well_number)::int END AS well_number_sort
 		FROM (
 			SELECT iw.inventory_id,
 				STRING_AGG(w.name, ' ') AS well_name,
@@ -117,8 +127,9 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 	) AS w ON w.inventory_id = i.inventory_id
 	LEFT OUTER JOIN (
 		SELECT *,
-			RANK() OVER (ORDER BY borehole_name)::int AS borehole_sort,
-			CASE WHEN prospect_name IS NULL THEN NULL ELSE RANK() OVER (ORDER BY prospect_name)::int END AS prospect_sort
+			DENSE_RANK() OVER (ORDER BY borehole_name)::int AS borehole_sort,
+			CASE WHEN prospect_name IS NULL THEN NULL
+			ELSE DENSE_RANK() OVER (ORDER BY prospect_name)::int END AS prospect_sort
 		FROM (
 			SELECT ib.inventory_id,
 				STRING_AGG(b.name, ' ' ORDER BY b.name) AS borehole_name,
@@ -157,6 +168,9 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 	LEFT OUTER JOIN (
 		SELECT ik.inventory_id,
 			ARRAY_AGG(k.keyword_id ORDER BY k.keyword_id) AS keyword_ids,
+			DENSE_RANK() OVER(
+				ORDER BY STRING_AGG(k.name, '' ORDER BY k.keyword_group_id, k.name)
+			)::int AS keyword_sort,
 			STRING_AGG(k.name, ' ') AS keyword,
 			STRING_AGG(k.alias, ' ') AS keyword_alias
 		FROM inventory_keyword AS ik
@@ -177,12 +191,12 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
 	LEFT OUTER JOIN (
 		SELECT collection_id, name,
-			RANK() OVER(ORDER BY name)::int AS collection_sort
+			DENSE_RANK() OVER(ORDER BY name)::int AS collection_sort
 		FROM collection
 	) AS cl ON cl.collection_id = i.collection_id
 	LEFT OUTER JOIN (
 		SELECT container_id, path_cache,
-			RANK() OVER(ORDER BY path_cache)::int AS location_sort
+			DENSE_RANK() OVER(ORDER BY path_cache)::int AS location_sort
 		FROM container
 	) AS ct ON ct.container_id = i.container_id
 	WHERE i.active
@@ -254,6 +268,11 @@ CREATE INDEX inventory_search_well_sort_a_idx
 	ON inventory_search(well_sort ASC NULLS LAST);
 CREATE INDEX inventory_search_well_sort_d_idx
 	ON inventory_search(well_sort DESC NULLS LAST);
+
+CREATE INDEX inventory_search_keyword_sort_a_idx
+	ON inventory_search(keyword_sort ASC NULLS LAST);
+CREATE INDEX inventory_search_keyword_sort_d_idx
+	ON inventory_search(keyword_sort DESC NULLS LAST);
 
 CREATE INDEX inventory_search_well_number_a_idx
 	ON inventory_search(well_number_sort ASC NULLS LAST);
