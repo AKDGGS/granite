@@ -12,27 +12,29 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		) AS intervalrange,
 		
 		k.keyword_ids,
-		
-		COALESCE(i.barcode, i.alt_barcode) AS barcode_sort,
-		SUBSTRING(b.borehole_name FOR 25)::varchar AS borehole_sort,
-		i.box_number AS box_sort,
-		cl.name AS collection_sort,
-		i.core_number AS core_sort,
-		ct.path_cache AS location_sort,
-		SUBSTRING(b.prospect_name FOR 25)::varchar AS prospect_sort,
-		i.sample_number AS sample_sort,
-		i.set_number AS set_sort,
-		SUBSTRING(w.well_name FOR 25)::varchar AS well_sort,
-		SUBSTRING(w.well_number FOR 25)::varchar AS well_number_sort,
+	
+		CASE WHEN COALESCE(i.barcode, i.alt_barcode) IS NULL THEN NULL ELSE RANK() OVER(ORDER BY COALESCE(i.barcode, i.alt_barcode))::int END AS barcode_sort,
+
+		CASE WHEN i.box_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.box_number)::int END AS box_sort,
+		CASE WHEN i.core_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.core_number)::int END AS core_sort,
+		CASE WHEN i.sample_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.sample_number)::int END AS sample_sort,
+		CASE WHEN i.set_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY i.set_number)::int END AS set_sort,
+	
+		cl.collection_sort,	
+		ct.location_sort,	
+		b.borehole_sort,
+		b.prospect_sort,
+		w.well_sort,
+		w.well_number_sort,
 		
 		TO_TSVECTOR('simple', i.sample_number) AS sample,
 		TO_TSVECTOR('simple', i.core_number) AS core,
 		TO_TSVECTOR('simple', i.set_number) AS set,
 		TO_TSVECTOR('simple', i.box_number) AS box,
-		TO_TSVECTOR('simple', COALESCE(cl.name, '')) AS collection,
-		TO_TSVECTOR('simple', COALESCE(pr.name, '')) AS project,
+		TO_TSVECTOR('simple', cl.name) AS collection,
+		TO_TSVECTOR('simple', pr.name) AS project,
+		TO_TSVECTOR('simple', q.quadrangle) AS quadrangle,
 
-		TO_TSVECTOR('simple', COALESCE(q.quadrangle, '')) AS quadrangle,
 		(
 			TO_TSVECTOR('simple', COALESCE(i.barcode, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.alt_barcode, ''))
@@ -99,26 +101,38 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		g.geog
 	FROM inventory AS i
 	LEFT OUTER JOIN (
-		SELECT iw.inventory_id,
-			STRING_AGG(w.name, ' ' ORDER BY w.name) AS well_name,
-			STRING_AGG(w.alt_names, ' ') AS well_name_alt,
-			STRING_AGG(w.well_number, ' ' ORDER BY w.well_number) AS well_number,
-			STRING_AGG(w.api_number, ' ') AS api_number
-		FROM inventory_well AS iw
-		JOIN well AS w ON w.well_id = iw.well_id
-		GROUP BY iw.inventory_id
+		SELECT *,
+			RANK() OVER(ORDER BY well_name)::int AS well_sort,
+			CASE WHEN well_number IS NULL THEN NULL ELSE RANK() OVER(ORDER BY well_number)::int END AS well_number_sort
+		FROM (
+			SELECT iw.inventory_id,
+				STRING_AGG(w.name, ' ') AS well_name,
+				STRING_AGG(w.alt_names, ' ') AS well_name_alt,
+				STRING_AGG(w.well_number, ' ') AS well_number,
+				STRING_AGG(w.api_number, ' ') AS api_number
+			FROM inventory_well AS iw
+			JOIN well AS w ON w.well_id = iw.well_id
+			GROUP BY iw.inventory_id
+		) AS q
 	) AS w ON w.inventory_id = i.inventory_id
 	LEFT OUTER JOIN (
-		SELECT inventory_id,
-			STRING_AGG(b.name, ' ' ORDER BY b.name) AS borehole_name,
-			STRING_AGG(b.alt_names, ' ') AS borehole_name_alt,
-			STRING_AGG(p.name, ' ' ORDER BY p.name) AS prospect_name,
-			STRING_AGG(p.alt_names, ' ') AS prospect_name_alt,
-			STRING_AGG(p.ardf_number, ' ') AS ardf_number
-		FROM inventory_borehole AS ib
-		JOIN borehole AS b ON b.borehole_id = ib.borehole_id
-		LEFT OUTER JOIN prospect AS p ON p.prospect_id = b.prospect_id
-		GROUP BY inventory_id
+		SELECT *,
+			RANK() OVER (ORDER BY borehole_name)::int AS borehole_sort,
+			CASE WHEN prospect_name IS NULL THEN NULL ELSE RANK() OVER (ORDER BY prospect_name)::int END AS prospect_sort
+		FROM (
+			SELECT ib.inventory_id,
+				STRING_AGG(b.name, ' ' ORDER BY b.name) AS borehole_name,
+				STRING_AGG(b.alt_names, ' ') AS borehole_name_alt,
+				STRING_AGG(p.name, ' ' ORDER BY p.name) AS prospect_name,
+				STRING_AGG(p.alt_names, ' ') AS prospect_name_alt,
+				STRING_AGG(p.ardf_number, ' ') AS ardf_number
+			FROM inventory_borehole AS ib
+			JOIN borehole AS b
+				ON b.borehole_id = ib.borehole_id
+			LEFT OUTER JOIN prospect AS p
+				ON p.prospect_id = b.prospect_id
+			GROUP BY inventory_id
+		) AS q
 	) AS b ON b.inventory_id = i.inventory_id
 	LEFT OUTER JOIN (
 		SELECT io.inventory_id,
@@ -160,9 +174,17 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		JOIN quadrangle AS q ON q.quadrangle_id = iq.quadrangle_id
 		GROUP BY iq.inventory_id
 	) AS q ON q.inventory_id = i.inventory_id
-	LEFT OUTER JOIN container AS ct ON ct.container_id = i.container_id
-	LEFT OUTER JOIN collection AS cl ON cl.collection_id = i.collection_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
+	LEFT OUTER JOIN (
+		SELECT collection_id, name,
+			RANK() OVER(ORDER BY name)::int AS collection_sort
+		FROM collection
+	) AS cl ON cl.collection_id = i.collection_id
+	LEFT OUTER JOIN (
+		SELECT container_id, path_cache,
+			RANK() OVER(ORDER BY path_cache)::int AS location_sort
+		FROM container
+	) AS ct ON ct.container_id = i.container_id
 	WHERE i.active
 );
 
