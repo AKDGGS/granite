@@ -82,7 +82,6 @@ DROP TABLE IF EXISTS
 	well_note,
 	well_operator,
 	well_place,
-	well_plss,
 	well_point,
 	well_url,
 	well_file,

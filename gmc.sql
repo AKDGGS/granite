@@ -18,10 +18,7 @@ CREATE TABLE note (
 	note_date DATE NOT NULL DEFAULT NOW(),
 	is_public BOOLEAN NOT NULL DEFAULT true,
 	username VARCHAR(25) NOT NULL,
-	active BOOLEAN NOT NULL DEFAULT true,
-
-	temp_original_id BIGINT NULL,
-	temp_source VARCHAR(25) NULL
+	active BOOLEAN NOT NULL DEFAULT true
 );
 
 
@@ -61,9 +58,7 @@ CREATE TABLE url (
 	url_id SERIAL PRIMARY KEY,
 	url_type_id INT REFERENCES url_type(url_type_id) NULL,
 	description VARCHAR(255) NULL,
-	url TEXT,
-	temp_original_id BIGINT NULL,
-	temp_source VARCHAR(25) NULL
+	url TEXT
 );
 
 
@@ -100,9 +95,7 @@ CREATE TABLE dimension (
 	height NUMERIC(10,2) NOT NULL,
 	width NUMERIC(10,2) NOT NULL,
 	depth NUMERIC(10,2) NOT NULL,
-	remark TEXT NULL,
-
-	temp_type VARCHAR(50) NULL
+	remark TEXT NULL
 );
 
 
@@ -121,9 +114,7 @@ CREATE TABLE utm (
 	easting INT NULL,
 	northing INT NULL,
 	srid INT NULL,
-	geog GEOGRAPHY(MultiPolygon) NULL,
-
-	temp_original_id BIGINT NULL
+	geog GEOGRAPHY(MultiPolygon) NULL
 );
 
 
@@ -164,10 +155,7 @@ CREATE TABLE point (
 	point_id SERIAL PRIMARY KEY,
 	point_type_id INT REFERENCES point_type(point_type_id) NULL,
 	description VARCHAR(255) NULL,
-	geog GEOGRAPHY(Point) NOT NULL,
-
-	temp_original_id BIGINT NULL,
-	temp_source VARCHAR(25) NULL
+	geog GEOGRAPHY(Point) NOT NULL
 );
 
 
@@ -182,9 +170,7 @@ CREATE TABLE organization (
 	name VARCHAR(255) NOT NULL,
 	abbr VARCHAR(25) NULL,
 	organization_type_id INT REFERENCES organization_type(organization_type_id) NOT NULL,
-	remark TEXT NULL,
-
-	temp_original_id BIGINT NULL
+	remark TEXT NULL
 );
 
 
@@ -198,12 +184,7 @@ CREATE TABLE person (
 	phone VARCHAR(25) NULL,
 	email VARCHAR(255) NULL,
 
-	preferred_id INT REFERENCES person(person_id) NULL,
-
-	-- Used for referencing the user in the short-term during the import
-	temp_fullname VARCHAR(150) NULL,
-	temp_organization VARCHAR(255) NULL,
-	temp_original_id BIGINT NULL
+	preferred_id INT REFERENCES person(person_id) NULL
 );
 
 
@@ -224,10 +205,7 @@ CREATE TABLE publication (
 	publication_type VARCHAR(50) NULL,
 	publication_number VARCHAR(50) NULL,
 	publication_series VARCHAR(50) NULL,
-	can_publish BOOLEAN NOT NULL DEFAULT false,
-
-	temp_original_id BIGINT NULL,
-	temp_source VARCHAR(30) NULL
+	can_publish BOOLEAN NOT NULL DEFAULT false
 );
 
 
@@ -290,9 +268,7 @@ CREATE TABLE project (
 	description TEXT NULL,
 	remark TEXT NULL,
 	start_date DATE NULL,
-	end_date DATE NULL,
-
-	temp_original_id BIGINT NULL
+	end_date DATE NULL
 );
 
 
@@ -308,9 +284,7 @@ CREATE TABLE stratigraphy (
 	stratigraphy_type_id INT REFERENCES stratigraphy_type(stratigraphy_type_id) NOT NULL,
 	name VARCHAR(50) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
-	remark TEXT NULL,
-
-	temp_original_id BIGINT NULL
+	remark TEXT NULL
 );
 
 
@@ -336,11 +310,7 @@ CREATE TABLE well (
 
 	permit_status VARCHAR(6) NULL,
 	completion_status VARCHAR(6) NULL,
-	stash JSON NULL,
-
-	temp_source VARCHAR(25) NULL,
-	temp_original_id BIGINT NULL,
-	temp_link VARCHAR(255) NULL
+	stash JSON NULL
 );
 
 
@@ -377,13 +347,6 @@ CREATE TABLE well_note (
 	well_id INT REFERENCES well(well_id) NOT NULL,
 	note_id INT REFERENCES note(note_id) NOT NULL,
 	PRIMARY KEY(well_id, note_id)
-);
-
-
-CREATE TABLE well_plss (
-	well_id INT REFERENCES well(well_id) NOT NULL,
-	plss_id INT REFERENCES plss(plss_id) NOT NULL,
-	PRIMARY KEY(well_id, plss_id)
 );
 
 
@@ -428,12 +391,7 @@ CREATE TABLE outcrop (
 	outcrop_number VARCHAR(50) NULL, -- datatype?
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	year SMALLINT NULL,
-	stash JSON NULL,
-
-	temp_source VARCHAR(25) NULL,
-	temp_original_id BIGINT NULL,
-	temp_link VARCHAR(255) NULL,
-	temp_publication_link INT NULL
+	stash JSON NULL
 );
 
 
@@ -490,10 +448,7 @@ CREATE TABLE prospect (
 	prospect_id SERIAL PRIMARY KEY,
 	name VARCHAR(255) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
-	ardf_number VARCHAR(25) NULL,
-
-	temp_source VARCHAR(25) NULL,
-	temp_original_id BIGINT NULL
+	ardf_number VARCHAR(25) NULL
 );
 
 
@@ -517,12 +472,7 @@ CREATE TABLE borehole (
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	elevation NUMERIC(8, 2) NULL,
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
-	stash JSON NULL,
-
-	temp_source VARCHAR(25) NULL,
-	temp_original_id BIGINT NULL,
-	temp_link VARCHAR(255) NULL,
-	temp_publication_link INT NULL
+	stash JSON NULL
 );
 
 
@@ -559,9 +509,7 @@ CREATE TABLE shotline (
 	name VARCHAR(100) NOT NULL,
 	alt_names VARCHAR(1024) NULL,
 	year SMALLINT NULL,
-	remark TEXT NULL,
-	temp_original_id BIGINT NULL,
-	temp_source VARCHAR(25) NULL
+	remark TEXT NULL
 );
 
 
@@ -582,9 +530,7 @@ CREATE TABLE shotline_note (
 CREATE TABLE shotpoint (
 	shotpoint_id SERIAL PRIMARY KEY,
 	shotline_id INT REFERENCES shotline(shotline_id) NOT NULL,
-	shotpoint_number NUMERIC(8,2) NULL,
-	temp_original_id BIGINT NULL,
-	temp_source VARCHAR(25) NULL
+	shotpoint_number NUMERIC(8,2) NULL
 );
 
 
@@ -626,12 +572,7 @@ CREATE TABLE container (
   -- Trigger-induced cache of the container path
 	path_cache VARCHAR(255) NULL,
 
-	active BOOLEAN NOT NULL DEFAULT true,
-
-	temp_parent VARCHAR(20) NULL,
-	temp_type VARCHAR(100) NULL,
-	temp_original_id BIGINT NULL,
-	temp_shelf_idx VARCHAR(35) NULL
+	active BOOLEAN NOT NULL DEFAULT true
 );
 
 
@@ -653,9 +594,7 @@ CREATE TABLE keyword (
 	name VARCHAR(50) NOT NULL,
 	alias VARCHAR(150) NULL,
 	description VARCHAR(255) NULL,
-	keyword_group_id INT REFERENCES keyword_group(keyword_group_id) NOT NULL,
-
-	temp_code VARCHAR(8) NULL
+	keyword_group_id INT REFERENCES keyword_group(keyword_group_id) NOT NULL
 );
 
 
@@ -705,7 +644,6 @@ CREATE TABLE inventory (
 	sample_frequency VARCHAR(25) NULL,
 	recovery VARCHAR(25) NULL,
 	can_publish BOOLEAN NOT NULL DEFAULT false,
-	skeleton BOOLEAN NOT NULL DEFAULT false,
 	-- Radiation level in milli-sievert per hour
 	radiation_msvh NUMERIC(10, 4) NULL,
 	received_date DATE NULL,
@@ -713,15 +651,7 @@ CREATE TABLE inventory (
 	modified_date DATE NULL,
 
 	stash JSON NULL,
-	active BOOLEAN NOT NULL DEFAULT true,
-
-	temp_original_id BIGINT NULL,
-	temp_keyword TEXT NULL,
-	temp_shelf_idx VARCHAR(25) NULL,
-	temp_sample_form VARCHAR(100) NULL,
-	temp_source VARCHAR(25) NULL,
-	temp_location_id BIGINT NULL,
-	temp_drawer VARCHAR(50) NULL
+	active BOOLEAN NOT NULL DEFAULT true
 );
 
 

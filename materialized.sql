@@ -88,14 +88,6 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 		JOIN place AS p ON p.place_id = wp.place_id
 		WHERE p.geog IS NOT NULL
 
-		) UNION ALL (
-
-		-- Well PLSS
-		SELECT iw.inventory_id, iw.well_id, p.geog
-		FROM inventory_well AS iw
-		JOIN well_plss AS wp ON wp.well_id = iw.well_id
-		JOIN plss AS p ON p.plss_id = wp.plss_id
-		WHERE p.geog IS NOT NULL
 	)) AS q
 
 	UNION ALL
@@ -139,13 +131,6 @@ CREATE MATERIALIZED VIEW well_geog AS (
 		JOIN place AS pl ON pl.place_id = wp.place_id
 		WHERE pl.geog IS NOT NULL
 	
-		UNION ALL
-	
-		-- PLSS
-		SELECT wp.well_id, pl.geog
-		FROM well_plss AS wp
-		JOIN plss AS pl ON pl.plss_id = wp.plss_id
-		WHERE pl.geog IS NOT NULL
 	) AS v
 );
 
