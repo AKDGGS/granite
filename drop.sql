@@ -1,4 +1,5 @@
 DROP TABLE IF EXISTS
+	api,
 	audit,
 	audit_group,
 	borehole,
