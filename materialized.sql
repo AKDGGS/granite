@@ -104,6 +104,16 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 		ORDER BY isp.inventory_id, sp.shotline_id ASC, sp.shotpoint_number
 	) AS q
 	GROUP BY inventory_id, shotline_id
+
+	UNION ALL
+
+	SELECT ip.inventory_id,
+		ST_Simplify(q.geog::geometry, 0.01)::geography AS geog
+	FROM inventory_publication AS ip
+	JOIN publication_quadrangle AS pq
+		ON pq.publication_id = ip.publication_id
+	JOIN quadrangle AS q
+		ON q.quadrangle_id = pq.quadrangle_id
 );
 
 CREATE INDEX inventory_geog_inventory_id_idx
