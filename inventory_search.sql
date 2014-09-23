@@ -104,6 +104,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', REPLACE(COALESCE(ct.path_cache, ''), '/', ' '))
 			|| TO_TSVECTOR('simple', REPLACE(COALESCE(ct.path_cache, ''), '/', ''))
 			|| TO_TSVECTOR('simple', COALESCE(cl.name, ''))
+			|| TO_TSVECTOR('simple', COALESCE(cl.organization, ''))
 			|| TO_TSVECTOR('simple', COALESCE(pr.name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(q.quadrangle, ''))
 		) AS everything,
@@ -190,9 +191,11 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 	) AS q ON q.inventory_id = i.inventory_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
 	LEFT OUTER JOIN (
-		SELECT collection_id, name,
-			DENSE_RANK() OVER(ORDER BY name)::int AS collection_sort
-		FROM collection
+		SELECT c.collection_id, c.name, o.name AS organization,
+			DENSE_RANK() OVER(ORDER BY c.name)::int AS collection_sort
+		FROM collection AS c
+		LEFT OUTER JOIN organization AS o
+			ON o.organization_id = c.organization_id
 	) AS cl ON cl.collection_id = i.collection_id
 	LEFT OUTER JOIN (
 		SELECT container_id, path_cache,
