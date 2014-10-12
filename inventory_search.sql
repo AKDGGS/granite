@@ -43,6 +43,8 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		TO_TSVECTOR('simple', cl.name) AS collection,
 		TO_TSVECTOR('simple', pr.name) AS project,
 		TO_TSVECTOR('simple', q.quadrangle) AS quadrangle,
+		TO_TSVECTOR('simple', nt.notetype) AS notetype,
+		TO_TSVECTOR('english', nt.note) AS note,
 
 		(
 			TO_TSVECTOR('simple', COALESCE(i.barcode, ''))
@@ -107,6 +109,8 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', COALESCE(cl.organization, ''))
 			|| TO_TSVECTOR('simple', COALESCE(pr.name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(q.quadrangle, ''))
+			|| TO_TSVECTOR('english', COALESCE(nt.note, ''))
+			|| TO_TSVECTOR('simple', COALESCE(nt.notetype, ''))
 		) AS everything,
 		g.geog
 	FROM inventory AS i
@@ -189,6 +193,16 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		JOIN quadrangle AS q ON q.quadrangle_id = iq.quadrangle_id
 		GROUP BY iq.inventory_id
 	) AS q ON q.inventory_id = i.inventory_id
+	LEFT OUTER JOIN (
+		SELECT ivnt.inventory_id,
+			STRING_AGG(ntt.name, ' ') AS notetype,
+			STRING_AGG(nt.note, ' ') AS note
+		FROM inventory_note AS ivnt
+		JOIN note AS nt ON nt.note_id = ivnt.note_id
+		JOIN note_type AS ntt ON ntt.note_type_id = nt.note_type_id
+		WHERE nt.active
+		GROUP BY ivnt.inventory_id
+	) AS nt ON nt.inventory_id = i.inventory_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
 	LEFT OUTER JOIN (
 		SELECT c.collection_id, c.name, o.name AS organization,
@@ -318,6 +332,10 @@ CREATE INDEX inventory_search_shotline_idx
 	ON inventory_search USING GIN(shotline);
 CREATE INDEX inventory_search_keyword_idx
 	ON inventory_search USING GIN(keyword);
+CREATE INDEX inventory_search_note_idx
+	ON inventory_search USING GIN(note);
+CREATE INDEX inventory_search_notetype_idx
+	ON inventory_search USING GIN(notetype);
 CREATE INDEX inventory_search_everything_idx
 	ON inventory_search USING GIN(everything);
 CREATE INDEX inventory_search_geog_idx
