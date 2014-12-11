@@ -70,4 +70,18 @@ CREATE TRIGGER inventory_modified_date_tr BEFORE INSERT OR UPDATE ON inventory
 FOR EACH ROW EXECUTE PROCEDURE inventory_modified_date_fn();
 
 
+-- Create function for inventory modified user touching on update/insert
+CREATE OR REPLACE FUNCTION inventory_modified_user_fn()
+RETURNS TRIGGER AS $$
+BEGIN
+	NEW.modified_user = session_user;
+	RETURN NEW;
+END; $$ language 'plpgsql';
+
+-- Set trigger for inventory modified user
+DROP TRIGGER IF EXISTS inventory_modified_user_tr ON inventory;
+CREATE TRIGGER inventory_modified_user_tr BEFORE INSERT OR UPDATE ON inventory
+FOR EACH ROW EXECUTE PROCEDURE inventory_modified_user_fn();
+
+
 COMMIT;
