@@ -651,8 +651,8 @@ CREATE TABLE inventory (
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	-- Radiation level in milli-sievert per hour
 	radiation_msvh NUMERIC(10, 4) NULL,
-	received_date DATE NULL,
-	entered_date DATE NULL,
+	received_date DATE NULL DEFAULT NOW(),
+	entered_date DATE NULL DEFAULT NOW(),
 	modified_date DATE NULL,
 
 	stash JSON NULL,
