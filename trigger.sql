@@ -56,4 +56,18 @@ AFTER INSERT OR UPDATE ON inventory
 FOR EACH ROW EXECUTE PROCEDURE inventory_container_log_fn();
 
 
+-- Create function for inventory modified date touching on update/insert
+CREATE OR REPLACE FUNCTION inventory_modified_date_fn()
+RETURNS TRIGGER AS $$
+BEGIN
+	NEW.modified_date = NOW();
+	RETURN NEW;
+END; $$ language 'plpgsql';
+
+-- Set trigger for inventory modified date
+DROP TRIGGER IF EXISTS inventory_modified_date_tr ON inventory;
+CREATE TRIGGER inventory_modified_date_tr BEFORE INSERT OR UPDATE ON inventory
+FOR EACH ROW EXECUTE PROCEDURE inventory_modified_date_fn();
+
+
 COMMIT;
