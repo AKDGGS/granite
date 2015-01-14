@@ -61,7 +61,7 @@ CREATE TABLE url_type (
 
 CREATE TABLE url (
 	url_id SERIAL PRIMARY KEY,
-	url_type_id INT REFERENCES url_type(url_type_id) NULL,
+	url_type_id INT REFERENCES url_type(url_type_id) NOT NULL,
 	description VARCHAR(255) NULL,
 	url TEXT
 );
@@ -561,7 +561,7 @@ CREATE TABLE container_type (
 CREATE TABLE container (
 	container_id SERIAL PRIMARY KEY,
 	parent_container_id INT REFERENCES container(container_id) NULL,
-	container_type_id INT REFERENCES container_type(container_type_id) NULL,
+	container_type_id INT REFERENCES container_type(container_type_id) NOT NULL,
 	container_material_id INT REFERENCES container_material(container_material_id) NULL,
 
 	name VARCHAR(50) NOT NULL,
