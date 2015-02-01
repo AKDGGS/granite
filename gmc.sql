@@ -745,7 +745,7 @@ CREATE TABLE inventory_quality (
 	remark TEXT NULL,
 	needs_detail BOOLEAN NOT NULL DEFAULT false,
 	unsorted BOOLEAN NOT NULL DEFAULT false,
-	possible_radiation BOOLEAN NOT NULL DEFAULT false,
+	radiation_risk BOOLEAN NOT NULL DEFAULT false,
 	damaged BOOLEAN NOT NULL DEFAULT false,
 	box_damaged BOOLEAN NOT NULL DEFAULT false,
 	missing BOOLEAN NOT NULL DEFAULT false,
