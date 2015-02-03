@@ -87,7 +87,7 @@ $$ LANGUAGE plpgsql;
 -- and a barcode.
 DROP FUNCTION IF EXISTS public.mk_container_path(VARCHAR[], VARCHAR[], VARCHAR);
 CREATE FUNCTION public.mk_container_path(
-	paths VARCHAR[], types VARCHAR[], barcode VARCHAR
+	paths VARCHAR[], types VARCHAR[], bcode VARCHAR
 ) RETURNS int AS $$
 	DECLARE
 		pid INT := NULL;
@@ -104,13 +104,16 @@ CREATE FUNCTION public.mk_container_path(
 		
 		-- Loop over container path
 		FOR i IN 1 .. plen LOOP
+			cid := NULL;
+
+			-- Does this container exist?
 			IF pid IS NULL THEN
 				SELECT container_id INTO cid
 				FROM container
 				WHERE LOWER(name) = LOWER(paths[i])
 					AND parent_container_id IS NULL
 				LIMIT 1;
-			ELSE	
+			ELSE
 				SELECT container_id INTO cid
 				FROM container
 				WHERE LOWER(name) = LOWER(paths[i])
@@ -118,24 +121,26 @@ CREATE FUNCTION public.mk_container_path(
 				LIMIT 1;
 			END IF;
 
-			IF NOT FOUND THEN
+			IF cid IS NULL THEN
 				-- Find the type
 				SELECT container_type_id INTO tid
 				FROM container_type
 				WHERE LOWER(name) = LOWER(types[i])
 				LIMIT 1;
+
 				-- or insert as needed
 				IF NOT FOUND THEN
 					INSERT INTO container_type (name) VALUES (types[i])
 					RETURNING container_type_id INTO tid;
 				END IF;
-			
+		
+				-- Insert container
 				INSERT INTO container (
 					name, parent_container_id, container_type_id,
 					barcode
 				) VALUES (
 					paths[i], pid, tid,
-					CASE WHEN i = plen THEN barcode ELSE NULL END
+					CASE WHEN i <> plen THEN NULL ELSE bcode END
 				) RETURNING container_id INTO cid;
 			END IF;
 

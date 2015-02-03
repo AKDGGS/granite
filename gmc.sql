@@ -654,6 +654,7 @@ CREATE TABLE inventory (
 	received_date DATE NULL DEFAULT NOW(),
 	entered_date DATE NULL DEFAULT NOW(),
 	modified_date DATE NULL,
+	modified_user VARCHAR(64) NULL,
 
 	stash JSON NULL,
 	active BOOLEAN NOT NULL DEFAULT true
