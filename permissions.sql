@@ -1,5 +1,7 @@
--- Should the database ever be re-created, this will 
--- set the appropriate permissions
+-- This file contains a set of sample permissions. They assume a role
+-- called GMC exists that governs general read/write persmisions for users
+-- in that role. It also assumes a use called "gmc_app" has the only
+-- valid permissions to the 'api' table.
 REVOKE ALL ON SCHEMA public FROM public;
 GRANT SELECT, INSERT, DELETE, UPDATE ON ALL TABLES IN SCHEMA public TO GROUP gmc;
 GRANT USAGE ON SCHEMA public TO GROUP gmc;
