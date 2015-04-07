@@ -34,6 +34,11 @@ if [ $RETVAL == 0 ]; then
 fi
 
 if [ $RETVAL == 0 ]; then
+	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f inventory_search.sql
+	RETVAL=$?
+fi
+
+if [ $RETVAL == 0 ]; then
 	/usr/bin/psql -v ON_ERROR_STOP=1 -d $DATABASE -f permissions.sql
 	RETVAL=$?
 fi
