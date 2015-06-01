@@ -40,6 +40,7 @@ CREATE VIEW container_path AS (
 			t.container_id, c2.parent_container_id
 			FROM container AS c2
 			JOIN t ON t.parent_container_id = c2.container_id
+			WHERE level <= 20
 		)
 	)
 	SELECT container_id,
