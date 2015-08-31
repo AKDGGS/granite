@@ -315,7 +315,7 @@ CREATE TABLE well (
 
 	permit_status VARCHAR(6) NULL,
 	completion_status VARCHAR(6) NULL,
-	stash JSON NULL
+	stash JSONB NULL
 );
 
 
@@ -396,7 +396,7 @@ CREATE TABLE outcrop (
 	outcrop_number VARCHAR(50) NULL, -- datatype?
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	year SMALLINT NULL,
-	stash JSON NULL
+	stash JSONB NULL
 );
 
 
@@ -477,7 +477,7 @@ CREATE TABLE borehole (
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	elevation NUMERIC(8, 2) NULL,
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
-	stash JSON NULL
+	stash JSONB NULL
 );
 
 
@@ -651,12 +651,12 @@ CREATE TABLE inventory (
 	can_publish BOOLEAN NOT NULL DEFAULT false,
 	-- Radiation level in milli-sievert per hour
 	radiation_msvh NUMERIC(10, 4) NULL,
-	received_date DATE NULL DEFAULT NOW(),
+	received_date DATE NULL DEFAULT NULL,
 	entered_date DATE NULL DEFAULT NOW(),
-	modified_date DATE NULL,
+	modified_date TIMESTAMP WITHOUT TIME ZONE NULL,
 	modified_user VARCHAR(64) NULL,
 
-	stash JSON NULL,
+	stash JSONB NULL,
 	active BOOLEAN NOT NULL DEFAULT true
 );
 
