@@ -1,3 +1,8 @@
+-- This materialized view represents nearly all of the searching
+-- and sorting facilties of the web-based front end. The result
+-- is an absolutely massive materialized view with a huge
+-- number of indexes - this is sadly necessary for high speed
+-- searching/sorting in databases with huge numbers of records.
 DROP MATERIALIZED VIEW IF EXISTS inventory_search;
 CREATE MATERIALIZED VIEW inventory_search AS (
 	SELECT
@@ -10,6 +15,9 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			GREATEST(i.interval_bottom, i.interval_top),
 			'[]'
 		) AS intervalrange,
+
+		qu.quality,
+		qu.quality_date,
 		
 		k.keyword_ids,
 	
@@ -185,7 +193,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		GROUP BY ik.inventory_id
 	) AS k ON k.inventory_id = i.inventory_id
 	LEFT OUTER JOIN (
-		SELECT DISTINCT(inventory_id) inventory_id, geog
+		SELECT DISTINCT ON (inventory_id) inventory_id, geog
 		FROM inventory_geog
 	) AS g ON g.inventory_id = i.inventory_id
 	LEFT OUTER JOIN (
@@ -205,6 +213,23 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		WHERE nt.active
 		GROUP BY ivnt.inventory_id
 	) AS nt ON nt.inventory_id = i.inventory_id
+	LEFT OUTER JOIN (
+		SELECT DISTINCT ON (inventory_id) inventory_id,
+			check_date AS quality_date, (
+				needs_detail::int::bit ||
+				unsorted::int::bit ||
+				radiation_risk::int::bit ||
+				damaged::int::bit ||
+				box_damaged::int::bit ||
+				missing::int::bit ||
+				data_missing::int::bit ||
+				barcode_missing::int::bit ||
+				label_obscured::int::bit ||
+				insufficient_material::int::bit
+			)::bit(10) AS quality
+		FROM inventory_quality
+		ORDER BY inventory_id, check_date DESC
+	) AS qu ON qu.inventory_id = i.inventory_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
 	LEFT OUTER JOIN (
 		SELECT c.collection_id, c.name, o.name AS organization,
@@ -221,7 +246,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 	WHERE i.active
 );
 
-CREATE INDEX inventory_search_inventory_id_idx
+CREATE UNIQUE INDEX inventory_search_inventory_id_idx
 	ON inventory_search(inventory_id);
 CREATE INDEX inventory_search_top_a_idx
 	ON inventory_search(top ASC NULLS LAST);
