@@ -574,7 +574,7 @@ CREATE TABLE container (
 	barcode VARCHAR(25) NULL,
 	alt_barcode VARCHAR(25) NULL,
 
-  -- Trigger-induced cache of the container path
+	-- Trigger-induced cache of the container path
 	path_cache VARCHAR(255) NULL,
 
 	active BOOLEAN NOT NULL DEFAULT true

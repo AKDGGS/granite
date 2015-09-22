@@ -10,8 +10,21 @@ RETURNS TRIGGER AS $$
 BEGIN
 	IF NEW.parent_container_id IS NOT NULL THEN
 		NEW.path_cache := (
-			SELECT path FROM container_path
-			WHERE container_id = NEW.parent_container_id
+			WITH RECURSIVE t AS ((
+				SELECT 0 AS depth, c.name, c.container_id,
+					c.parent_container_id
+				FROM container AS c
+				WHERE container_id = NEW.parent_container_id
+			) UNION ALL (
+				SELECT t.depth + 1 AS depth, c.name, t.container_id,
+					c.parent_container_id
+				FROM container AS c
+				JOIN t ON c.container_id = t.parent_container_id
+				WHERE depth <= 20
+			))
+			SELECT STRING_AGG(name, '/' ORDER BY depth DESC) AS path
+			FROM t
+			GROUP BY container_id
 		) || '/' || NEW.name;
 	ELSE
 		NEW.path_cache := NEW.name;
