@@ -674,7 +674,7 @@ CREATE TABLE inventory (
 CREATE TABLE inventory_container_log (
 	inventory_container_log_id SERIAL PRIMARY KEY,
 	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
-	container_id INT REFERENCES container(container_id) NULL,
+	container TEXT NOT NULL,
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 

@@ -16,9 +16,6 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			'[]'
 		) AS intervalrange,
 
-		qu.quality,
-		qu.quality_date,
-		
 		k.keyword_ids,
 	
 		CASE WHEN COALESCE(i.barcode, i.alt_barcode) IS NULL THEN NULL
@@ -213,23 +210,6 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		WHERE nt.active
 		GROUP BY ivnt.inventory_id
 	) AS nt ON nt.inventory_id = i.inventory_id
-	LEFT OUTER JOIN (
-		SELECT DISTINCT ON (inventory_id) inventory_id,
-			check_date AS quality_date, (
-				needs_detail::int::bit ||
-				unsorted::int::bit ||
-				radiation_risk::int::bit ||
-				damaged::int::bit ||
-				box_damaged::int::bit ||
-				missing::int::bit ||
-				data_missing::int::bit ||
-				barcode_missing::int::bit ||
-				label_obscured::int::bit ||
-				insufficient_material::int::bit
-			)::bit(10) AS quality
-		FROM inventory_quality
-		ORDER BY inventory_id, check_date DESC
-	) AS qu ON qu.inventory_id = i.inventory_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
 	LEFT OUTER JOIN (
 		SELECT c.collection_id, c.name, o.name AS organization,
