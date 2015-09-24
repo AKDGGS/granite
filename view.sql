@@ -2,54 +2,6 @@ SET SCHEMA 'public';
 SET CLIENT_MIN_MESSAGES TO WARNING;
 
 
-DROP VIEW IF EXISTS container_building CASCADE;
-CREATE VIEW container_building AS ( 
-	WITH RECURSIVE t AS (
-		(
-			SELECT c.container_id, c.container_id AS building_id,
-				c.parent_container_id, c.container_type_id
-			FROM container AS c
-		) UNION ALL (
-			SELECT t.container_id, c.container_id AS building_id,
-				c.parent_container_id, c.container_type_id
-			FROM container AS c
-			JOIN t ON t.parent_container_id = c.container_id
-		)
-	)
-	SELECT container_id, building_id
-	FROM t
-	WHERE container_type_id IN (
-		SELECT container_type_id
-		FROM container_type
-		WHERE name = 'connex'
-			OR name = 'out building'
-			OR name = 'main warehouse'
-	)
-);
-
-
-DROP VIEW IF EXISTS container_path CASCADE;
-CREATE VIEW container_path AS (
-	WITH RECURSIVE t AS (
-		(
-			SELECT 0 AS level, c1.name,
-			c1.container_id, c1.parent_container_id
-			FROM container AS c1
-		) UNION ALL (
-			SELECT t.level+1 AS level, c2.name,
-			t.container_id, c2.parent_container_id
-			FROM container AS c2
-			JOIN t ON t.parent_container_id = c2.container_id
-			WHERE level <= 20
-		)
-	)
-	SELECT container_id,
-		STRING_AGG(name, '/' ORDER BY level DESC) AS path
-	FROM t
-	GROUP BY container_id
-);
-
-
 DROP VIEW IF EXISTS inventory_prospect CASCADE;
 CREATE VIEW inventory_prospect AS (
 	SELECT DISTINCT ibh.inventory_id, bh.prospect_id
