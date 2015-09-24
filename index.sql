@@ -77,13 +77,14 @@ DROP INDEX IF EXISTS inventory_container_material_id_idx;
 CREATE INDEX inventory_container_material_id_idx ON inventory(container_material_id);
 
 DROP INDEX IF EXISTS inventory_container_log_inventory_id_idx;
-CREATE INDEX inventory_container_log_inventory_id_idx ON inventory_container_log(inventory_id);
-
+CREATE INDEX inventory_container_log_inventory_id_idx
+	ON inventory_container_log(inventory_id);
 DROP INDEX IF EXISTS inventory_container_log_container_id_idx;
-CREATE INDEX inventory_container_log_container_id_idx ON inventory_container_log(container_id);
-
+CREATE INDEX inventory_container_log_container_idx
+	ON inventory_container_log(container);
 DROP INDEX IF EXISTS inventory_container_log_log_date_idx;
-CREATE INDEX inventory_container_log_log_date_idx ON inventory_container_log(log_date DESC);
+CREATE INDEX inventory_container_log_log_date_idx
+	ON inventory_container_log(log_date DESC);
 
 DROP INDEX IF EXISTS inventory_borehole_borehole_id_idx;
 CREATE INDEX inventory_borehole_borehole_id_idx ON inventory_borehole(borehole_id);
