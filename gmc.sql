@@ -315,6 +315,10 @@ CREATE TABLE well (
 
 	permit_status VARCHAR(6) NULL,
 	completion_status VARCHAR(6) NULL,
+
+	entered_date DATE NULL DEFAULT NOW(),
+	modified_date TIMESTAMP WITHOUT TIME ZONE NULL,
+	modified_user VARCHAR(64) NULL,
 	stash JSONB NULL
 );
 
@@ -396,6 +400,9 @@ CREATE TABLE outcrop (
 	outcrop_number VARCHAR(50) NULL, -- datatype?
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	year SMALLINT NULL,
+	entered_date DATE NULL DEFAULT NOW(),
+	modified_date TIMESTAMP WITHOUT TIME ZONE NULL,
+	modified_user VARCHAR(64) NULL,
 	stash JSONB NULL
 );
 
@@ -477,6 +484,9 @@ CREATE TABLE borehole (
 	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
 	elevation NUMERIC(8, 2) NULL,
 	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
+	entered_date DATE NULL DEFAULT NOW(),
+	modified_date TIMESTAMP WITHOUT TIME ZONE NULL,
+	modified_user VARCHAR(64) NULL,
 	stash JSONB NULL
 );
 

@@ -77,13 +77,7 @@ BEGIN
 	RETURN NEW;
 END; $$ language 'plpgsql';
 
--- Set trigger for inventory modified date
-DROP TRIGGER IF EXISTS inventory_modified_date_tr ON inventory;
-CREATE TRIGGER inventory_modified_date_tr BEFORE INSERT OR UPDATE ON inventory
-FOR EACH ROW EXECUTE PROCEDURE modified_date_fn();
-
-
--- Create function for inventory modified user touching on update/insert
+-- Create function for modified user touching on update/insert
 CREATE OR REPLACE FUNCTION modified_user_fn()
 RETURNS TRIGGER AS $$
 BEGIN
@@ -91,9 +85,44 @@ BEGIN
 	RETURN NEW;
 END; $$ language 'plpgsql';
 
+-- Set trigger for inventory modified date
+DROP TRIGGER IF EXISTS inventory_modified_date_tr ON inventory;
+CREATE TRIGGER inventory_modified_date_tr BEFORE INSERT OR UPDATE ON inventory
+FOR EACH ROW EXECUTE PROCEDURE modified_date_fn();
+
 -- Set trigger for inventory modified user
 DROP TRIGGER IF EXISTS inventory_modified_user_tr ON inventory;
 CREATE TRIGGER inventory_modified_user_tr BEFORE INSERT OR UPDATE ON inventory
+FOR EACH ROW EXECUTE PROCEDURE modified_user_fn();
+
+-- Set trigger for outcrop modified date
+DROP TRIGGER IF EXISTS outcrop_modified_date_tr ON outcrop;
+CREATE TRIGGER outcrop_modified_date_tr BEFORE INSERT OR UPDATE ON outcrop
+FOR EACH ROW EXECUTE PROCEDURE modified_date_fn();
+
+-- Set trigger for outcrop modified user
+DROP TRIGGER IF EXISTS outcrop_modified_user_tr ON outcrop;
+CREATE TRIGGER outcrop_modified_user_tr BEFORE INSERT OR UPDATE ON outcrop
+FOR EACH ROW EXECUTE PROCEDURE modified_user_fn();
+
+-- Set trigger for borehole modified date
+DROP TRIGGER IF EXISTS borehole_modified_date_tr ON borehole;
+CREATE TRIGGER borehole_modified_date_tr BEFORE INSERT OR UPDATE ON borehole
+FOR EACH ROW EXECUTE PROCEDURE modified_date_fn();
+
+-- Set trigger for borehole modified user
+DROP TRIGGER IF EXISTS borehole_modified_user_tr ON borehole;
+CREATE TRIGGER borehole_modified_user_tr BEFORE INSERT OR UPDATE ON borehole
+FOR EACH ROW EXECUTE PROCEDURE modified_user_fn();
+
+-- Set trigger for well modified date
+DROP TRIGGER IF EXISTS well_modified_date_tr ON well;
+CREATE TRIGGER well_modified_date_tr BEFORE INSERT OR UPDATE ON well
+FOR EACH ROW EXECUTE PROCEDURE modified_date_fn();
+
+-- Set trigger for well modified user
+DROP TRIGGER IF EXISTS well_modified_user_tr ON well;
+CREATE TRIGGER well_modified_user_tr BEFORE INSERT OR UPDATE ON well
 FOR EACH ROW EXECUTE PROCEDURE modified_user_fn();
 
 
