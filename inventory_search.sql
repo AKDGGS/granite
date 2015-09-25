@@ -17,6 +17,8 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		) AS intervalrange,
 
 		k.keyword_ids,
+		
+		qu.inventory_quality_id,
 	
 		CASE WHEN COALESCE(i.barcode, i.alt_barcode) IS NULL THEN NULL
 		ELSE DENSE_RANK() OVER(ORDER BY COALESCE(i.barcode, i.alt_barcode))::int END AS barcode_sort,
@@ -211,6 +213,12 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		GROUP BY ivnt.inventory_id
 	) AS nt ON nt.inventory_id = i.inventory_id
 	LEFT OUTER JOIN project AS pr ON pr.project_id = i.project_id
+	LEFT OUTER JOIN (
+		SELECT DISTINCT ON (inventory_id)
+			inventory_id, inventory_quality_id
+		FROM inventory_quality
+		ORDER BY inventory_id, check_date DESC
+	) AS qu ON qu.inventory_id = i.inventory_id
 	LEFT OUTER JOIN (
 		SELECT c.collection_id, c.name, o.name AS organization,
 			DENSE_RANK() OVER(ORDER BY c.name)::int AS collection_sort
