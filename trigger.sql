@@ -39,14 +39,14 @@ BEFORE INSERT OR UPDATE ON container
 FOR EACH ROW EXECUTE PROCEDURE container_path_cache_fn();
 
 
--- Create function for container change logging
+-- Create function/trigger for inventory change logging
 CREATE OR REPLACE FUNCTION inventory_container_log_fn()
 RETURNS TRIGGER AS $$
 BEGIN
 	IF TG_OP = 'INSERT' THEN
 		IF NEW.container_id IS NOT NULL THEN
 			INSERT INTO inventory_container_log (
-				inventory_id, container
+				inventory_id, destination
 			) VALUES (
 				NEW.inventory_id, (
 					SELECT path_cache FROM container
@@ -57,7 +57,7 @@ BEGIN
 	ELSIF TG_OP = 'UPDATE' THEN
 		IF COALESCE(OLD.container_id, 0) <> COALESCE(NEW.container_id, 0) THEN
 			INSERT INTO inventory_container_log (
-				inventory_id, container
+				inventory_id, destination
 			) VALUES (
 				NEW.inventory_id, (
 					SELECT path_cache FROM container
@@ -70,11 +70,47 @@ BEGIN
   RETURN NEW;
 END; $$ LANGUAGE 'plpgsql';
 
--- Set trigger for container change log
 DROP TRIGGER IF EXISTS inventory_container_log_tr ON inventory;
 CREATE TRIGGER inventory_container_log_tr
 AFTER INSERT OR UPDATE ON inventory
 FOR EACH ROW EXECUTE PROCEDURE inventory_container_log_fn();
+
+
+-- Create function/trigger for container change logging
+CREATE OR REPLACE FUNCTION container_log_fn()
+RETURNS TRIGGER AS $$
+BEGIN
+	IF TG_OP = 'INSERT' THEN
+		IF NEW.parent_container_id IS NOT NULL THEN
+			INSERT INTO container_log (
+				container_id, destination
+			) VALUES (
+				NEW.container_id, (
+					SELECT path_cache FROM container
+					WHERE container_id = NEW.parent_container_id
+				)
+			);
+		END IF;
+	ELSIF TG_OP = 'UPDATE' THEN
+		IF COALESCE(OLD.parent_container_id, 0) <> COALESCE(NEW.parent_container_id, 0) THEN
+			INSERT INTO container_log (
+				container_id, destination
+			) VALUES (
+				NEW.container_id, (
+					SELECT path_cache FROM container
+					WHERE container_id = NEW.parent_container_id
+				)
+			);
+		END IF;
+  END IF;
+
+  RETURN NEW;
+END; $$ LANGUAGE 'plpgsql';
+
+DROP TRIGGER IF EXISTS container_log_tr ON container;
+CREATE TRIGGER container_log_tr
+AFTER INSERT OR UPDATE ON container
+FOR EACH ROW EXECUTE PROCEDURE container_log_fn();
 
 
 -- Create function for modified date touching on update/insert

@@ -312,6 +312,7 @@ CREATE TABLE well (
 	elevation NUMERIC(10, 2) NULL,
 	elevation_kb NUMERIC(10, 2) NULL,
 	unit_id INT REFERENCES unit(unit_id) NULL,
+	permit_number INT NULL,
 
 	permit_status VARCHAR(6) NULL,
 	completion_status VARCHAR(6) NULL,
@@ -598,6 +599,14 @@ CREATE TABLE container_file (
 );
 
 
+CREATE TABLE container_log (
+	container_log_id SERIAL PRIMARY KEY,
+	container_id INT REFERENCES container(container_id) NOT NULL,
+	destination TEXT NOT NULL,
+	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
+);
+
+
 CREATE TABLE keyword_group (
 	keyword_group_id SERIAL PRIMARY KEY,
 	name VARCHAR(150) NOT NULL
@@ -644,6 +653,8 @@ CREATE TABLE inventory (
 
 	tray SMALLINT NULL DEFAULT 1,
 
+	lab_report_id VARCHAR(100) NULL,
+
 	interval_top NUMERIC(8,2) NULL,
 	interval_bottom NUMERIC(8,2) NULL,
 	interval_unit_id INT REFERENCES unit(unit_id) NULL,
@@ -674,7 +685,7 @@ CREATE TABLE inventory (
 CREATE TABLE inventory_container_log (
 	inventory_container_log_id SERIAL PRIMARY KEY,
 	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
-	container TEXT NOT NULL,
+	destination TEXT NOT NULL,
 	log_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW()
 );
 
@@ -749,21 +760,19 @@ CREATE TABLE inventory_shotpoint (
 );
 
 
+CREATE TYPE issue AS ENUM (
+	'needs_detail','unsorted','radiation_risk',
+	'material_damaged','box_damaged','missing',
+	'data_missing','barcode_missing',
+	'label_obscured','insufficient_material'
+);
+
 CREATE TABLE inventory_quality (
 	inventory_quality_id SERIAL PRIMARY KEY,
 	inventory_id INT REFERENCES inventory(inventory_id) NOT NULL,
-	check_date DATE NOT NULL DEFAULT NOW(),
+	check_date TIMESTAMP WITHOUT TIME ZONE NOT NULL DEFAULT NOW(),
 	remark TEXT NULL,
-	needs_detail BOOLEAN NOT NULL DEFAULT false,
-	unsorted BOOLEAN NOT NULL DEFAULT false,
-	radiation_risk BOOLEAN NOT NULL DEFAULT false,
-	damaged BOOLEAN NOT NULL DEFAULT false,
-	box_damaged BOOLEAN NOT NULL DEFAULT false,
-	missing BOOLEAN NOT NULL DEFAULT false,
-	data_missing BOOLEAN NOT NULL DEFAULT false,
-	barcode_missing BOOLEAN NOT NULL DEFAULT false,
-	label_obscured BOOLEAN NOT NULL DEFAULT false,
-	insufficient_material BOOLEAN NOT NULL DEFAULT false,
+	issues issue[] NULL,
 	username VARCHAR(25) NOT NULL
 );
 
