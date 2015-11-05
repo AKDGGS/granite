@@ -125,7 +125,9 @@ END; $$ language 'plpgsql';
 CREATE OR REPLACE FUNCTION modified_user_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-	NEW.modified_user = session_user;
+	IF session_user <> 'gmc_app' THEN	
+		NEW.modified_user = session_user;
+	END IF;
 	RETURN NEW;
 END; $$ language 'plpgsql';
 
