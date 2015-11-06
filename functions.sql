@@ -151,3 +151,56 @@ CREATE FUNCTION public.mk_container_path(
 		RETURN pid;
 	END
 $$ LANGUAGE plpgsql;
+
+
+-- Makes a prospect and borehole, but only if they don't exist.
+-- Checks for both the prospect and the borehole independently.
+-- Takes four parameters - prospect name, prospect alt names, 
+-- ardf numnber, borehole name. Prospects are compared by
+-- name only. Boreholes are compared by name and prospect id.
+DROP FUNCTION IF EXISTS public.mk_prospectborehole(
+	VARCHAR, VARCHAR, VARCHAR, VARCHAR
+);
+CREATE FUNCTION public.mk_prospectborehole(
+	prospect_name VARCHAR, prospect_altnames VARCHAR, 
+	ardf VARCHAR, borehole_name VARCHAR
+) RETURNS int AS $$
+	DECLARE
+		pid INT;
+		bid INT;
+	BEGIN
+		SELECT prospect_id INTO pid
+		FROM prospect
+		WHERE LOWER(name) = LOWER(prospect_name)
+		LIMIT 1;
+
+		IF NOT FOUND THEN
+			INSERT INTO prospect (
+				name, alt_names, ardf_number
+			) VALUES (
+				prospect_name, prospect_altnames, ardf
+			) RETURNING prospect_id INTO pid;
+
+			INSERT INTO borehole (
+				prospect_id, name
+			) VALUES (
+				pid, borehole_name
+			) RETURNING borehole_id INTO bid;
+		ELSE
+			SELECT borehole_id INTO bid
+			FROM borehole
+			WHERE LOWER(name) = LOWER(borehole_name)
+				AND prospect_id = pid;
+
+			IF NOT FOUND THEN
+				INSERT INTO borehole (
+					prospect_id, name
+				) VALUES (
+					pid, borehole_name
+				) RETURNING borehole_id INTO bid;
+			END IF;
+		END IF;
+
+		RETURN bid;
+	END
+$$ LANGUAGE plpgsql;
