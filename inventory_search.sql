@@ -120,6 +120,10 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', COALESCE(q.quadrangle, ''))
 			|| TO_TSVECTOR('english', COALESCE(nt.note, ''))
 			|| TO_TSVECTOR('simple', COALESCE(nt.notetype, ''))
+			|| TO_TSVECTOR('simple', CASE WHEN o.inventory_id IS NOT NULL THEN 'outcrop' ELSE '' END)
+			|| TO_TSVECTOR('simple', CASE WHEN b.inventory_id IS NOT NULL THEN 'borehole' ELSE '' END)
+			|| TO_TSVECTOR('simple', CASE WHEN s.inventory_id IS NOT NULL THEN 'shotline' ELSE '' END)
+			|| TO_TSVECTOR('simple', CASE WHEN w.inventory_id IS NOT NULL THEN 'well' ELSE '' END)
 		) AS everything,
 		g.geog
 	FROM inventory AS i
