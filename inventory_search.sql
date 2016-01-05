@@ -7,6 +7,8 @@ DROP MATERIALIZED VIEW IF EXISTS inventory_search;
 CREATE MATERIALIZED VIEW inventory_search AS (
 	SELECT
 		i.inventory_id,
+
+		i.can_publish,
 		
 		i.interval_top AS top,
 		i.interval_bottom AS bottom,
@@ -240,6 +242,8 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 
 CREATE UNIQUE INDEX inventory_search_inventory_id_idx
 	ON inventory_search(inventory_id);
+CREATE INDEX inventory_search_can_publish_idx
+	ON inventory_search(can_publish);
 CREATE INDEX inventory_search_top_a_idx
 	ON inventory_search(top ASC NULLS LAST);
 CREATE INDEX inventory_search_top_d_idx
