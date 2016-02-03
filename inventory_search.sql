@@ -46,6 +46,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		k.keyword_sort,
 		
 		TO_TSVECTOR('simple', i.sample_number) AS sample,
+		TO_TSVECTOR('simple', i.slide_number) AS slide,
 		TO_TSVECTOR('simple', i.core_number) AS core,
 		TO_TSVECTOR('simple', i.set_number) AS set,
 		TO_TSVECTOR('simple', i.box_number) AS box,
@@ -93,6 +94,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', COALESCE(i.alt_barcode, ''))
 			|| TO_TSVECTOR('simple', REGEXP_REPLACE(COALESCE(i.barcode, ''), '[^\d]', '', 'g'))
 			|| TO_TSVECTOR('simple', COALESCE(i.sample_number, ''))
+			|| TO_TSVECTOR('simple', COALESCE(i.slide_number, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.core_number, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.set_number, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.lab_number, ''))
@@ -127,7 +129,13 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', CASE WHEN s.inventory_id IS NOT NULL THEN 'shotline' ELSE '' END)
 			|| TO_TSVECTOR('simple', CASE WHEN w.inventory_id IS NOT NULL THEN 'well' ELSE '' END)
 		) AS everything,
-		g.geog
+		g.geog,
+		CASE WHEN ST_GeometryType(g.geog::GEOMETRY) = 'ST_Point' THEN
+			ST_X(g.geog::GEOMETRY)
+		ELSE NULL END AS longitude,
+		CASE WHEN ST_GeometryType(g.geog::GEOMETRY) = 'ST_Point' THEN
+			ST_Y(g.geog::GEOMETRY)
+		ELSE NULL END AS latitude
 	FROM inventory AS i
 	LEFT OUTER JOIN (
 		SELECT *,
