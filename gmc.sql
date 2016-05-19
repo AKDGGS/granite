@@ -546,7 +546,8 @@ CREATE TABLE shotline_note (
 CREATE TABLE shotpoint (
 	shotpoint_id SERIAL PRIMARY KEY,
 	shotline_id INT REFERENCES shotline(shotline_id) NOT NULL,
-	shotpoint_number NUMERIC(8,2) NULL
+	shotpoint_number NUMERIC(8,2) NULL,
+	stash JSONB NULL
 );
 
 
