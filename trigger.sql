@@ -176,7 +176,7 @@ FOR EACH ROW EXECUTE PROCEDURE modified_user_fn();
 CREATE OR REPLACE FUNCTION content_md5_fn()
 RETURNS TRIGGER AS $$
 BEGIN
-	IF NEW.content IS NOT NULL THEN
+	IF NEW.content IS NOT NULL AND NEW.content_md5 IS NULL THEN
 		NEW.content_md5 = md5(NEW.content);
 	END IF;
 					
