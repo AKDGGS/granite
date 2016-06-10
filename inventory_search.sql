@@ -82,6 +82,10 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		TO_TSVECTOR('simple', b.ardf_number) AS ardf,
 		TO_TSVECTOR('simple', o.outcrop_name) AS outcrop,
 		TO_TSVECTOR('simple', o.outcrop_number) AS outcropnumber,
+		TO_TSVECTOR('simple', pb.publication_title) AS publicationtitle,
+		TO_TSVECTOR('simple', pb.publication_description) AS publicationdescription,
+		TO_TSVECTOR('simple', pb.publication_number) AS publicationnumber,
+		TO_TSVECTOR('simple', pb.publication_series) AS publicationseries,
 		(
 			TO_TSVECTOR('simple', COALESCE(s.shotline_name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(s.shotline_name_alt, ''))
@@ -128,6 +132,10 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', CASE WHEN b.inventory_id IS NOT NULL THEN 'borehole' ELSE '' END)
 			|| TO_TSVECTOR('simple', CASE WHEN s.inventory_id IS NOT NULL THEN 'shotline' ELSE '' END)
 			|| TO_TSVECTOR('simple', CASE WHEN w.inventory_id IS NOT NULL THEN 'well' ELSE '' END)
+			|| TO_TSVECTOR('simple', COALESCE(pb.publication_title, ''))
+			|| TO_TSVECTOR('simple', COALESCE(pb.publication_description, ''))
+			|| TO_TSVECTOR('simple', COALESCE(pb.publication_number, ''))
+			|| TO_TSVECTOR('simple', COALESCE(pb.publication_series, ''))
 		) AS everything,
 		g.geog,
 		CASE WHEN ST_GeometryType(g.geog::GEOMETRY) = 'ST_Point' THEN
@@ -245,6 +253,17 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			DENSE_RANK() OVER(ORDER BY path_cache)::int AS location_sort
 		FROM container
 	) AS ct ON ct.container_id = i.container_id
+	LEFT OUTER JOIN (
+		SELECT ip.inventory_id,
+			STRING_AGG(p.title, ',') AS publication_title,
+			STRING_AGG(p.description, ',') AS publication_description,
+			STRING_AGG(p.publication_number, ',') AS publication_number,
+			STRING_AGG(p.publication_series, ',') AS publication_series
+		FROM inventory_publication AS ip
+		JOIN publication AS p
+			ON p.publication_id = ip.publication_id
+		GROUP BY ip.inventory_id
+	) AS pb ON pb.inventory_id = i.inventory_id
 	WHERE i.active
 );
 
