@@ -521,6 +521,13 @@ CREATE TABLE borehole_organization (
 );
 
 
+CREATE TABLE borehole_file (
+	borehole_id INT REFERENCES borehole(borehole_id),
+	file_id INT REFERENCES file(file_id),
+	PRIMARY KEY(borehole_id, file_id)
+);
+
+
 CREATE TABLE shotline (
 	shotline_id SERIAL PRIMARY KEY,
 	name VARCHAR(100) NOT NULL,
