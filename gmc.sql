@@ -437,6 +437,13 @@ CREATE TABLE outcrop_note (
 );
 
 
+CREATE TABLE outcrop_file (
+	outcrop_id INT REFERENCES outcrop(outcrop_id),
+	file_id INT REFERENCES file(file_id),
+	PRIMARY KEY(outcrop_id, file_id)
+);
+
+
 CREATE TABLE outcrop_organization (
 	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
 	organization_id INT REFERENCES organization(organization_id) NOT NULL,
