@@ -29,30 +29,3 @@ CREATE VIEW inventory_shotline_minmax AS (
 	WHERE sp.shotpoint_number IS NOT NULL
 	GROUP BY isp.inventory_id, sp.shotline_id
 );
-
-
-DROP VIEW IF EXISTS inventory_bin CASCADE;
-CREATE VIEW inventory_bin AS (
-	SELECT i.inventory_id, CASE
-		WHEN i.radiation_msvh > 0 THEN 'Radioactive'
-		WHEN il.inventory_id IS NOT NULL THEN 'Light-weight'
-		ELSE COALESCE(ig.name, 'Unknown' || COALESCE(' - ' || c.name, '')) END AS bin
-	FROM inventory AS i
-	LEFT OUTER JOIN collection AS c ON
-		c.collection_id = i.collection_id
-	LEFT OUTER JOIN (
-		SELECT DISTINCT ik.inventory_id
-		FROM inventory_keyword AS ik
-		JOIN keyword AS k ON k.keyword_id = ik.keyword_id
-		WHERE k.name IN (
-			'plug','washed','vial',
-			'crude','chips','seep'
-		)
-	) AS il ON il.inventory_id = i.inventory_id
-	LEFT OUTER JOIN (
-		SELECT DISTINCT ON (inventory_id) ig.inventory_id, g.name
-		FROM inventory_geog AS ig
-		JOIN gmc_region_geog AS gg ON ST_Intersects(gg.geog, ig.geog)
-		JOIN gmc_region AS g ON g.gmc_region_id = gg.gmc_region_id
-	) AS ig ON ig.inventory_id = i.inventory_id
-);

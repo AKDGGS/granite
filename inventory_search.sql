@@ -54,7 +54,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		TO_TSVECTOR('simple', pr.name) AS project,
 		TO_TSVECTOR('simple', q.quadrangle) AS quadrangle,
 		TO_TSVECTOR('simple', nt.notetype) AS notetype,
-		TO_TSVECTOR('english', nt.note) AS note,
+		TO_TSVECTOR('simple', nt.note) AS note,
 
 		(
 			TO_TSVECTOR('simple', COALESCE(i.barcode, ''))
@@ -103,8 +103,8 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', COALESCE(i.set_number, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.lab_number, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.box_number, ''))
-			|| TO_TSVECTOR('english', COALESCE(i.remark, ''))
-			|| TO_TSVECTOR('english', COALESCE(i.description, ''))
+			|| TO_TSVECTOR('simple', COALESCE(i.remark, ''))
+			|| TO_TSVECTOR('simple', COALESCE(i.description, ''))
 			|| TO_TSVECTOR('simple', COALESCE(w.well_name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(w.well_name_alt, ''))
 			|| TO_TSVECTOR('simple', COALESCE(w.well_number, ''))
@@ -126,7 +126,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', COALESCE(cl.organization, ''))
 			|| TO_TSVECTOR('simple', COALESCE(pr.name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(q.quadrangle, ''))
-			|| TO_TSVECTOR('english', COALESCE(nt.note, ''))
+			|| TO_TSVECTOR('simple', COALESCE(nt.note, ''))
 			|| TO_TSVECTOR('simple', COALESCE(nt.notetype, ''))
 			|| TO_TSVECTOR('simple', CASE WHEN o.inventory_id IS NOT NULL THEN 'outcrop' ELSE '' END)
 			|| TO_TSVECTOR('simple', CASE WHEN b.inventory_id IS NOT NULL THEN 'borehole' ELSE '' END)
