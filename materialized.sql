@@ -315,17 +315,13 @@ CREATE INDEX inventory_quadrangle_quadrangle_id_idx
 
 
 CREATE MATERIALIZED VIEW inventory_mining_district AS (
-	SELECT ik.inventory_id, mg.mining_district_id
-	FROM inventory_keyword AS ik
+	SELECT i.inventory_id, mg.mining_district_id
+	FROM inventory AS i
 	JOIN inventory_geog AS ig
-		ON ig.inventory_id = ik.inventory_id
+		ON ig.inventory_id = i.inventory_id
 	JOIN mining_district_geog AS mg
 		ON ST_Intersects(ig.geog, mg.geog)
-	WHERE ik.keyword_id = (
-		SELECT keyword_id FROM keyword
-		WHERE name = 'mineral' LIMIT 1
-	)
-	ORDER BY ik.inventory_id ASC
+	ORDER BY i.inventory_id ASC
 );
 
 CREATE INDEX inventory_mining_district_inventory_id_idx

@@ -285,5 +285,24 @@ CREATE INDEX gmc_region_geog_idx  ON gmc_region USING GIST(geog);
 DROP INDEX IF EXISTS utm_geog_idx;
 CREATE INDEX utm_geog_idx ON utm USING GIST(geog);
 
+CREATE OPERATOR CLASS _keyword_ops DEFAULT FOR TYPE public.keyword[] USING gin
+	family array_ops AS
+		function 1 enum_cmp(anyenum,anyenum),
+		function 2 pg_catalog.ginarrayextract(anyarray, internal),
+		function 3 ginqueryarrayextract(
+			anyarray, internal, smallint, internal,
+			internal, internal, internal
+		),
+		function 4 ginarrayconsistent(
+			internal, smallint, anyarray, integer, internal,
+			internal, internal, internal
+		),
+		function 6 ginarraytriconsistent(
+			internal, smallint, anyarray, integer, internal,
+			internal, internal
+		),
+	storage oid;
+
+CREATE INDEX ON inventory USING gin(keywords);
 
 COMMIT;

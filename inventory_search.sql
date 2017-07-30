@@ -18,7 +18,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			'[]'
 		) AS intervalrange,
 
-		k.keyword_ids,
+		i.keywords,
 		
 		qu.inventory_quality_id,
 	
@@ -36,6 +36,9 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 
 		CASE WHEN i.set_number IS NULL THEN NULL
 		ELSE DENSE_RANK() OVER(ORDER BY i.set_number)::int END AS set_sort,
+
+		CASE WHEN i.keywords IS NULL THEN NULL
+		ELSE DENSE_RANK() OVER(ORDER BY i.keywords)::int END AS keyword_sort,
 	
 		cl.collection_sort,	
 		ct.location_sort,	
@@ -43,7 +46,6 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		b.prospect_sort,
 		w.well_sort,
 		w.well_number_sort,
-		k.keyword_sort,
 		
 		TO_TSVECTOR('simple', i.sample_number) AS sample,
 		TO_TSVECTOR('simple', i.slide_number) AS slide,
@@ -55,6 +57,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		TO_TSVECTOR('simple', q.quadrangle) AS quadrangle,
 		TO_TSVECTOR('simple', nt.notetype) AS notetype,
 		TO_TSVECTOR('simple', nt.note) AS note,
+		TO_TSVECTOR('simple', COALESCE(ARRAY_TO_STRING(i.keywords, ','), '')) AS keyword,
 
 		(
 			TO_TSVECTOR('simple', COALESCE(i.barcode, ''))
@@ -90,9 +93,6 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			TO_TSVECTOR('simple', COALESCE(s.shotline_name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(s.shotline_name_alt, ''))
 		) AS shotline, (
-			TO_TSVECTOR('simple', COALESCE(k.keyword, ''))
-			|| TO_TSVECTOR('simple', COALESCE(k.keyword_alias, ''))
-		) AS keyword, (
 			TO_TSVECTOR('simple', i.inventory_id::varchar)
 			|| TO_TSVECTOR('simple', COALESCE(i.barcode, ''))
 			|| TO_TSVECTOR('simple', COALESCE(i.alt_barcode, ''))
@@ -118,8 +118,7 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 			|| TO_TSVECTOR('simple', COALESCE(o.outcrop_number, ''))
 			|| TO_TSVECTOR('simple', COALESCE(s.shotline_name, ''))
 			|| TO_TSVECTOR('simple', COALESCE(s.shotline_name_alt, ''))
-			|| TO_TSVECTOR('simple', COALESCE(k.keyword, ''))
-			|| TO_TSVECTOR('simple', COALESCE(k.keyword_alias, ''))
+			|| TO_TSVECTOR('simple', COALESCE(ARRAY_TO_STRING(i.keywords, ','), ''))
 			|| TO_TSVECTOR('simple', REPLACE(COALESCE(ct.path_cache, ''), '/', ' '))
 			|| TO_TSVECTOR('simple', REPLACE(COALESCE(ct.path_cache, ''), '/', ''))
 			|| TO_TSVECTOR('simple', COALESCE(cl.name, ''))
@@ -202,18 +201,6 @@ CREATE MATERIALIZED VIEW inventory_search AS (
 		GROUP BY inventory_id
 	) AS s ON s.inventory_id = i.inventory_id
 	LEFT OUTER JOIN (
-		SELECT ik.inventory_id,
-			ARRAY_AGG(k.keyword_id ORDER BY k.keyword_id) AS keyword_ids,
-			DENSE_RANK() OVER(
-				ORDER BY STRING_AGG(k.name, '' ORDER BY k.keyword_group_id, k.name)
-			)::int AS keyword_sort,
-			STRING_AGG(k.name, ' ') AS keyword,
-			STRING_AGG(k.alias, ' ') AS keyword_alias
-		FROM inventory_keyword AS ik
-		JOIN keyword AS k ON k.keyword_id = ik.keyword_id
-		GROUP BY ik.inventory_id
-	) AS k ON k.inventory_id = i.inventory_id
-	LEFT OUTER JOIN (
 		SELECT DISTINCT ON (inventory_id) inventory_id, geog
 		FROM inventory_geog
 	) AS g ON g.inventory_id = i.inventory_id
@@ -281,8 +268,8 @@ CREATE INDEX inventory_search_bottom_a_idx
 CREATE INDEX inventory_search_bottom_d_idx
 	ON inventory_search(bottom DESC NULLS LAST);
 
-CREATE INDEX inventory_search_keyword_ids_idx
-	ON inventory_search USING GIN(keyword_ids);
+CREATE INDEX inventory_search_keywords_idx
+	ON inventory_search USING GIN(keywords);
 CREATE INDEX inventory_search_intervalrange_idx
 	ON inventory_search USING GIST(intervalrange);
 
