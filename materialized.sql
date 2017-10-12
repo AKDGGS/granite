@@ -2,20 +2,13 @@ SET SCHEMA 'public';
 SET CLIENT_MIN_MESSAGES TO WARNING;
 
 
-DROP MATERIALIZED VIEW IF EXISTS
-	inventory_geog, well_geog, borehole_geog,
-	outcrop_geog, shotpoint_geog, quadrangle_geog,
-	mining_district_geog, gmc_region_geog,
-	energy_district_geog, shotline_geog,
-	inventory_quadrangle, inventory_mining_district
-CASCADE;
-
+DROP MATERIALIZED VIEW IF EXISTS inventory_geog;
 
 -- Materialized spatial view for inventory
 CREATE MATERIALIZED VIEW inventory_geog AS (
 	-- Boreholes
-	SELECT DISTINCT ON (inventory_id, borehole_id) inventory_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
+	SELECT DISTINCT ON (inventory_id, borehole_id)
+		inventory_id, geog
 	FROM ((
 		-- Borehole Point
 		SELECT ib.inventory_id, ib.borehole_id, p.geog
@@ -28,8 +21,8 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 	UNION ALL
 
 	-- Outcrops
-	SELECT DISTINCT ON (inventory_id, outcrop_id) inventory_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
+	SELECT DISTINCT ON (inventory_id, outcrop_id)
+		inventory_id, geog
 	FROM ((
 		-- Outcrop Point
 		SELECT io.inventory_id, io.outcrop_id, p.geog
@@ -69,8 +62,9 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 
 	UNION ALL
 
-	SELECT DISTINCT ON (inventory_id, well_id) inventory_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
+	-- Wells
+	SELECT DISTINCT ON (inventory_id, well_id)
+		inventory_id, geog
 	FROM ((
 		-- Well Point
 		SELECT iw.inventory_id, iw.well_id, p.geog
@@ -92,9 +86,9 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 
 	UNION ALL
 
-	-- Handle shotpoints(s) for inventory
+	-- Shotlines
 	SELECT inventory_id,
-		ST_Simplify(ST_Makeline(geog::geometry), 0.01)::geography AS geog
+		ST_Makeline(geog::geometry)::GEOGRAPHY AS geog
 	FROM (
 		SELECT isp.inventory_id, sp,shotline_id, p.geog
 		FROM inventory_shotpoint AS isp
@@ -107,8 +101,8 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 
 	UNION ALL
 
-	SELECT ip.inventory_id,
-		ST_Simplify(q.geog::geometry, 0.01)::geography AS geog
+	-- Publications
+	SELECT ip.inventory_id, q.geog
 	FROM inventory_publication AS ip
 	JOIN publication_quadrangle AS pq
 		ON pq.publication_id = ip.publication_id
@@ -116,215 +110,8 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 		ON q.quadrangle_id = pq.quadrangle_id
 );
 
+
 CREATE INDEX inventory_geog_inventory_id_idx
 	ON inventory_geog(inventory_id);
 CREATE INDEX inventory_geog_geog_idx
 	ON inventory_geog USING GIST(geog);
-
-
--- Materialized spatial view for well
-CREATE MATERIALIZED VIEW well_geog AS (
-	SELECT DISTINCT ON (well_id) well_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
-	FROM (
-		-- Point
-		SELECT wp.well_id, po.geog
-		FROM well_point AS wp
-		JOIN point AS po ON po.point_id = wp.point_id
-		WHERE po.geog IS NOT NULL
-	
-		UNION ALL
-	
-		-- Place
-		SELECT wp.well_id, pl.geog
-		FROM well_place AS wp
-		JOIN place AS pl ON pl.place_id = wp.place_id
-		WHERE pl.geog IS NOT NULL
-	
-	) AS v
-);
-
-CREATE INDEX well_geog_well_id_idx
-	ON well_geog(well_id);
-CREATE INDEX well_geog_geog_idx
-	ON well_geog USING GIST(geog);
-
-
--- Materialized spatial view for borehole
-CREATE MATERIALIZED VIEW borehole_geog AS (
-	SELECT DISTINCT ON (bp.borehole_id)
-		bp.borehole_id, po.geog
-	FROM borehole_point AS bp
-	JOIN point AS po ON po.point_id = bp.point_id
-	WHERE po.geog IS NOT NULL
-);
-
-CREATE INDEX borehole_geog_borehole_id_idx
-	ON borehole_geog(borehole_id);
-CREATE INDEX borehole_geog_geog_idx
-	ON borehole_geog USING GIST(geog);
-
-
--- Materialized spatial view for outcrop
-CREATE MATERIALIZED VIEW outcrop_geog AS (
-	SELECT DISTINCT ON (outcrop_id) outcrop_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
-	FROM (
-		-- Point
-		SELECT op.outcrop_id, po.geog
-		FROM outcrop_point AS op
-		JOIN point AS po ON po.point_id = op.point_id
-		WHERE po.geog IS NOT NULL
-
-		UNION ALL
-
-		-- Place
-		SELECT op.outcrop_id, pl.geog
-		FROM outcrop_place AS op
-		JOIN place AS pl ON pl.place_id = op.place_id
-		WHERE pl.geog IS NOT NULL
-
-		UNION ALL
-
-		-- PLSS
-		SELECT op.outcrop_id, pl.geog
-		FROM outcrop_plss AS op
-		JOIN plss AS pl ON pl.plss_id = op.plss_id
-		WHERE pl.geog IS NOT NULL
-
-		UNION ALL
-
-		-- Quadrangle
-		SELECT oq.outcrop_id, qu.geog
-		FROM outcrop_quadrangle AS oq
-		JOIN quadrangle AS qu ON qu.quadrangle_id = oq.quadrangle_id
-		WHERE qu.geog IS NOT NULL
-	) AS v
-);
-
-CREATE INDEX outcrop_geog_outcrop_id_idx
-	ON outcrop_geog(outcrop_id);
-CREATE INDEX outcrop_geog_geog_idx
-	ON outcrop_geog USING GIST(geog);
-
-
--- Materialized spatial view for shotpoint
-CREATE MATERIALIZED VIEW shotpoint_geog AS (
-	SELECT DISTINCT ON (sp.shotpoint_id)
-		sp.shotpoint_id, po.geog
-	FROM shotpoint_point AS sp
-	JOIN point AS po ON po.point_id = sp.point_id
-	WHERE po.geog IS NOT NULL
-);
-
-CREATE INDEX shotpoint_geog_shotpoint_id_idx
-	ON shotpoint_geog(shotpoint_id);
-CREATE INDEX shotpoint_geog_geog_idx
-	ON shotpoint_geog USING GIST(geog);
-
-
--- Materialized spatial view for quadrangle
-CREATE MATERIALIZED VIEW quadrangle_geog AS (
-	SELECT quadrangle_id, scale,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
-	FROM quadrangle
-);
-
-CREATE INDEX quadrangle_geog_quadrangle_id_idx
-	ON quadrangle_geog(quadrangle_id);
-CREATE INDEX quadrangle_geog_scale_idx
-	ON quadrangle_geog(scale);
-CREATE INDEX quadrangle_geog_geom_idx
-	ON quadrangle_geog USING GIST(geog);
-
-
--- Materialized spatial view for mining_district
-CREATE MATERIALIZED VIEW mining_district_geog AS (
-	SELECT mining_district_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
-	FROM mining_district
-);
-
-CREATE INDEX mining_district_geog_mining_district_id_idx
-	ON mining_district_geog(mining_district_id);
-CREATE INDEX mining_district_geog_geom_idx
-	ON mining_district_geog USING GIST(geog);
-
-
--- Materialized spatial view for energy_district
-CREATE MATERIALIZED VIEW energy_district_geog AS (
-	SELECT energy_district_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
-	FROM energy_district
-);
-
-CREATE INDEX energy_district_geog_energy_district_id_idx
-	ON energy_district_geog(energy_district_id);
-CREATE INDEX energy_district_geog_geom_idx
-	ON energy_district_geog USING GIST(geog);
-
-
--- Materialized spatial view for gmc_region
-CREATE MATERIALIZED VIEW gmc_region_geog AS (
-	SELECT gmc_region_id,
-		ST_Simplify(geog::geometry, 0.01)::geography AS geog
-	FROM gmc_region
-);
-
-CREATE INDEX gmc_region_geog_gmc_region_id_idx
-	ON gmc_region_geog(gmc_region_id);
-CREATE INDEX gmc_region_geog_geom_idx
-	ON gmc_region_geog USING GIST(geog);
-
-
--- Materialized spatial view for shotline that merges all shotpoints into
--- a line
-CREATE MATERIALIZED VIEW shotline_geog AS (
-  SELECT shotline_id,
-		ST_Makeline(geog::geometry)::geography AS geog
-  FROM (
-    SELECT sp.shotline_id, p.geog
-    FROM shotpoint AS sp
-    JOIN shotpoint_point AS spp ON spp.shotpoint_id = sp.shotpoint_id
-    JOIN point AS p ON p.point_id = spp.point_id
-    ORDER BY sp.shotline_id ASC, sp.shotpoint_number DESC
-  ) AS q
-  GROUP BY shotline_id
-);
-
-CREATE INDEX shotline_geog_shotline_id_idx
-	ON shotline_geog(shotline_id);
-CREATE INDEX shotline_geog_geog_idx
-	ON shotline_geog USING GIST(geog);
-
-
--- Materialized view for quickly joining quadrangle to inventory
-CREATE MATERIALIZED VIEW inventory_quadrangle AS (
-	SELECT ig.inventory_id, qg.quadrangle_id
-	FROM inventory_geog AS ig
-	JOIN quadrangle_geog AS qg
-		ON ST_Intersects(ig.geog, qg.geog)
-	WHERE qg.scale = 250000
-	ORDER BY ig.inventory_id ASC
-);
-
-CREATE INDEX inventory_quadrangle_inventory_id_idx
-	ON inventory_quadrangle(inventory_id);
-CREATE INDEX inventory_quadrangle_quadrangle_id_idx
-	ON inventory_quadrangle(quadrangle_id);
-
-
-CREATE MATERIALIZED VIEW inventory_mining_district AS (
-	SELECT i.inventory_id, mg.mining_district_id
-	FROM inventory AS i
-	JOIN inventory_geog AS ig
-		ON ig.inventory_id = i.inventory_id
-	JOIN mining_district_geog AS mg
-		ON ST_Intersects(ig.geog, mg.geog)
-	ORDER BY i.inventory_id ASC
-);
-
-CREATE INDEX inventory_mining_district_inventory_id_idx
-	ON inventory_mining_district(inventory_id);
-CREATE INDEX inventory_mining_district_mining_district_id_idx
-	ON inventory_mining_district(mining_district_id);
