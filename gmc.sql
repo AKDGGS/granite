@@ -637,17 +637,17 @@ CREATE TYPE keyword AS ENUM (
 	'mercury injection capillary pressure', 'microfossil',
 	'nannoplankton', 'organic geochemistry', 'ostracod',
 	'paleomagnetic', 'palynology', 'pan concentrate', 'petrology',
-	'porosity and permeability', 'potassium argon', 'radiocarbon',
-	'radiolarian', 'scanning electron microscope', 'siliceous fossil',
-	'spiral concentrate', 'spiral tail', 'strain analysis',
-	'tephrochronology', 'thin section', 'total organic carbon',
-	'trace element', 'undetermined analysis', 'vitrinite', 'whole rock',
-	'xray diffraction', 'xray fluorescence', 'zircon', 'auger', 'billet',
-	'bulk pieces', 'bulk reject', 'butt', 'canned', 'center cut',
-	'center split', 'chips', 'coal', 'crude oil', 'crushed',
-	'debris flow', 'dredge', 'gravel', 'hand sample', 'lava', 'lava flow',
-	'map', 'organic material', 'periodical', 'photo', 'plug', 'pulp',
-	'pyroclastic flow', 'quality control', 'quarter round', 'report',
+	'porosity and permeability', 'potassium argon', 'powder', 
+	'radiocarbon', 'radiolarian', 'scanning electron microscope',
+	'siliceous fossil', 'spiral concentrate', 'spiral tail',
+	'strain analysis', 'tephrochronology', 'thin section',
+	'total organic carbon', 'trace element', 'undetermined analysis',
+	'vitrinite', 'whole rock', 'xray diffraction', 'xray fluorescence',
+	'zircon', 'auger', 'billet', 'bulk pieces', 'bulk reject', 'butt',
+	'canned', 'center cut', 'center split', 'chips', 'coal', 'crude oil',
+	'crushed', 'debris flow', 'dredge', 'gravel', 'hand sample', 'lava',
+	'lava flow', 'map', 'organic material', 'periodical', 'photo', 'plug',
+	'pulp', 'pyroclastic flow', 'quality control', 'quarter round', 'report',
 	'rocker', 'rubble', 'sand', 'sediment', 'seep oil', 'shothole',
 	'sidewall', 'silt', 'slab', 'slide', 'soil', 'stream sediment',
 	'tailing', 'tephra fall', 'trench', 'trimming', 'undetermined form',
@@ -794,9 +794,9 @@ CREATE TABLE inventory_shotpoint (
 
 
 CREATE TYPE issue AS ENUM (
-	'needs_detail', 'unsorted', 'radiation_risk',
+	'needs_inventory', 'unsorted', 'radiation_risk',
 	'material_damaged', 'box_damaged', 'missing',
-	'data_missing', 'barcode_missing',
+	'needs_metadata', 'barcode_missing',
 	'label_obscured', 'insufficient_material'
 );
 
