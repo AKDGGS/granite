@@ -65,6 +65,7 @@ DROP TABLE IF EXISTS
 	publication_quadrangle,
 	publication_url,
 	quadrangle,
+	region,
 	sample,
 	sample_file,
 	sample_process_inventory,

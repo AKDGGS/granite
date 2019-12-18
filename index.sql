@@ -270,6 +270,13 @@ CREATE INDEX place_geog_idx ON place USING GIST(geog);
 DROP INDEX IF EXISTS place_geog_btree_idx;
 CREATE INDEX place_geog_btree_idx ON place(geog);
 
+DROP INDEX IF EXISTS region_geog_idx;
+CREATE INDEX region_geog_idx ON region USING GIST(geog);
+
+-- B-tree to optimize against IS NULL/IS NOT NULL
+DROP INDEX IF EXISTS region_geog_btree_idx;
+CREATE INDEX region_geog_btree_idx ON region(geog);
+
 DROP INDEX IF EXISTS quadrangle_geog_idx;
 CREATE INDEX quadrangle_geog_idx ON quadrangle USING GIST(geog);
 

@@ -53,6 +53,14 @@ CREATE TABLE place (
 );
 
 
+CREATE TABLE region (
+	region_id SERIAL PRIMARY KEY,
+	name VARCHAR(150) NOT NULL,
+	type VARCHAR(20) NOT NULL,
+	geog GEOGRAPHY(MultiPolygon) NULL
+);
+
+
 CREATE TABLE url_type (
 	url_type_id SERIAL PRIMARY KEY,
 	name VARCHAR(50)
@@ -332,6 +340,13 @@ CREATE TABLE well_place (
 );
 
 
+CREATE TABLE well_region (
+	well_id INT REFERENCES well(well_id) NOT NULL,
+	region_id INT REFERENCES region(region_id) NOT NULL,
+	PRIMARY KEY(well_id, region_id)
+);
+
+
 CREATE TABLE well_point (
 	well_id INT REFERENCES well(well_id) NOT NULL,
 	point_id INT REFERENCES point(point_id) NOT NULL,
@@ -455,6 +470,13 @@ CREATE TABLE outcrop_place (
 	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
 	place_id INT REFERENCES place(place_id) NOT NULL,
 	PRIMARY KEY(outcrop_id, place_id)
+);
+
+
+CREATE TABLE outcrop_region (
+	outcrop_id INT REFERENCES outcrop(outcrop_id) NOT NULL,
+	region_id INT REFERENCES region(region_id) NOT NULL,
+	PRIMARY KEY(outcrop_id, region_id)
 );
 
 
