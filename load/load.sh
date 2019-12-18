@@ -25,3 +25,6 @@ fi
 
 /bin/gzip -d -c gmc_region.csv.gz | /usr/bin/psql -d $DATABASE -c \
 	"\\COPY gmc_region (name, geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
+
+/bin/gzip -d -c sedimentary_basins.csv.gz | /usr/bin/psql -d $DATABASE -c \
+	"\\COPY region (name,type,geog) FROM STDIN WITH (FORMAT CSV, DELIMITER '|');"
