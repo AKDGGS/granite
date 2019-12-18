@@ -33,6 +33,15 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 
 		) UNION ALL (
 
+		-- Outcrop PLSS
+		SELECT io.inventory_id, io.outcrop_id, p.geog
+		FROM inventory_outcrop AS io
+		JOIN outcrop_plss AS op ON op.outcrop_id = io.outcrop_id
+		JOIN plss AS p ON p.plss_id = op.plss_id
+		WHERE p.geog IS NOT NULL
+
+		) UNION ALL (
+
 		-- Outcrop Place
 		SELECT io.inventory_id, io.outcrop_id, p.geog
 		FROM inventory_outcrop AS io
@@ -42,13 +51,13 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 
 		) UNION ALL (
 
-		-- Outcrop PLSS
+		-- Outcrop Region
 		SELECT io.inventory_id, io.outcrop_id, p.geog
 		FROM inventory_outcrop AS io
-		JOIN outcrop_plss AS op ON op.outcrop_id = io.outcrop_id
-		JOIN plss AS p ON p.plss_id = op.plss_id
+		JOIN outcrop_region AS op ON op.outcrop_id = io.outcrop_id
+		JOIN region AS p ON p.region_id = op.region_id
 		WHERE p.geog IS NOT NULL
-
+		
 		) UNION ALL (
 
 		-- Outcrop Quadrangle
@@ -82,6 +91,14 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 		JOIN place AS p ON p.place_id = wp.place_id
 		WHERE p.geog IS NOT NULL
 
+		) UNION ALL (
+
+		-- Well Region
+		SELECT iw.inventory_id, iw.well_id, p.geog
+		FROM inventory_well AS iw
+		JOIN well_region AS wp ON wp.well_id = iw.well_id
+		JOIN region AS p ON p.region_id = wp.region_id
+		WHERE p.geog IS NOT NULL
 	)) AS q
 
 	UNION ALL
