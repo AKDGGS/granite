@@ -107,7 +107,7 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 	SELECT inventory_id,
 		ST_Makeline(geog::geometry)::GEOGRAPHY AS geog
 	FROM (
-		SELECT isp.inventory_id, sp,shotline_id, p.geog
+		SELECT isp.inventory_id, sp.shotline_id, p.geog
 		FROM inventory_shotpoint AS isp
 		JOIN shotpoint AS sp ON sp.shotpoint_id = isp.shotpoint_id
 		JOIN shotpoint_point AS spp ON spp.shotpoint_id = sp.shotpoint_id
