@@ -104,17 +104,22 @@ CREATE MATERIALIZED VIEW inventory_geog AS (
 	UNION ALL
 
 	-- Shotlines
-	SELECT inventory_id,
-		ST_Makeline(geog::geometry)::GEOGRAPHY AS geog
+	SELECT inventory_id, 
+		CASE WHEN ST_NumPoints(geom) > 1 THEN
+			ST_Simplify(geom,0.0001)::GEOGRAPHY
+		ELSE
+			ST_PointN(geom, 1)::GEOGRAPHY
+		END AS geog
 	FROM (
-		SELECT isp.inventory_id, sp.shotline_id, p.geog
+		SELECT isp.inventory_id,
+			ST_Makeline(geog::geometry ORDER BY sp.shotpoint_number) AS geom
 		FROM inventory_shotpoint AS isp
 		JOIN shotpoint AS sp ON sp.shotpoint_id = isp.shotpoint_id
 		JOIN shotpoint_point AS spp ON spp.shotpoint_id = sp.shotpoint_id
 		JOIN point AS p ON p.point_id = spp.point_id
-		ORDER BY isp.inventory_id, sp.shotline_id ASC, sp.shotpoint_number
+		GROUP BY isp.inventory_id, sp.shotline_id
+		ORDER BY isp.inventory_id, sp.shotline_id ASC
 	) AS q
-	GROUP BY inventory_id, shotline_id
 
 	UNION ALL
 
