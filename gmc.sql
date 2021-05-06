@@ -3,9 +3,10 @@ SET CLIENT_MIN_MESSAGES TO WARNING;
 
 BEGIN;
 
-CREATE TABLE api (
-	username VARCHAR(64) PRIMARY KEY,
-	api VARCHAR(128) NOT NULL
+CREATE TABLE token (
+	token_id SERIAL PRIMARY KEY,
+	token VARCHAR(128) NOT NULL UNIQUE,
+	description VARCHAR(255)
 );
 
 
@@ -679,7 +680,8 @@ CREATE TYPE keyword AS ENUM (
 	'igneous', 'metamorphic', 'mineral species', 'pillbox',
 	'polished', 'recent', 'reference', 'sedimentary',
 	'skeleton', 'stained', 'teaching', 'thermochronology',
-	'uranium lead', 'waxed'
+	'uranium lead', 'waxed', 'index', 'dart', 'preserved',
+	'sieve fraction', 'foamed'
 );
 
 CREATE TABLE inventory (
