@@ -699,7 +699,7 @@ CREATE TABLE inventory (
 	sample_number VARCHAR(50) NULL,
 	sample_number_prefix VARCHAR(25) NULL,
 	alt_sample_number VARCHAR(25) NULL,
-	published_sample_number VARCHAR(25) NULL,
+	published_sample_number VARCHAR(50) NULL,
 	published_number_has_suffix BOOLEAN NOT NULL DEFAULT false,
 	barcode VARCHAR(25) NULL,
 	alt_barcode VARCHAR(25) NULL,
