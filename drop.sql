@@ -76,7 +76,6 @@ DROP TABLE IF EXISTS
 	shotpoint_point,
 	unit,
 	url,
-	url_type,
 	utm,
 	utm_type,
 	visitor,

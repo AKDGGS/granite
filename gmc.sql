@@ -62,15 +62,16 @@ CREATE TABLE region (
 );
 
 
-CREATE TABLE url_type (
-	url_type_id SERIAL PRIMARY KEY,
-	name VARCHAR(50)
+CREATE TYPE urltype AS ENUM (
+	'blm report', 'bom report', 'dggs report', 
+	'usgs report', 'well history', 'well log', 
+	'geologic data', 'internal report', 'location', 
+	'gmc data report', 'commercial analysis'
 );
-
 
 CREATE TABLE url (
 	url_id SERIAL PRIMARY KEY,
-	url_type_id INT REFERENCES url_type(url_type_id) NOT NULL,
+	url_type urltype NOT NULL,
 	description VARCHAR(255) NULL,
 	url TEXT
 );
@@ -847,5 +848,5 @@ CREATE TABLE audit (
 	barcode VARCHAR(25) NOT NULL
 );
 
-
 COMMIT;
+
