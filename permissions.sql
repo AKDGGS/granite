@@ -9,6 +9,6 @@ GRANT USAGE ON SCHEMA public TO GROUP gmc;
 GRANT USAGE, SELECT, UPDATE ON ALL SEQUENCES IN SCHEMA public TO GROUP gmc;
 
 -- Keep the token table from everyone except the webapp
-REVOKE ALL ON TABLE token FROM public;
+REVOKE ALL ON TABLE token FROM gmc;
 GRANT SELECT ON TABLE token TO gmc_app;
 GRANT SELECT, USAGE ON SEQUENCE token_token_id_seq TO gmc_app;
