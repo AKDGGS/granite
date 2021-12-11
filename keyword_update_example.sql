@@ -49,24 +49,4 @@ ALTER TYPE kw RENAME TO keyword;
 
 ALTER TABLE inventory RENAME COLUMN kws TO keywords;
 
--- IMPORTANT NOTE:
--- Operators can only be created by super users
-CREATE OPERATOR CLASS _keyword_ops DEFAULT FOR TYPE public.keyword[] USING gin
-	family array_ops AS
-		function 1 enum_cmp(anyenum,anyenum),
-		function 2 pg_catalog.ginarrayextract(anyarray, internal),
-		function 3 ginqueryarrayextract(
-			anyarray, internal, smallint, internal,
-			internal, internal, internal
-		),
-		function 4 ginarrayconsistent(
-			internal, smallint, anyarray, integer, internal,
-			internal, internal, internal
-		),
-		function 6 ginarraytriconsistent(
-			internal, smallint, anyarray, integer, internal,
-			internal, internal
-		),
-	storage oid;
-
 CREATE INDEX ON inventory USING gin(keywords);
