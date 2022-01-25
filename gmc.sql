@@ -95,17 +95,15 @@ CREATE TABLE file (
 );
 
 
-CREATE TABLE unit (
-	unit_id SERIAL PRIMARY KEY,
-	name VARCHAR(100) NOT NULL,
-	abbr VARCHAR(5) NOT NULL,
-	description VARCHAR(255) NULL
+CREATE TYPE units AS ENUM (
+	'µm', 'g', 'kg', 'lbs', 
+	'cm', 'm', 'ft', 'in'
 );
 
 
 CREATE TABLE dimension (
 	dimension_id SERIAL PRIMARY KEY,
-	unit_id INT REFERENCES unit(unit_id) NOT NULL,
+	unit units NOT NULL,
 
 	name VARCHAR(50) NOT NULL,
 	height NUMERIC(10,2) NOT NULL,
@@ -124,7 +122,7 @@ CREATE TABLE utm_type (
 CREATE TABLE utm (
 	utm_id SERIAL PRIMARY KEY,
 	utm_type_id INT REFERENCES utm_type(utm_type_id) NULL,
-	unit_id INT REFERENCES unit(unit_id) NULL,
+	unit units NULL,
 	description VARCHAR(255) NULL,
 	zone VARCHAR(3) NULL,
 	easting INT NULL,
@@ -264,7 +262,7 @@ CREATE TABLE core_diameter (
 	core_diameter_id SERIAL PRIMARY KEY,
 	core_diameter NUMERIC(10,2) NOT NULL,
 	name VARCHAR(100) NULL,
-	unit_id INT REFERENCES unit(unit_id) NULL
+	unit units NULL
 );
 
 
@@ -322,7 +320,7 @@ CREATE TABLE well (
 	vertical_depth NUMERIC(10, 2) NULL,
 	elevation NUMERIC(10, 2) NULL,
 	elevation_kb NUMERIC(10, 2) NULL,
-	unit_id INT REFERENCES unit(unit_id) NULL,
+	unit units NULL,
 	permit_number INT NULL,
 
 	permit_status VARCHAR(6) NULL,
@@ -393,7 +391,7 @@ CREATE TABLE well_stratigraphy (
 	measured_depth_bottom NUMERIC(8, 2) NULL,
 	vertical_depth_top NUMERIC(8, 2) NULL,
 	vertical_depth_bottom NUMERIC(8, 2) NULL,
-	unit_id INT REFERENCES unit(unit_id) NULL,
+	unit units NULL,
 	published_date DATE NULL,
 	remark TEXT NULL
 );
@@ -514,9 +512,9 @@ CREATE TABLE borehole (
 	is_onshore BOOLEAN NOT NULL DEFAULT true,
 	completion_date DATE NULL,
 	measured_depth NUMERIC(8, 2) NULL,
-	measured_depth_unit_id INT REFERENCES unit(unit_id) NULL,
+	measured_depth_unit units NULL,
 	elevation NUMERIC(8, 2) NULL,
-	elevation_unit_id INT REFERENCES unit(unit_id) NULL,
+	elevation_unit units NULL,
 	entered_date DATE NULL DEFAULT NOW(),
 	modified_date TIMESTAMP WITHOUT TIME ZONE NULL,
 	modified_user VARCHAR(64) NULL,
@@ -722,13 +720,13 @@ CREATE TABLE inventory (
 
 	interval_top NUMERIC(8,2) NULL,
 	interval_bottom NUMERIC(8,2) NULL,
-	interval_unit_id INT REFERENCES unit(unit_id) NULL,
+	interval_unit units NULL,
 
 	core_number VARCHAR(25) NULL,
 	core_diameter_id INT REFERENCES core_diameter(core_diameter_id) NULL,
 
 	weight NUMERIC(10, 2) NULL,
-	weight_unit_id INT REFERENCES unit(unit_id) NULL,
+	weight_unit units NULL,
 
 	-- This is a hack  This field should eventually be replaced
 	-- with an integer field called "interval_frequency"
